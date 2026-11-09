@@ -1,0 +1,172 @@
+{
+  "users": {
+    "p_1793964106589_qhraai": {
+      "id": "p_1793964106589_qhraai",
+      "nickname": "G_Player_240",
+      "avatarIndex": 2,
+      "telegramId": "tg_1793995524158",
+      "telegramUsername": "UZBTOP_712",
+      "createdAt": 1793964106645,
+      "stats": {
+        "gamesPlayed": 8,
+        "wins": 1,
+        "mafiaWins": 1,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {
+          "detective": 1,
+          "maniac": 1,
+          "citizen": 2,
+          "doctor": 2,
+          "mafia": 1,
+          "jester": 1
+        }
+      },
+      "achievements": [
+        "first_game",
+        "first_win"
+      ],
+      "friends": [],
+      "mmr": 935
+    },
+    "usr_1793999003567_3v096": {
+      "id": "usr_1793999003567_3v096",
+      "email": "mafia_player_1793999003567@example.com",
+      "passwordHash": "cdef932105032c90b5b44049332e25b0:b1de9cbeedd9b1a300ed826d85f188ffad09c0512dbb54cc41c691de14ab1195bfaa8922b0ffcfb8b6106a559a6452aae703e2abfa43750e03a114d6b0be2360",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1793999003567,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_g_1793999003569_4yzx": {
+      "id": "usr_g_1793999003569_4yzx",
+      "email": "google_user@gmail.com",
+      "googleId": "g_12345",
+      "nickname": "Google_Qahramon",
+      "avatarIndex": 2,
+      "createdAt": 1793999003569,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_g_1793999202102_hqbs": {
+      "id": "usr_g_1793999202102_hqbs",
+      "email": "player_8519@gmail.com",
+      "googleId": "g_1793999202102",
+      "nickname": "G_Player_240",
+      "avatarIndex": 1,
+      "createdAt": 1793999202102,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_1794001388655_8w2fd": {
+      "id": "usr_1794001388655_8w2fd",
+      "email": "mafia_player_1794001388655@example.com",
+      "passwordHash": "e163d0501538e3e2d805fee5db932815:bab6cbf398b463b34b584142fa5ec606312a7fa118e284ee8b87a5e471e5f66820c7a24c66c85ad0d7a71e789ff600611a0e4b7aadda4fc6c01eac7f1c5fc514",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1794001388655,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_1794002966943_t2v11": {
+      "id": "usr_1794002966943_t2v11",
+      "email": "mafia_player_1794002966942@example.com",
+      "passwordHash": "09a958807dd15322e6c3382c3b0b1f2c:991b6f12f0d6ca4b22012bc31f31be57dd46751bd6d29f5266ef3eaeb6d78843bf5da9d3a21ef96bf907b951ab8e4b2b01371f1519ab1026fb11cad7a6297227",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1794002966943,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_1794003056245_8f83i": {
+      "id": "usr_1794003056245_8f83i",
+      "email": "mafia_player_1794003056245@example.com",
+      "passwordHash": "d4361e7307a4f2b211be7391ef59b853:5d5dd460a363f365f0fa37f938ed054137b48ebdbfe1aaf9bcb3c873af7a37acd090ce9f270e8fc00714bd04436d668011b435e10e2d48e513fa69e30f6e1cf2",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1794003056245,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    }
+  },
+  "reports": [],
+  "bannedUsers": {},
+  "mutedUsers": {},
+  "customPresets": {}
+}

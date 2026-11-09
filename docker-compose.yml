@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mafiya-server:
+    build: .
+    container_name: mafiya-server-7122
+    restart: unless-stopped
+    ports:
+      - "7122:7122"
+    environment:
+      - PORT=7122
+      - NODE_ENV=production
+      - JWT_SECRET=mafiya_super_secret_jwt_key_7122_prod
+      - ADMIN_KEY=admin7122
+      - DISCONNECT_GRACE_SECONDS=60
+      - RATE_LIMIT_CHAT_PER_SEC=4
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=mongodb://mongo:27017/mafiya
+      - SENTRY_DSN=${SENTRY_DSN:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    depends_on:
+      - redis
+      - mongo
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+
+  redis:
+    image: redis:7-alpine
+    container_name: mafiya-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  mongo:
+    image: mongo:7.0
+    container_name: mafiya-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  redis-data:
+  mongo-data:
