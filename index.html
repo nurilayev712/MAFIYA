@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MAFIYA Enterprise — Onlayn Ko'p O'yinchili O'yin</title>
+  
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#ff2a44">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mafiya">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="theme-dark">
+  <div class="blood-bg-overlay"></div>
+  <div class="smoke-effect"></div>
+
+  <!-- Yuqori global bar -->
+  <header class="app-header">
+    <div class="brand-logo" id="brand-logo">
+      <i class="fa-solid fa-skull-crossbones blood-red-icon"></i>
+      <span>MAFIYA</span>
+      <span class="server-ping-badge" id="server-ping"><span class="ping-dot"></span> <span id="ping-text">24ms</span></span>
+    </div>
+
+    <div class="header-actions">
+      <!-- Reyting Jadvali (Leaderboard) -->
+      <button class="icon-btn" id="btn-open-leaderboard" title="Reyting Jadvali">
+        <i class="fa-solid fa-ranking-star" style="color:var(--gold-accent)"></i>
+        <span class="btn-text">TOP MMR</span>
+      </button>
+
+      <!-- Tomoshabin (Jonli o'yinlar) -->
+      <button class="icon-btn" id="btn-open-spectator" title="Jonli o'yinlarni tomosha qilish">
+        <i class="fa-solid fa-eye" style="color:#60a5fa"></i>
+        <span class="btn-text">Jonli</span>
+      </button>
+
+      <!-- Kirish / Ro'yxatdan o'tish -->
+      <button class="icon-btn" id="btn-open-auth" title="Kirish / Ro'yxatdan o'tish">
+        <i class="fa-solid fa-user-lock"></i>
+        <span class="btn-text" id="header-auth-label">Kirish</span>
+      </button>
+
+      <!-- Profil & Statistika -->
+      <button class="icon-btn" id="btn-open-profile" title="Profil va Statistika">
+        <i class="fa-solid fa-user"></i>
+        <span class="btn-text" data-i18n="profile">Profil</span>
+      </button>
+
+      <!-- Do'stlar -->
+      <button class="icon-btn" id="btn-open-friends" title="Do'stlar">
+        <i class="fa-solid fa-user-group"></i>
+        <span class="btn-text" data-i18n="friends">Do'stlar</span>
+      </button>
+
+      <!-- Yutuqlar -->
+      <button class="icon-btn" id="btn-open-achievements" title="Yutuqlar">
+        <i class="fa-solid fa-trophy"></i>
+        <span class="btn-text" data-i18n="achievements">Yutuqlar</span>
+      </button>
+
+      <!-- Admin Panel tugmasi -->
+      <button class="icon-btn btn-admin-shortcut" id="btn-open-admin" title="Admin Paneli">
+        <i class="fa-solid fa-shield-halved" style="color:#ff5252"></i>
+      </button>
+
+      <!-- Til tanlash -->
+      <div class="lang-selector">
+        <button class="icon-btn btn-lang" id="btn-lang-toggle" title="Tilni tanlash">
+          <i class="fa-solid fa-globe"></i>
+          <span id="current-lang-text">UZ</span>
+        </button>
+        <div class="lang-dropdown" id="lang-dropdown" style="display:none;">
+          <div class="lang-opt" data-lang="uz">🇺🇿 O'zbek</div>
+          <div class="lang-opt" data-lang="ru">🇷🇺 Русский</div>
+          <div class="lang-opt" data-lang="en">🇬🇧 English</div>
+        </div>
+      </div>
+
+      <!-- Server Sozlamasi (GitHub Pages & Remote) -->
+      <button class="icon-btn" id="btn-open-server-settings" title="Server sozlamalari">
+        <i class="fa-solid fa-server" style="color:#a78bfa"></i>
+      </button>
+
+      <!-- Qoidalar -->
+      <button class="icon-btn" id="rules-btn" title="O'yin qoidalari">
+        <i class="fa-solid fa-circle-question"></i>
+      </button>
+
+      <!-- Ovoz -->
+      <button class="icon-btn" id="sound-btn" title="Tovushni yoqish/o'chirish">
+        <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ASOSIY KONTEYNER -->
+  <main class="main-container">
+
+    <!-- 1-EKRAN: BOSH SAHIFA (HOME) -->
+    <section class="screen active" id="screen-home">
+      <div class="hero-card glass-panel">
+        <div class="hero-title-wrap">
+          <div class="blood-badge">Enterprise & MMR Matchmaking</div>
+          <h1 class="game-title" data-i18n="gameTitle">MAFIYA</h1>
+          <p class="game-subtitle" data-i18n="gameSubtitle">Shahar uyquga ketganda, kimningdir so'nggi nafasiga guvoh bo'lasiz...</p>
+        </div>
+
+        <div class="auth-box">
+          <div class="form-group">
+            <label for="player-name-input"><i class="fa-solid fa-user-ninja"></i> <span data-i18n="enterNickname">Taxallus (Ism)</span></label>
+            <input type="text" id="player-name-input" maxlength="15" placeholder="Ismingizni kiriting..." autocomplete="off">
+          </div>
+
+          <div class="form-group">
+            <label><i class="fa-solid fa-mask"></i> <span data-i18n="chooseAvatar">Qahramon avatari</span></label>
+            <div class="avatar-selector" id="avatar-selector">
+              <!-- JS orqali generatsiya qilinadi -->
+            </div>
+          </div>
+
+          <!-- Telegram Login -->
+          <div class="telegram-login-wrap">
+            <button class="btn btn-telegram" id="btn-telegram-login">
+              <i class="fa-brands fa-telegram"></i>
+              <span data-i18n="telegramLogin">Telegram orqali tezkor kirish</span>
+            </button>
+          </div>
+
+          <!-- Asosiy 3 ta tugma -->
+          <div class="action-buttons-stack">
+            <button class="btn btn-quick-match btn-glow" id="btn-quick-match">
+              <i class="fa-solid fa-bolt"></i>
+              <span data-i18n="quickMatch">Tasodifiy o'yinga qo'shilish (MMR)</span>
+            </button>
+
+            <div class="action-buttons-grid">
+              <button class="btn btn-primary" id="btn-show-create-modal">
+                <i class="fa-solid fa-plus-circle"></i>
+                <span data-i18n="createRoom">Xona yaratish</span>
+              </button>
+
+              <button class="btn btn-secondary" id="btn-show-join-modal">
+                <i class="fa-solid fa-door-open"></i>
+                <span data-i18n="joinWithCode">Kod bilan kirish</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2-EKRAN: LOBBI (LOBBY) -->
+    <section class="screen" id="screen-lobby">
+      <div class="lobby-layout">
+        
+        <!-- Chap: Xona ma'lumoti va o'yinchilar -->
+        <div class="glass-panel lobby-players-panel">
+          <div class="room-code-badge-wrap">
+            <div class="room-header-tags">
+              <div class="room-label">XONA KODI:</div>
+              <div class="room-sub-tags">
+                <span class="room-visibility-tag" id="room-visibility-badge">🌐 Ochiq</span>
+                <span class="room-mmr-badge" id="room-avg-mmr">MMR: 1000</span>
+              </div>
+            </div>
+            <div class="room-code-display" id="lobby-room-code">------</div>
+            <div class="room-copy-btns">
+              <button class="btn-small" id="btn-copy-code" title="Kodni nusxalash">
+                <i class="fa-regular fa-copy"></i> <span data-i18n="copyCode">Nusxalash</span>
+              </button>
+              <button class="btn-small" id="btn-share-link" title="Do'stlarga havola yuborish">
+                <i class="fa-solid fa-share-nodes"></i> <span data-i18n="shareLink">Ulashish</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="players-header">
+            <h3><i class="fa-solid fa-users"></i> <span data-i18n="players">O'yinchilar</span> (<span id="player-count">0</span>/16)</h3>
+            <span class="min-players-hint" id="min-players-hint">Kamida 3 o'yinchi kerak</span>
+          </div>
+
+          <div class="lobby-players-grid" id="lobby-players-list">
+            <!-- Dinamik o'yinchilar kartochkalari -->
+          </div>
+        </div>
+
+        <!-- O'ng: Xost sozlamalari -->
+        <div class="glass-panel lobby-settings-panel">
+          <div class="panel-header">
+            <h3><i class="fa-solid fa-sliders"></i> <span data-i18n="roomSettings">O'yin sozlamalari</span></h3>
+            <div class="preset-action-bar">
+              <button class="btn-small" id="btn-save-custom-preset" title="Sozlamalarni preset sifatida saqlash">
+                <i class="fa-solid fa-bookmark"></i> Saqlash
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-form" id="settings-form">
+            <!-- Mafiya soni -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-user-secret" style="color: var(--mafia-red);"></i> Mafiya (Don)</span>
+                <span class="setting-desc">Tunda qurbon tanlaydi</span>
+              </div>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="btn-mafia-minus">-</button>
+                <span class="counter-value" id="mafia-count-val">1</span>
+                <button type="button" class="btn-counter" id="btn-mafia-plus">+</button>
+              </div>
+            </div>
+
+            <!-- Shifokor -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-user-doctor" style="color: var(--doctor-green);"></i> Shifokor</span>
+                <span class="setting-desc">Bitta odamni qutqaradi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-doctor" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Komissar -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-magnifying-glass" style="color: var(--detective-blue);"></i> Komissar</span>
+                <span class="setting-desc">Shubhali shaxsni tekshiradi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-detective" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Mayor -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-landmark" style="color: var(--gold-accent);"></i> Shahar Meri (Mayor)</span>
+                <span class="setting-desc">Kunduzi ovozi 2 ovoz hisoblanadi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-mayor">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Maniac -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-skull-crossbones" style="color: #e91e63;"></i> Qotil (Maniac)</span>
+                <span class="setting-desc">Yolg'iz qotil, barcha bilan kurashadi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-maniac">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Jester -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-masks-theater" style="color: #ab47bc;"></i> Hazilkash (Jester)</span>
+                <span class="setting-desc">O'zini osdirsa yagona g'olib bo'ladi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-jester">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Sevishganlar -->
+            <div class="setting-item">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-heart" style="color: #ff4081;"></i> Sevishganlar Jufti</span>
+                <span class="setting-desc">Biri o'lsa, ikkinchisi ham o'ladi</span>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-lovers">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Faza vaqtlari -->
+            <div class="setting-item time-setting">
+              <div class="setting-info">
+                <span class="setting-name"><i class="fa-solid fa-clock"></i> Faza vaqtlari (soniya)</span>
+              </div>
+              <div class="phase-times-row">
+                <div class="time-input-box">
+                  <label>Tun</label>
+                  <input type="number" id="time-night" min="15" max="90" value="30">
+                </div>
+                <div class="time-input-box">
+                  <label>Muhokama</label>
+                  <input type="number" id="time-discuss" min="20" max="180" value="60">
+                </div>
+                <div class="time-input-box">
+                  <label>Ovoz berish</label>
+                  <input type="number" id="time-vote" min="15" max="60" value="30">
+                </div>
+              </div>
+            </div>
+
+            <!-- AI Botlar Sozlamalari (Claude API & Avto-to'ldirish) -->
+            <div class="bot-management-box">
+              <div class="bot-header-row">
+                <span><i class="fa-solid fa-robot" style="color: #60a5fa;"></i> AI Botlar Boshqaruvi</span>
+                <button type="button" class="btn-small btn-bot" id="btn-add-bot">
+                  <i class="fa-solid fa-plus"></i> <span data-i18n="addBot">+ Bot qo'shish</span>
+                </button>
+              </div>
+
+              <!-- Avtomatik to'ldirish switch -->
+              <div class="setting-item" style="padding: 6px 0; border: none; margin-top: 6px;">
+                <div class="setting-info">
+                  <span class="setting-name" style="font-size: 13px;">O'yinchilarni avto-to'ldirish</span>
+                  <span class="setting-desc" style="font-size: 11px;">Odam yetarli bo'lmasa, AI botlar to'ldiradi</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-auto-fill-bots" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <!-- Qiyinlik darajasi -->
+              <div class="setting-item" style="padding: 6px 0; border: none;">
+                <div class="setting-info">
+                  <span class="setting-name" style="font-size: 13px;">Bot qiyinligi</span>
+                  <span class="setting-desc" style="font-size: 11px;">Mantiqiy tahlil va aldash darajasi</span>
+                </div>
+                <select id="setting-bot-difficulty" class="input-select" style="padding: 4px 8px; font-size: 12px; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px;">
+                  <option value="easy">Oson (Easy)</option>
+                  <option value="medium" selected>O'rta (Medium)</option>
+                  <option value="hard">Qiyin (Hard - Pro)</option>
+                </select>
+              </div>
+
+              <!-- O'yin oxirida botlarni ochish -->
+              <div class="setting-item" style="padding: 6px 0; border: none;">
+                <div class="setting-info">
+                  <span class="setting-name" style="font-size: 13px;">O'yin so'ngida oshkor qilish</span>
+                  <span class="setting-desc" style="font-size: 11px;">O'yin tugagach kim bot ekanini ko'rsatish</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-reveal-bots" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="lobby-action-box">
+            <button class="btn btn-primary btn-large btn-glow" id="btn-start-game">
+              <i class="fa-solid fa-play"></i> <span data-i18n="startGame">O'yinni boshlash</span>
+            </button>
+            <div class="waiting-host-notice" id="waiting-host-msg" style="display:none;">
+              <i class="fa-solid fa-spinner fa-spin"></i> <span data-i18n="waitingHost">Xost o'yinni boshlashini kuting...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3-EKRAN: ROL OCHILISHI (ROLE REVEAL) -->
+    <section class="screen" id="screen-role-reveal">
+      <div class="role-reveal-container">
+        <h2 class="reveal-top-text" data-i18n="roleRevealTitle">MAXFIY ROLINGIZ</h2>
+        <p class="reveal-hint-text">Buni boshqa hech kim ko'rmasligi kerak!</p>
+
+        <div class="card-3d-wrap">
+          <div class="role-card" id="role-card-inner">
+            <div class="role-badge-icon" id="reveal-role-icon">
+              <i class="fa-solid fa-user-secret"></i>
+            </div>
+            <h1 class="role-name-title" id="reveal-role-title">MAFIYA</h1>
+            <div class="role-team-pill" id="reveal-role-team">Mafiya Jamoasi</div>
+            <p class="role-desc-text" id="reveal-role-desc">Tunda sheriklaringiz bilan shahar ahlidan qurbon tanlang...</p>
+            
+            <div class="role-partners-box" id="reveal-partners-box" style="display:none;">
+              <span class="partners-label"><i class="fa-solid fa-handshake"></i> Mafiya sheriklaringiz:</span>
+              <div class="partners-list" id="reveal-partners-list"></div>
+            </div>
+
+            <div class="role-lover-box" id="reveal-lover-box" style="display:none;">
+              <span class="lover-label"><i class="fa-solid fa-heart" style="color:#ff4081"></i> Sizning sevishganingiz:</span>
+              <strong id="reveal-lover-name" style="color:#ff80ab"></strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="role-timer-progress">
+          <div class="role-timer-bar" id="role-timer-bar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4-EKRAN: ASOSIY O'YIN (GAME IN PROGRESS) -->
+    <section class="screen" id="screen-game">
+      <div class="game-layout">
+
+        <!-- Tepada: Faza paneli va Katta Taymer -->
+        <div class="game-top-bar glass-panel">
+          <div class="game-meta-info">
+            <div class="round-badge" id="game-round-badge">1-RAUND</div>
+            <div class="phase-indicator" id="phase-indicator">
+              <i class="fa-solid fa-moon phase-icon" id="phase-icon"></i>
+              <div class="phase-titles">
+                <span class="phase-main" id="phase-main-title">TUN FAZASI</span>
+                <span class="phase-sub" id="phase-sub-title">Shahar uyquga ketdi...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Katta animatsiyali taymer -->
+          <div class="big-timer-wrap">
+            <div class="timer-circle">
+              <svg class="timer-svg" viewBox="0 0 100 100">
+                <circle class="timer-bg" cx="50" cy="50" r="45"></circle>
+                <circle class="timer-bar" id="timer-bar-svg" cx="50" cy="50" r="45"></circle>
+              </svg>
+              <div class="timer-value" id="game-timer-val">30</div>
+            </div>
+          </div>
+
+          <!-- O'z roli yorlig'i -->
+          <div class="my-role-badge" id="my-role-badge">
+            <i class="fa-solid fa-user-secret" id="my-role-badge-icon"></i>
+            <div class="my-role-text">
+              <span class="my-role-lbl">Sizning rolingiz:</span>
+              <strong id="my-role-name">Mafiya</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markaziy qism: Chapda O'yinchilar maydoni, O'ngda Chat -->
+        <div class="game-main-split">
+          
+          <!-- Chap panel: O'yinchilar kartalari -->
+          <div class="game-board-panel glass-panel">
+            <div class="board-action-guide" id="board-action-guide">
+              <span id="guide-action-text"><i class="fa-solid fa-crosshairs"></i> Qurbonni tanlang</span>
+            </div>
+
+            <!-- Emoji reaksiyalar tanlagichi -->
+            <div class="emoji-bar-wrap">
+              <span class="emoji-bar-label"><i class="fa-solid fa-icons"></i> Reaksiya yuborish:</span>
+              <div class="emoji-bar-items">
+                <span class="emoji-btn" data-emoji="😂">😂</span>
+                <span class="emoji-btn" data-emoji="🤔">🤔</span>
+                <span class="emoji-btn" data-emoji="🤫">🤫</span>
+                <span class="emoji-btn" data-emoji="😱">😱</span>
+                <span class="emoji-btn" data-emoji="🎯">🎯</span>
+                <span class="emoji-btn" data-emoji="💀">💀</span>
+                <span class="emoji-btn" data-emoji="❤️">❤️</span>
+                <span class="emoji-btn" data-emoji="🔥">🔥</span>
+              </div>
+            </div>
+
+            <div class="game-players-grid" id="game-players-grid">
+              <!-- Tirik va vafot etgan o'yinchilar kartalari -->
+            </div>
+
+            <!-- Ovoz berishda pastda Skip tugmasi -->
+            <div class="vote-skip-bar" id="vote-skip-bar" style="display:none;">
+              <button class="btn btn-outline" id="btn-skip-vote">
+                <i class="fa-solid fa-forward"></i> <span data-i18n="skipVote">Hech kimga ovoz bermaslik (Skip)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- O'ng panel: Chat -->
+          <div class="game-chat-panel glass-panel">
+            <div class="chat-tab-bar">
+              <button class="chat-tab active" id="tab-public-chat">
+                <i class="fa-solid fa-comments"></i> <span data-i18n="publicChat">Umumiy</span>
+              </button>
+              <button class="chat-tab mafia-tab" id="tab-mafia-chat" style="display:none;">
+                <i class="fa-solid fa-skull"></i> <span data-i18n="mafiaChat">Mafiya</span>
+              </button>
+              <button class="chat-tab ghost-tab" id="tab-ghost-chat" style="display:none;">
+                <i class="fa-solid fa-ghost"></i> <span data-i18n="ghostChat">Arvohlar</span>
+              </button>
+            </div>
+
+            <div class="chat-messages-container" id="chat-messages"></div>
+
+            <!-- Typing Indikatori (Botlar va odamlar uchun) -->
+            <div class="chat-typing-indicator" id="chat-typing-indicator" style="display:none; padding: 4px 12px; font-size: 11px; color: #94a3b8; font-style: italic;">
+              <i class="fa-solid fa-pen-nib fa-bounce text-indigo-400" style="margin-right: 6px;"></i>
+              <span id="typing-text">Kimdir yozmoqda...</span>
+            </div>
+
+            <form class="chat-input-form" id="chat-input-form">
+              <input type="text" id="chat-input-text" placeholder="Xabaringizni yozing..." maxlength="200" autocomplete="off">
+              <button type="submit" class="btn-chat-send" id="btn-chat-send">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5-EKRAN: NATIJALAR (RESULTS / GAME OVER) -->
+    <section class="screen" id="screen-game-over">
+      <div class="game-over-container glass-panel">
+        <div class="victory-header">
+          <div class="trophy-icon" id="victory-icon">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h1 class="victory-title" id="victory-title">TINCH AHOLI G'ALABA QOZONDI!</h1>
+          <p class="victory-reason" id="victory-reason">Barcha mafiyalar fosh qilindi va yo'q qilindi!</p>
+        </div>
+
+        <div class="all-roles-reveal-box">
+          <h3><i class="fa-solid fa-masks-theater"></i> Barcha o'yinchilarning haqiqiy rollari:</h3>
+          <div class="all-roles-grid" id="all-roles-grid"></div>
+        </div>
+
+        <div class="game-over-actions">
+          <button class="btn btn-primary btn-large btn-glow" id="btn-play-again" style="display:none;">
+            <i class="fa-solid fa-rotate-right"></i> <span data-i18n="playAgain">Yana o'ynash (Lobbiga qaytish)</span>
+          </button>
+          <div class="waiting-restart-notice" id="waiting-restart-msg">
+            <i class="fa-solid fa-hourglass-half"></i> Xost yangi o'yin boshlashini kuting...
+          </div>
+          <div class="game-over-sub-btns">
+            <button class="btn btn-secondary" id="btn-gameover-profile">
+              <i class="fa-solid fa-chart-simple"></i> <span data-i18n="profile">Statistikani ko'rish</span>
+            </button>
+            <button class="btn btn-outline" id="btn-leave-to-home">
+              <i class="fa-solid fa-house"></i> <span data-i18n="leaveHome">Bosh sahifaga</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: LOGIN / SIGN-UP (EMAIL & GOOGLE) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card glass-panel auth-modal-card" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-lock" style="color:var(--gold-accent)"></i> <span id="auth-modal-title">Tizimga Kirish</span></h3>
+        <button class="modal-close-btn" id="close-auth-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-tabs" style="display:flex; gap:8px; margin-bottom:16px;">
+          <button type="button" class="btn btn-small active" id="tab-auth-login" style="flex:1;">Kirish</button>
+          <button type="button" class="btn btn-small btn-outline" id="tab-auth-register" style="flex:1;">Ro'yxatdan o'tish</button>
+        </div>
+
+        <!-- Google orqali bir bosishda kirish -->
+        <button type="button" class="btn btn-outline" id="btn-mafia-google-login" style="width:100%; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px;">
+          <i class="fa-brands fa-google" style="color:#ea4335;"></i> Google orqali bir bosishda kirish
+        </button>
+
+        <div style="text-align:center; font-size:11px; color:#94a3b8; margin-bottom:12px;">yoki email va parol orqali</div>
+
+        <!-- Kirish Formasi -->
+        <form id="form-auth-login" style="display:flex; flex-direction:column; gap:12px;">
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-envelope"></i> Email</label>
+            <input type="email" id="auth-login-email" required placeholder="nomi@misol.uz" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-lock"></i> Parol</label>
+            <input type="password" id="auth-login-pass" required placeholder="••••••••" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:6px;">Kirish</button>
+        </form>
+
+        <!-- Ro'yxatdan o'tish Formasi -->
+        <form id="form-auth-register" style="display:none; flex-direction:column; gap:12px;">
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-user-ninja"></i> Taxallus (Nickname)</label>
+            <input type="text" id="auth-reg-name" required placeholder="Alisher" maxlength="15" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-envelope"></i> Email</label>
+            <input type="email" id="auth-reg-email" required placeholder="nomi@misol.uz" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-lock"></i> Parol (kamida 6 ta belgi)</label>
+            <input type="password" id="auth-reg-pass" required minlength="6" placeholder="••••••••" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:6px;">Ro'yxatdan o'tish</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REYTING JADVALI (LEADERBOARD TOP MMR) -->
+  <div class="modal-overlay" id="leaderboard-modal">
+    <div class="modal-card glass-panel leaderboard-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-ranking-star" style="color:var(--gold-accent)"></i> Mavsumiy Reyting Jadvali (TOP MMR)</h3>
+        <button class="modal-close-btn" id="close-leaderboard-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="leaderboard-list-wrap" id="leaderboard-list">
+          <!-- JS orqali to'ldiriladi -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TOMOSHABIN (JONLI O'YINLAR) -->
+  <div class="modal-overlay" id="spectator-modal">
+    <div class="modal-card glass-panel spectator-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-eye" style="color:#60a5fa"></i> Jonli O'yinlar (Tomoshabin Rejimi)</h3>
+        <button class="modal-close-btn" id="close-spectator-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Hozirda faol xonalardan birini tanlab jonli kuzatishingiz mumkin:</p>
+        <div class="spectator-rooms-grid" id="spectator-rooms-grid">
+          <!-- Jonli xonalar -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN PANELI -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-card glass-panel admin-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shield-halved" style="color:#ff5252"></i> Administrator Paneli</h3>
+        <button class="modal-close-btn" id="close-admin-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Admin Login qismi -->
+        <div id="admin-login-box">
+          <p class="modal-desc">Admin paneliga kirish uchun maxfiy parolni kiriting:</p>
+          <div class="form-group">
+            <input type="password" id="admin-password-input" placeholder="Admin maxfiy paroli...">
+          </div>
+          <button class="btn btn-primary" id="btn-admin-login-submit" style="margin-top:10px; width:100%;">
+            <i class="fa-solid fa-key"></i> Kirish
+          </button>
+        </div>
+
+        <!-- Admin Asosiy Paneli (Muvaffaqiyatli kirgach) -->
+        <div id="admin-panel-content" style="display:none;">
+          <div class="admin-stats-row">
+            <div class="stat-box">
+              <span class="stat-number" id="adm-rooms-count">0</span>
+              <span class="stat-lbl">Faol Xonalar</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number" id="adm-online-count">0</span>
+              <span class="stat-lbl">Onlayn</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number" id="adm-reports-count">0</span>
+              <span class="stat-lbl">Shikoyatlar</span>
+            </div>
+          </div>
+
+          <div class="admin-tabs-bar">
+            <button class="admin-tab-btn active" id="btn-adm-tab-rooms">Xonalar</button>
+            <button class="admin-tab-btn" id="btn-adm-tab-reports">Shikoyatlar</button>
+            <button class="admin-tab-btn" id="btn-adm-tab-broadcast">Global E'lon</button>
+          </div>
+
+          <!-- Xonalarni boshqarish -->
+          <div class="admin-tab-content" id="adm-tab-rooms-content">
+            <div class="admin-rooms-list" id="adm-rooms-list"></div>
+          </div>
+
+          <!-- Shikoyatlar -->
+          <div class="admin-tab-content" id="adm-tab-reports-content" style="display:none;">
+            <div class="admin-reports-list" id="adm-reports-list"></div>
+          </div>
+
+          <!-- Global e'lon -->
+          <div class="admin-tab-content" id="adm-tab-broadcast-content" style="display:none;">
+            <div class="form-group">
+              <label>Barcha o'yinchilarga xabar:</label>
+              <textarea id="adm-broadcast-text" rows="3" placeholder="Server yangilanmoqda yoki..."></textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-adm-send-broadcast" style="margin-top:8px;">
+              <i class="fa-solid fa-bullhorn"></i> Hammaga Yuborish
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SHIKOYAT YUBORISH (REPORT MODAL) -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ffb300"></i> Foydalanuvchi ustidan shikoyat</h3>
+        <button class="modal-close-btn" id="close-report-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Shikoyat qilinayotgan: <strong id="report-target-name">...</strong></p>
+        <div class="form-group">
+          <label>Shikoyat sababi:</label>
+          <select id="report-reason-select" class="custom-select">
+            <option value="Haqorat va so'kinish">Haqorat va so'kinish</option>
+            <option value="Spam / Flood">Spam va xalaqit berish</option>
+            <option value="Rollar fosh qilish (Cheating)">Rollar fosh qilish (Cheating)</option>
+            <option value="Boshqa sabab">Boshqa sabab</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+          <label>Qo'shimcha izoh (ixtiyoriy):</label>
+          <input type="text" id="report-details-input" placeholder="Batafsil izoh...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-report">Bekor qilish</button>
+        <button class="btn btn-primary" id="btn-confirm-report">Yuborish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: XONA YARATISH (OCHIQ / YOPIQ) -->
+  <div class="modal-overlay" id="create-room-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-plus-circle"></i> Yangi xona yaratish</h3>
+        <button class="modal-close-btn" id="close-create-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="room-type-toggle-grid">
+          <div class="room-type-card active" id="type-opt-public">
+            <i class="fa-solid fa-globe"></i>
+            <strong>Ochiq xona</strong>
+            <small>Hamma qo'shila oladi</small>
+          </div>
+          <div class="room-type-card" id="type-opt-private">
+            <i class="fa-solid fa-lock"></i>
+            <strong>Yopiq xona</strong>
+            <small>Kod yoki parol bilan</small>
+          </div>
+        </div>
+
+        <div class="form-group" id="private-password-wrap" style="display:none; margin-top:14px;">
+          <label for="create-room-password"><i class="fa-solid fa-key"></i> Xona paroli (ixtiyoriy):</label>
+          <input type="password" id="create-room-password" placeholder="Parol kiriting...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-create">Bekor qilish</button>
+        <button class="btn btn-primary" id="btn-confirm-create">Yaratish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KODGA QO'SHILISH -->
+  <div class="modal-overlay" id="join-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-key"></i> Xonaga qo'shilish</h3>
+        <button class="modal-close-btn" id="close-join-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Do'stingiz yuborgan 5 xonali xona kodini kiriting:</p>
+        <div class="form-group">
+          <input type="text" id="join-room-code-input" class="code-input" maxlength="6" placeholder="KOD..." autocomplete="off">
+        </div>
+        <div class="form-group" id="join-password-wrap" style="display:none; margin-top:10px;">
+          <label><i class="fa-solid fa-lock"></i> Xona paroli:</label>
+          <input type="password" id="join-password-input" placeholder="Parol...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-join">Bekor qilish</button>
+        <button class="btn btn-primary" id="btn-confirm-join">Qo'shilish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROFIL VA STATISTIKA -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-card glass-panel profile-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-id-card"></i> Foydalanuvchi Profili</h3>
+        <button class="modal-close-btn" id="close-profile-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-header-info">
+          <div class="profile-avatar-big" id="profile-big-avatar">🕵️‍♂️</div>
+          <div class="profile-text-info">
+            <h2 id="profile-nickname">O'yinchi</h2>
+            <div class="profile-badges-row">
+              <span class="user-id-badge" id="profile-user-id">ID: ...</span>
+              <span class="user-mmr-badge" id="profile-user-mmr">MMR: 1000</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-cards-grid">
+          <div class="stat-box">
+            <span class="stat-number" id="stat-games">0</span>
+            <span class="stat-lbl">Jami o'yinlar</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-wins">0</span>
+            <span class="stat-lbl">G'alabalar</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-winrate">0%</span>
+            <span class="stat-lbl">G'alaba foizi</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="stat-favorite-role">-</span>
+            <span class="stat-lbl">Eng ko'p roli</span>
+          </div>
+        </div>
+
+        <div class="stat-details-list">
+          <div class="stat-row">
+            <span><i class="fa-solid fa-user-secret" style="color:var(--mafia-red)"></i> Mafiya safida yutish:</span>
+            <strong id="stat-mafia-wins">0</strong>
+          </div>
+          <div class="stat-row">
+            <span><i class="fa-solid fa-users" style="color:var(--citizen-gray)"></i> Tinch aholi safida yutish:</span>
+            <strong id="stat-citizen-wins">0</strong>
+          </div>
+          <div class="stat-row">
+            <span><i class="fa-solid fa-magnifying-glass" style="color:var(--detective-blue)"></i> Mafiyani fosh qilish:</span>
+            <strong id="stat-detective-finds">0 marta</strong>
+          </div>
+          <div class="stat-row">
+            <span><i class="fa-solid fa-user-doctor" style="color:var(--doctor-green)"></i> Fuqaroni qutqarish:</span>
+            <strong id="stat-doctor-saves">0 marta</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DO'STLAR TIZIMI -->
+  <div class="modal-overlay" id="friends-modal">
+    <div class="modal-card glass-panel friends-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-group"></i> Do'stlar Ro'yxati</h3>
+        <button class="modal-close-btn" id="close-friends-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="add-friend-box">
+          <input type="text" id="add-friend-input" placeholder="Do'stingizning ID yoki Ismini yozing...">
+          <button class="btn btn-primary btn-small" id="btn-add-friend-confirm">
+            <i class="fa-solid fa-user-plus"></i> Qo'shish
+          </button>
+        </div>
+
+        <div class="friends-list-container" id="friends-list-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: YUTUQLAR (ACHIEVEMENTS) -->
+  <div class="modal-overlay" id="achievements-modal">
+    <div class="modal-card glass-panel achievements-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-trophy"></i> Yutuqlar (Achievements)</h3>
+        <button class="modal-close-btn" id="close-achievements-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="achievements-grid" id="achievements-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: O'YIN QOIDALARI -->
+  <div class="modal-overlay" id="rules-modal">
+    <div class="modal-card glass-panel rules-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-book"></i> "Mafiya" Qoidalari va Rollar</h3>
+        <button class="modal-close-btn" id="close-rules-modal">&times;</button>
+      </div>
+      <div class="modal-body rules-content">
+        <div class="role-rule-item mafia-rule">
+          <div class="rule-icon"><i class="fa-solid fa-user-secret"></i></div>
+          <div class="rule-info">
+            <h4>Mafiya (Don)</h4>
+            <p>Tunda maxfiy chatda sheriklari bilan maslahatlashib qurbon tanlaydi. Kunduzi begunoh qiyofaga kiradi.</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item doctor-rule">
+          <div class="rule-icon"><i class="fa-solid fa-user-doctor"></i></div>
+          <div class="rule-info">
+            <h4>Shifokor (Doktor)</h4>
+            <p>Tunda bitta odamni mafiya va maniac hujumidan saqlab qoladi.</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item detective-rule">
+          <div class="rule-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <div class="rule-info">
+            <h4>Komissar (Detektiv)</h4>
+            <p>Tunda gumonlanuvchini tekshiradi (mafiyami yo'qmi biladi).</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item mayor-rule">
+          <div class="rule-icon"><i class="fa-solid fa-landmark"></i></div>
+          <div class="rule-info">
+            <h4>Shahar Meri (Mayor)</h4>
+            <p>Kunduzgi ovoz berishda uning ovozi 2 ball (2 ovoz) hisoblanadi!</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item maniac-rule">
+          <div class="rule-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+          <div class="rule-info">
+            <h4>Qotil (Maniac)</h4>
+            <p>Mustaqil neytral rol. Har kecha bir odamni o'ldiradi. Hamma bilan kurashadi va yolg'iz qolsa yutadi!</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item jester-rule">
+          <div class="rule-icon"><i class="fa-solid fa-masks-theater"></i></div>
+          <div class="rule-info">
+            <h4>Hazilkash (Jester)</h4>
+            <p>Agar uni kunduzgi ovoz berishda xalq osib o'ldirsa, u yakka o'zi g'olib bo'ladi!</p>
+          </div>
+        </div>
+
+        <div class="role-rule-item lovers-rule">
+          <div class="rule-icon"><i class="fa-solid fa-heart"></i></div>
+          <div class="rule-info">
+            <h4>Sevishganlar Juftligi</h4>
+            <p>Ikki kishiga beriladigan maxfiy bog'lanish. Biri o'lsa, ikkinchisi ham qayg'udan o'ladi. Oxirigacha birga qolsa yutadi!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SERVER SOZLAMALARI (GITHUB PAGES VA CLOUD UCHUN) -->
+  <div class="modal-overlay" id="server-settings-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-server" style="color:#a78bfa"></i> Server Sozlamalari</h3>
+        <button class="modal-close-btn" id="close-server-settings-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          GitHub Pages yoki masofaviy qurilmadan o'ynaganda backend server havolasini ulang (masalan, Localtunnel, Render yoki VPS serveringiz).
+        </p>
+        <div class="form-group">
+          <label for="custom-server-url-input">Backend Server Manzili (URL):</label>
+          <input type="text" id="custom-server-url-input" placeholder="http://localhost:7122 yoki https://your-server.onrender.com">
+        </div>
+        <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-top:10px; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+          💡 <strong>Eslatma:</strong> Agar o'z kompyuteringizda bo'lsangiz, bo'sh qoldiring (avtomatik ulanadi). Agar do'stlaringizga havola berayotgan bo'lsangiz, <code>?server=SIZNING_LINKINGIZ</code> shaklida ulashing.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-reset-server">Standartga qaytarish</button>
+        <button class="btn btn-primary" id="btn-save-server">Saqlash va Ulanish</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST BILDIRISHNOMALAR -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- UCHIB CHIQADIGAN EMOJI MAYDONI -->
+  <div class="floating-emojis-container" id="floating-emojis-container"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="./js/paho-mqtt.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/socketClient.js"></script>
+  <script src="./js/app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

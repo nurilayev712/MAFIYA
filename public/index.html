@@ -6,7 +6,7 @@
   <title>MAFIYA Enterprise — Onlayn Ko'p O'yinchili O'yin</title>
   
   <!-- PWA Manifest & Meta -->
-  <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#ff2a44">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 <body class="theme-dark">
   <div class="blood-bg-overlay"></div>
@@ -89,6 +89,11 @@
           <div class="lang-opt" data-lang="en">🇬🇧 English</div>
         </div>
       </div>
+
+      <!-- Server Sozlamasi (GitHub Pages & Remote) -->
+      <button class="icon-btn" id="btn-open-server-settings" title="Server sozlamalari">
+        <i class="fa-solid fa-server" style="color:#a78bfa"></i>
+      </button>
 
       <!-- Qoidalar -->
       <button class="icon-btn" id="rules-btn" title="O'yin qoidalari">
@@ -949,6 +954,32 @@
     </div>
   </div>
 
+  <!-- MODAL: SERVER SOZLAMALARI (GITHUB PAGES VA CLOUD UCHUN) -->
+  <div class="modal-overlay" id="server-settings-modal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-server" style="color:#a78bfa"></i> Server Sozlamalari</h3>
+        <button class="modal-close-btn" id="close-server-settings-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          GitHub Pages yoki masofaviy qurilmadan o'ynaganda backend server havolasini ulang (masalan, Localtunnel, Render yoki VPS serveringiz).
+        </p>
+        <div class="form-group">
+          <label for="custom-server-url-input">Backend Server Manzili (URL):</label>
+          <input type="text" id="custom-server-url-input" placeholder="http://localhost:7122 yoki https://your-server.onrender.com">
+        </div>
+        <div style="background:rgba(255,255,255,0.05); border-radius:8px; padding:10px; margin-top:10px; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+          💡 <strong>Eslatma:</strong> Agar o'z kompyuteringizda bo'lsangiz, bo'sh qoldiring (avtomatik ulanadi). Agar do'stlaringizga havola berayotgan bo'lsangiz, <code>?server=SIZNING_LINKINGIZ</code> shaklida ulashing.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-reset-server">Standartga qaytarish</button>
+        <button class="btn btn-primary" id="btn-save-server">Saqlash va Ulanish</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST BILDIRISHNOMALAR -->
   <div class="toast-container" id="toast-container"></div>
 
@@ -956,16 +987,17 @@
   <div class="floating-emojis-container" id="floating-emojis-container"></div>
 
   <!-- SCRIPTS -->
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/i18n.js"></script>
-  <script src="/js/audio.js"></script>
-  <script src="/js/socketClient.js"></script>
-  <script src="/js/app.js"></script>
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="./js/paho-mqtt.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/audio.js"></script>
+  <script src="./js/socketClient.js"></script>
+  <script src="./js/app.js"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
   </script>

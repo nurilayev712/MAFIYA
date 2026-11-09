@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const spectatorModal = document.getElementById('spectator-modal');
   const adminModal = document.getElementById('admin-modal');
   const reportModal = document.getElementById('report-modal');
+  const serverSettingsModal = document.getElementById('server-settings-modal');
 
   const toastContainer = document.getElementById('toast-container');
   const floatingContainer = document.getElementById('floating-emojis-container');
@@ -208,6 +209,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('close-report-modal').addEventListener('click', () => closeModal(reportModal));
   document.getElementById('btn-cancel-report').addEventListener('click', () => closeModal(reportModal));
+
+  // Server sozlamalari modali
+  const btnOpenServer = document.getElementById('btn-open-server-settings');
+  if (btnOpenServer) {
+    btnOpenServer.addEventListener('click', () => {
+      openModal(serverSettingsModal);
+      const cur = localStorage.getItem('mafia_server_url') || '';
+      document.getElementById('custom-server-url-input').value = cur;
+    });
+  }
+  document.getElementById('close-server-settings-modal')?.addEventListener('click', () => closeModal(serverSettingsModal));
+  document.getElementById('btn-save-server')?.addEventListener('click', () => {
+    const val = document.getElementById('custom-server-url-input').value.trim();
+    if (val) {
+      localStorage.setItem('mafia_server_url', val);
+      showToast('Server manzili saqlandi! Sahifa yangilanmoqda...', 'success');
+    } else {
+      localStorage.removeItem('mafia_server_url');
+      showToast('Standart serverga qaytarildi! Sahifa yangilanmoqda...', 'info');
+    }
+    setTimeout(() => window.location.reload(), 1000);
+  });
+  document.getElementById('btn-reset-server')?.addEventListener('click', () => {
+    localStorage.removeItem('mafia_server_url');
+    document.getElementById('custom-server-url-input').value = '';
+    showToast('Standart serverga qaytarildi. Sahifa yangilanmoqda...', 'info');
+    setTimeout(() => window.location.reload(), 1000);
+  });
 
   document.getElementById('sound-btn').addEventListener('click', () => {
     const isMuted = window.sounds.toggleMute();

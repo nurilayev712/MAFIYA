@@ -51,6 +51,7 @@ const RATE_LIMIT_CHAT = parseInt(process.env.RATE_LIMIT_CHAT_PER_SEC, 10) || 4;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '..')));
 
 const gameManager = new GameManager(io);
 const onlineUserIds = new Set();

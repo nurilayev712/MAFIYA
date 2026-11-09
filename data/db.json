@@ -163,6 +163,28 @@
       },
       "achievements": [],
       "friends": []
+    },
+    "usr_1794217176466_nrco5": {
+      "id": "usr_1794217176466_nrco5",
+      "email": "mafia_player_1794217176465@example.com",
+      "passwordHash": "73dce8512ea5218cab3a857ffe7b91af:7c52e5dc902b14e51eafee8def7505bc1652b1c3488e393cbd04449f02ca8dfa8a44e2da76ac2ea2e11c29966b74bed4579b34943259cdd454d177037713ebcb",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1794217176467,
+      "mmr": 1000,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
     }
   },
   "reports": [],

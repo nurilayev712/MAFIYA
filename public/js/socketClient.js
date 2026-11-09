@@ -20,8 +20,36 @@ class SocketClient {
     this.callbacks = {};
   }
 
+  getServerUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const paramServer = params.get('server');
+    if (paramServer) {
+      localStorage.setItem('mafia_server_url', paramServer);
+      return paramServer;
+    }
+    const saved = localStorage.getItem('mafia_server_url');
+    if (saved) return saved;
+
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return '';
+    }
+    return '';
+  }
+
   init() {
-    this.socket = io();
+    const serverUrl = this.getServerUrl();
+    const opts = {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 10,
+      timeout: 10000
+    };
+
+    if (serverUrl) {
+      console.log('[Socket] Serverga ulanmoqda:', serverUrl);
+      this.socket = io(serverUrl, opts);
+    } else {
+      this.socket = io(opts);
+    }
 
     this.socket.on('connect', () => {
       console.log('[Socket] Serverga ulandi:', this.socket.id);
@@ -29,6 +57,16 @@ class SocketClient {
 
       if (this.roomCode && this.playerId) {
         this.reconnectSession(this.roomCode, this.playerId);
+      }
+      if (this.callbacks.onConnect) {
+        this.callbacks.onConnect();
+      }
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.warn('[Socket] Serverga ulanib bo\'lmadi:', err.message);
+      if (this.callbacks.onConnectError) {
+        this.callbacks.onConnectError(err);
       }
     });
 
