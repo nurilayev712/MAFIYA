@@ -746,7 +746,7 @@ class Room {
       const isAlive = state ? state.isAlive : true;
       let role = null;
 
-      if (isGameOver) {
+      if (isGameOver || !isAlive) {
         role = state?.role;
       } else if (!isSpectator && p.id === playerId) {
         role = state?.role;

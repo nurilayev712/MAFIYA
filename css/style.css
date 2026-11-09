@@ -1218,10 +1218,75 @@ input:checked + .slider:before {
 }
 
 .game-player-card.is-dead {
-  opacity: 0.45;
-  filter: grayscale(1);
+  opacity: 0.85;
+  filter: grayscale(0.2);
   cursor: not-allowed;
-  border-color: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 42, 68, 0.45);
+  background: rgba(45, 10, 18, 0.75);
+}
+
+.dead-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 42, 68, 0.3);
+  color: #ff5252;
+  border: 1px solid rgba(255, 42, 68, 0.5);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 5px;
+}
+
+.dead-role-reveal {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.cemetery-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 42, 68, 0.1);
+  border: 1px solid rgba(255, 42, 68, 0.35);
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+}
+
+.cemetery-title {
+  color: #ff5252;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cemetery-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cemetery-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 82, 82, 0.35);
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: #ffcdd2;
+  font-size: 0.8rem;
 }
 
 .game-player-card.targeted-by-me {
@@ -1313,12 +1378,12 @@ input:checked + .slider:before {
 
 .dead-skull-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2.2rem;
-  color: #ff3344;
-  text-shadow: 0 0 10px #000;
+  top: 10px;
+  right: 12px;
+  font-size: 1.6rem;
+  color: #ff2a44;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
 }
 
 .vote-skip-bar {

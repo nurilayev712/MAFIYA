@@ -548,7 +548,8 @@ class SocketClient {
 
     const safePlayers = r.players.map(p => {
       let role = null;
-      if (isGameOver) {
+      // Agar o'yin tugagan bo'lsa YOKI o'yinchi halok bo'lgan bo'lsa -> ROLI OSHKOR ETILADI!
+      if (isGameOver || !p.isAlive) {
         role = p.role;
       } else if (p.id === forPlayerId) {
         role = p.role;
@@ -590,11 +591,15 @@ class SocketClient {
       avgMmr: r.avgMmr,
       players: safePlayers,
       settings: r.settings,
+      myRole: me ? me.role : null,
       myRoleInfo: myRoleInfo,
+      isAlive: me ? me.isAlive : true,
+      isSpectator: false,
       partners: partners,
       nightActions: me && me.role === 'mafia' ? { mafiaVotes: r.nightActions.mafiaVotes } : {},
       votes: r.votes,
       lastNightResult: r.lastNightResult || null,
+      lastVoteResult: r.lastVoteResult || null,
       gameResult: r.gameResult || null
     };
   }
@@ -810,13 +815,40 @@ class SocketClient {
       if (p) p.isAlive = false;
     });
 
+    const killedDetails = killedList.map(id => {
+      const p = r.players.find(x => x.id === id);
+      return { id: p.id, name: p.name, role: p.role };
+    });
+
+    const isDocSaved = Boolean(docTarget && (docTarget === mafiaVictimId || docTarget === maniacTarget));
+
     r.lastNightResult = {
-      killedList: killedList.map(id => {
-        const p = r.players.find(x => x.id === id);
-        return { id: p.id, name: p.name, role: p.role };
-      }),
-      doctorSaved: Boolean(docTarget && (docTarget === mafiaVictimId || docTarget === maniacTarget))
+      killedList: killedDetails,
+      doctorSaved: isDocSaved,
+      savedByDoctor: isDocSaved
     };
+
+    // Chatga tizimli e'lon
+    let nightMsg = '';
+    if (killedDetails.length > 0) {
+      const deadNames = killedDetails.map(k => `${k.name} (${ROLE_INFO[k.role]?.name || k.role})`).join(', ');
+      nightMsg = `Tong otdi. Qonli tun qurbonlari: ${deadNames}!`;
+    } else if (isDocSaved) {
+      nightMsg = `Tong otdi. Shifokor bir fuqaroning hayotini saqlab qoldi! Hech kim vafot etmadi!`;
+    } else {
+      nightMsg = `Tong otdi. Tun tinch o'tdi, hech kim halok bo'lmadi.`;
+    }
+
+    const sysMsg = {
+      id: `msg_${Date.now()}`,
+      senderName: 'Tizim',
+      text: nightMsg,
+      isSystem: true,
+      scope: 'all',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    if (this.callbacks.onChatMessage) this.callbacks.onChatMessage(sysMsg);
+    this.sendMqttMessage({ type: 'CHAT_MSG', msg: sysMsg });
 
     const winner = this.checkLocalWinCondition();
     if (winner) {
@@ -961,10 +993,13 @@ class SocketClient {
       }
     });
 
+    let announcement = '';
     if (eliminatedId && !isTie && maxVotes > 0) {
       const target = r.players.find(p => p.id === eliminatedId);
       if (target) {
         target.isAlive = false;
+        const roleTitle = (ROLE_INFO[target.role]?.name) || target.role;
+        announcement = `Shahar qarori bilan ${target.name} osildi! Haqiqiy roli: ${roleTitle} edi!`;
 
         // Agar Jester (Hazilkash) linch qilinsa -> Jester g'alaba qozonadi!
         if (target.role === 'jester') {
@@ -980,10 +1015,34 @@ class SocketClient {
         if (r.lovers && r.lovers.includes(target.id)) {
           const partnerId = r.lovers.find(id => id !== target.id);
           const partner = r.players.find(p => p.id === partnerId);
-          if (partner) partner.isAlive = false;
+          if (partner) {
+            partner.isAlive = false;
+            announcement += ` Sevishgani halok bo'lgani sababli ${partner.name} ham vafot etdi!`;
+          }
         }
       }
+    } else if (isTie) {
+      announcement = 'Ovozlar teng bo\'ldi! Hech kim jazoga tortilmadi.';
+    } else {
+      announcement = 'Ko\'pchilik ovoz bermadi yoki o\'tkazib yuborildi (Skip). Hech kim osilmadi.';
     }
+
+    r.lastVoteResult = {
+      eliminatedId,
+      announcement,
+      isTie
+    };
+
+    const sysMsg = {
+      id: `msg_${Date.now()}`,
+      senderName: 'Tizim',
+      text: announcement,
+      isSystem: true,
+      scope: 'all',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    if (this.callbacks.onChatMessage) this.callbacks.onChatMessage(sysMsg);
+    this.sendMqttMessage({ type: 'CHAT_MSG', msg: sysMsg });
 
     const winner = this.checkLocalWinCondition();
     if (winner) {
@@ -991,8 +1050,13 @@ class SocketClient {
       return;
     }
 
-    r.dayNumber++;
-    this.startLocalNight();
+    r.phase = 'day_voting_result';
+    this.broadcastLocalState();
+
+    this.runPhaseCountdown(5, () => {
+      r.dayNumber++;
+      this.startLocalNight();
+    });
   }
 
   checkLocalWinCondition() {
@@ -1662,3 +1726,4 @@ class SocketClient {
 }
 
 window.socketClient = new SocketClient();
+window.ROLE_INFO = ROLE_INFO;

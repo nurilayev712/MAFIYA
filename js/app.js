@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let myDayVote = null;
   let maxTimeForCurrentPhase = 30;
   let isCreateRoomPublic = true;
-  let selectedReactionEmoji = '😂';
+  let selectedReactionEmoji = null;
   let reportTargetUserId = null;
 
   // 1. DASTLABKI YUKLASH VA I18N
@@ -496,8 +496,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.emoji-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       window.sounds.playClick();
-      selectedReactionEmoji = btn.dataset.emoji;
-      showToast(`Reaksiya tanlandi: ${selectedReactionEmoji}. O'yinchi kartasiga bosing!`, 'info');
+      const emoji = btn.dataset.emoji;
+      if (currentRoomState) {
+        window.socketClient.sendReaction(currentRoomState.roomCode, emoji);
+      }
+      showFloatingEmoji(emoji);
+      showToast(`Reaksiya yuborildi: ${emoji}`, 'info');
     });
   });
 
@@ -718,6 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'day_announce':
       case 'day_discussion':
       case 'day_voting':
+      case 'day_voting_result':
         showScreen('game');
         renderGame(state);
         break;
@@ -954,14 +959,16 @@ document.addEventListener('DOMContentLoaded', () => {
       phaseIcon.style.color = '#fbbf24';
       skipBar.style.display = 'none';
 
-      let msg = 'Tun tinch o\'tdi.';
+      let msg = 'Tun tinch o\'tdi. Hech kim halok bo\'lmadi.';
       if (state.lastNightResult?.killedList?.length > 0) {
         const names = state.lastNightResult.killedList.map(k => {
           const p = state.players.find(pl => pl.id === k.id);
-          return p ? p.name : 'Kimdir';
+          const rInfo = (window.ROLE_INFO && p && p.role && window.ROLE_INFO[p.role]) ? window.ROLE_INFO[p.role] : null;
+          const rName = rInfo ? ` (${rInfo.name})` : (p && p.role ? ` (${p.role})` : '');
+          return `<strong>${p ? p.name : 'Kimdir'}</strong>${rName}`;
         });
         msg = `Qonli tun qurbonlari: ${names.join(', ')}!`;
-      } else if (state.lastNightResult?.savedByDoctor) {
+      } else if (state.lastNightResult?.savedByDoctor || state.lastNightResult?.doctorSaved) {
         msg = 'Shifokor bir fuqaroning hayotini saqlab qoldi! Hech kim o\'lmadi!';
       }
       guideText.innerHTML = `<i class="fa-solid fa-newspaper"></i> ${msg}`;
@@ -987,6 +994,17 @@ document.addEventListener('DOMContentLoaded', () => {
         skipBar.style.display = 'none';
         guideText.innerHTML = '<i class="fa-solid fa-ghost"></i> O\'lganlar va tomoshabinlar ovoz berishda qatnasha olmaydi.';
       }
+
+    } else if (state.phase === 'day_voting_result') {
+      phaseMain.textContent = 'OVOZ BERISH NATIJASI';
+      phaseSub.textContent = 'Shahar sudi qarori e\'lon qilindi';
+      phaseIcon.className = 'fa-solid fa-gavel phase-icon';
+      phaseIcon.style.color = '#ef4444';
+      skipBar.style.display = 'none';
+
+      const res = state.lastVoteResult;
+      const msg = res?.announcement || 'Ovoz berish yakunlandi.';
+      guideText.innerHTML = `<i class="fa-solid fa-scale-balanced"></i> ${msg}`;
     }
 
     renderGamePlayers();
@@ -999,8 +1017,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const state = currentRoomState;
     const myId = window.socketClient.playerId;
-    const amIAlive = state.isAlive && !state.isSpectator;
+    const myPlayer = state.players.find(p => p.id === myId);
+    const amIAlive = (state.isAlive !== undefined ? state.isAlive : (myPlayer ? myPlayer.isAlive : true)) && !state.isSpectator;
+    const myRole = state.myRole || myPlayer?.role || (state.myRoleInfo?.role);
     const phase = state.phase;
+
+    // Halok bo'lganlar (Qabriston) panelini yangilash
+    const cemeteryBar = document.getElementById('cemetery-bar');
+    const cemeteryList = document.getElementById('cemetery-list');
+    const cemeteryCount = document.getElementById('cemetery-count');
+
+    if (cemeteryBar && cemeteryList) {
+      const deadPlayers = state.players.filter(p => !p.isAlive);
+      if (deadPlayers.length > 0) {
+        cemeteryBar.style.display = 'flex';
+        if (cemeteryCount) cemeteryCount.textContent = deadPlayers.length;
+        cemeteryList.innerHTML = '';
+        deadPlayers.forEach(dp => {
+          const rInfo = (window.ROLE_INFO && dp.role && window.ROLE_INFO[dp.role]) ? window.ROLE_INFO[dp.role] : null;
+          const rName = rInfo ? rInfo.name : (dp.role ? dp.role.toUpperCase() : 'Begunoh fuqaro');
+          const rColor = rInfo ? rInfo.color : '#ff5252';
+          const item = document.createElement('span');
+          item.className = 'cemetery-item';
+          item.innerHTML = `💀 <strong>${escapeHtml(dp.name)}</strong> <small style="color:${rColor}; font-weight:700;">(${rName})</small>`;
+          cemeteryList.appendChild(item);
+        });
+      } else {
+        cemeteryBar.style.display = 'none';
+      }
+    }
 
     const voteCounts = {};
     if (phase === 'day_voting' && state.votes) {
@@ -1013,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    const mafiaPicks = state.nightActions?.voterPicks || {};
+    const mafiaPicks = state.nightActions?.voterPicks || state.nightActions?.mafiaVotes || {};
 
     state.players.forEach(p => {
       const isMe = p.id === myId;
@@ -1027,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let targetedClass = '';
 
       if (phase === 'night' && amIAlive && isAlive) {
-        if (state.myRole === 'mafia') {
+        if (myRole === 'mafia') {
           if (myNightTarget === p.id) {
             targetedClass = 'targeted-by-me';
             actionBadgeHtml = '<span class="player-action-btn-pill" style="color:var(--mafia-red)"><i class="fa-solid fa-crosshairs"></i> Nishon</span>';
@@ -1036,17 +1081,17 @@ document.addEventListener('DOMContentLoaded', () => {
           if (partnerPickers.length > 0) {
             actionBadgeHtml += '<span class="player-action-btn-pill" style="color:#ffb300"><i class="fa-solid fa-eye"></i> Mafiya</span>';
           }
-        } else if (state.myRole === 'maniac') {
+        } else if (myRole === 'maniac') {
           if (myNightTarget === p.id) {
             targetedClass = 'targeted-by-maniac';
             actionBadgeHtml = '<span class="player-action-btn-pill" style="color:var(--maniac-pink)"><i class="fa-solid fa-skull-crossbones"></i> Qotillik</span>';
           }
-        } else if (state.myRole === 'doctor') {
+        } else if (myRole === 'doctor') {
           if (myNightTarget === p.id) {
             targetedClass = 'targeted-by-doctor';
             actionBadgeHtml = '<span class="player-action-btn-pill" style="color:var(--doctor-green)"><i class="fa-solid fa-hand-holding-medical"></i> Qutqarish</span>';
           }
-        } else if (state.myRole === 'detective') {
+        } else if (myRole === 'detective') {
           if (!isMe && myNightTarget === p.id) {
             targetedClass = 'targeted-by-detective';
             actionBadgeHtml = '<span class="player-action-btn-pill" style="color:var(--detective-blue)"><i class="fa-solid fa-magnifying-glass"></i> Tekshirish</span>';
@@ -1067,8 +1112,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let deadHtml = '';
+      let deadBadgeHtml = '';
       if (!isAlive) {
         deadHtml = '<div class="dead-skull-overlay"><i class="fa-solid fa-skull"></i></div>';
+        const rInfo = (window.ROLE_INFO && p.role && window.ROLE_INFO[p.role]) ? window.ROLE_INFO[p.role] : null;
+        const rName = rInfo ? rInfo.name : (p.role ? p.role.toUpperCase() : 'Oddiy fuqaro');
+        const rColor = rInfo ? rInfo.color : '#ff5252';
+        const rIcon = rInfo ? rInfo.icon : 'fa-user';
+
+        deadBadgeHtml = `
+          <div class="dead-tag-pill"><i class="fa-solid fa-skull-crossbones"></i> VAFOT ETGAN</div>
+          <div class="dead-role-reveal" style="color:${rColor};">
+            <i class="fa-solid ${rIcon}"></i> Roli: <strong>${rName}</strong>
+          </div>
+        `;
       }
 
       let loverBadgeHtml = '';
@@ -1084,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (targetedClass) card.classList.add(targetedClass);
 
       let roleTagHtml = '';
-      if (p.role) {
+      if (p.role && isAlive) {
         roleTagHtml = `<small style="font-size:0.75rem; color:var(--mafia-red); font-weight:700;">${p.role.toUpperCase()}</small>`;
       }
 
@@ -1099,7 +1156,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ${deadHtml}
         <div class="player-avatar-icon">${avatarIcon}</div>
         <div class="player-name">${escapeHtml(p.name)}</div>
-        <div class="player-status-tag">${isMe ? '(Siz)' : ''} ${roleTagHtml}</div>
+        <div class="player-status-tag">${isMe ? '(Siz) ' : ''}${isAlive ? '🟢 Tirik' : '💀 Halok bo\'lgan'}</div>
+        ${roleTagHtml}
+        ${deadBadgeHtml}
         ${actionBadgeHtml}
       `;
 
@@ -1113,17 +1172,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
+      // Karta bosilganda stiker / emoji MUTLAQO yuborilmaydi! Faqat o'yin amallari:
       card.addEventListener('click', () => {
-        if (selectedReactionEmoji) {
-          window.socketClient.sendReaction(p.id, selectedReactionEmoji);
+        if (!amIAlive) {
+          showToast('Siz vafot etgansiz (Arvohsiz). Tiriklarning o\'yiniga aralasha olmaysiz!', 'info');
+          return;
         }
 
-        if (!amIAlive || !isAlive) return;
+        if (!isAlive) {
+          showToast(`${p.name} allaqachon vafot etgan! Tirik o'yinchini tanlang.`, 'info');
+          return;
+        }
 
         if (phase === 'night') {
           handleNightCardClick(p);
         } else if (phase === 'day_voting') {
           handleDayVotingCardClick(p);
+        } else {
+          showToast(`${p.name} (Hozir muhokama vaqti, ovoz berish boshlanishini kuting)`, 'info');
         }
       });
 
@@ -1132,8 +1198,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleNightCardClick(targetPlayer) {
-    const role = currentRoomState.myRole;
-    if (!role) return;
+    const myPlayer = currentRoomState.players.find(p => p.id === window.socketClient.playerId);
+    const role = currentRoomState.myRole || myPlayer?.role || (currentRoomState.myRoleInfo?.role);
+    if (!role) {
+      showToast('Rolingiz aniqlanmadi!', 'error');
+      return;
+    }
 
     window.sounds.playClick();
     myNightTarget = targetPlayer.id;
@@ -1154,6 +1224,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       window.socketClient.sendNightAction('detective_investigate', targetPlayer.id);
       showToast(`${targetPlayer.name} tekshirilmoqda...`, 'info');
+    } else {
+      showToast('Siz oddiy fuqarosiz, tunda uxlaysiz!', 'info');
     }
 
     renderGamePlayers();
