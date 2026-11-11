@@ -741,6 +741,8 @@ document.addEventListener('DOMContentLoaded', () => {
       window.sounds.playNight();
       maxTimeForCurrentPhase = state.settings.nightTime || 30;
       showToast('Tun kirdi... Shahar uyquga ketdi.', 'info');
+      // Mobil qurilmada avtomatik maydon tabiga o'tish
+      switchToMobileBoard();
     } else if (newPhase === 'day_announce' || newPhase === 'day_discussion') {
       window.sounds.playDay();
       maxTimeForCurrentPhase = state.settings.discussionTime || 60;
@@ -751,6 +753,8 @@ document.addEventListener('DOMContentLoaded', () => {
       window.sounds.playClick();
       maxTimeForCurrentPhase = state.settings.votingTime || 30;
       showToast('Ovoz berish fazasi boshlandi!', 'info');
+      // Mobil qurilmada avtomatik ovoz berish maydoniga o'tish
+      switchToMobileBoard();
     } else if (newPhase === 'game_over') {
       window.sounds.playVictory();
     }
@@ -1934,6 +1938,126 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // MOBIL O'YIN TABLARI (MAYDON <-> CHAT)
+  const btnTabBoard = document.getElementById('btn-tab-board');
+  const btnTabChat = document.getElementById('btn-tab-chat');
+  const gameMainSplit = document.querySelector('.game-main-split');
+  const mobileChatBadge = document.getElementById('mobile-chat-badge');
+  let unreadMobileChatCount = 0;
+
+  function switchToMobileBoard() {
+    if (window.innerWidth <= 768 && btnTabBoard && btnTabChat && gameMainSplit) {
+      btnTabBoard.classList.add('active');
+      btnTabChat.classList.remove('active');
+      gameMainSplit.classList.remove('mobile-show-chat');
+    }
+  }
+
+  function switchToMobileChat() {
+    if (window.innerWidth <= 768 && btnTabBoard && btnTabChat && gameMainSplit) {
+      btnTabChat.classList.add('active');
+      btnTabBoard.classList.remove('active');
+      gameMainSplit.classList.add('mobile-show-chat');
+      unreadMobileChatCount = 0;
+      if (mobileChatBadge) mobileChatBadge.style.display = 'none';
+      const chatContainer = document.getElementById('chat-messages');
+      if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  }
+
+  if (btnTabBoard && btnTabChat) {
+    btnTabBoard.addEventListener('click', () => {
+      window.sounds.playClick();
+      switchToMobileBoard();
+    });
+
+    btnTabChat.addEventListener('click', () => {
+      window.sounds.playClick();
+      switchToMobileChat();
+    });
+  }
+
+  // Chat xabari kelganda mobil badge yangilash
+  const origAppendChatMessage = appendChatMessage;
+  appendChatMessage = function(msg) {
+    origAppendChatMessage(msg);
+    if (window.innerWidth <= 768 && gameMainSplit && !gameMainSplit.classList.contains('mobile-show-chat')) {
+      unreadMobileChatCount++;
+      if (mobileChatBadge) {
+        mobileChatBadge.textContent = unreadMobileChatCount;
+        mobileChatBadge.style.display = 'inline-block';
+      }
+    }
+  };
+
+  // VIRTUAL KEYBOARD AUTO-SCROLL (MOBILE ON-SCREEN KEYBOARD)
+  if (window.visualViewport) {
+    const handleViewportChange = () => {
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        setTimeout(() => {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          const chatMsgs = document.getElementById('chat-messages');
+          if (chatMsgs && activeEl.id === 'chat-input-text') {
+            chatMsgs.scrollTop = chatMsgs.scrollHeight;
+          }
+        }, 100);
+      }
+    };
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+  }
+
+  const mobileChatInput = document.getElementById('chat-input-text');
+  if (mobileChatInput) {
+    mobileChatInput.addEventListener('focus', () => {
+      setTimeout(() => {
+        const chatMsgs = document.getElementById('chat-messages');
+        if (chatMsgs) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+        document.getElementById('chat-input-form')?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 220);
+    });
+  }
+
+  // PWA "BOSH EKRANGA QO'SHISH" (INSTALL PROMPT)
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    const pwaBtn = document.getElementById('btn-pwa-install');
+    if (pwaBtn) pwaBtn.style.display = 'inline-flex';
+  });
+
+  const pwaInstallBtn = document.getElementById('btn-pwa-install');
+  if (pwaInstallBtn) {
+    pwaInstallBtn.addEventListener('click', async () => {
+      window.sounds.playClick();
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          pwaInstallBtn.style.display = 'none';
+          showToast('Ilova muvaffaqiyatli o\'rnatildi!', 'success');
+        }
+        deferredInstallPrompt = null;
+      } else {
+        showToast('Ilovani o\'rnatish uchun brauzeringiz menyusidan "Bosh ekranga qo\'shish" (Add to Home screen) ni tanlang.', 'info');
+      }
+    });
+  }
+
+  // SOZLAMALAR CHECKBOX-LARINI OSON BOSISH (TOUCH-FRIENDLY TOGGLE)
+  document.querySelectorAll('.setting-item').forEach(item => {
+    const toggle = item.querySelector('input[type="checkbox"]');
+    if (toggle) {
+      item.addEventListener('click', (e) => {
+        if (e.target !== toggle && !e.target.closest('.toggle-switch')) {
+          toggle.checked = !toggle.checked;
+          toggle.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+  });
 
   initApp();
   window.socketClient.init();

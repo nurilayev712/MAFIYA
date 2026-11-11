@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgMask" cx="50%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#240c14" />
+      <stop offset="100%" stop-color="#07080a" />
+    </radialGradient>
+    <linearGradient id="redGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff334b" />
+      <stop offset="100%" stop-color="#b80c23" />
+    </linearGradient>
+    <filter id="glowMask" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#ff2a44" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bgMask)"/>
+  
+  <!-- Hat / Fedora Silhouette (scaled for 80% safe zone) -->
+  <g transform="translate(51, 40) scale(0.8)">
+    <path d="M 138 200 Q 256 160 374 200 Q 414 205 400 220 Q 360 226 256 226 Q 152 226 112 220 Q 98 205 138 200 Z" fill="url(#redGradMask)" filter="url(#glowMask)"/>
+    <path d="M 181 200 C 176 138 200 112 256 112 C 312 112 336 138 331 200 Z" fill="url(#redGradMask)"/>
+    <rect x="186" y="182" width="140" height="14" fill="#0c0d12" rx="4"/>
+
+    <!-- Skull / Mask -->
+    <g fill="#f1f5f9" filter="url(#glowMask)">
+      <path d="M 176 245 C 176 208 336 208 336 245 C 336 298 314 336 304 360 C 293 378 219 378 208 360 C 198 336 176 298 176 245 Z"/>
+      <!-- Eye sockets -->
+      <ellipse cx="218" cy="272" rx="19" ry="27" fill="#07080a"/>
+      <ellipse cx="294" cy="272" rx="19" ry="27" fill="#07080a"/>
+      <!-- Nose -->
+      <polygon points="256,301 245,325 267,325" fill="#07080a"/>
+      <!-- Teeth -->
+      <rect x="224" y="347" width="11" height="18" rx="3" fill="#07080a"/>
+      <rect x="240" y="347" width="11" height="18" rx="3" fill="#07080a"/>
+      <rect x="256" y="347" width="11" height="18" rx="3" fill="#07080a"/>
+      <rect x="272" y="347" width="11" height="18" rx="3" fill="#07080a"/>
+    </g>
+  </g>
+</svg>

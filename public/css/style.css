@@ -733,18 +733,27 @@ select:focus {
 }
 
 .btn-counter {
-  width: 28px;
-  height: 28px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--border-color);
   color: #fff;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  touch-action: manipulation;
+  transition: all var(--transition-fast);
+}
+
+.btn-counter:active {
+  transform: scale(0.92);
+  background: rgba(255, 42, 68, 0.3);
 }
 
 .counter-value {
@@ -1164,8 +1173,17 @@ input:checked + .slider:before {
   margin-bottom: 12px;
 }
 
+.emoji-bar-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .emoji-bar-label {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -1174,18 +1192,45 @@ input:checked + .slider:before {
 
 .emoji-bar-items {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 2px;
+}
+
+.emoji-bar-items::-webkit-scrollbar {
+  display: none;
 }
 
 .emoji-btn {
-  font-size: 1.3rem;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
   cursor: pointer;
-  transition: transform var(--transition-fast);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  transition: transform var(--transition-fast), background var(--transition-fast);
   user-select: none;
+  touch-action: manipulation;
 }
 
-.emoji-btn:hover {
-  transform: scale(1.3);
+@media (hover: hover) {
+  .emoji-btn:hover {
+    transform: scale(1.18);
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.emoji-btn:active {
+  transform: scale(0.9);
+  background: rgba(255, 42, 68, 0.25);
 }
 
 .game-players-grid {
@@ -1512,12 +1557,15 @@ input:checked + .slider:before {
 .chat-input-form {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .chat-input-form input {
   flex: 1;
   padding: 10px 14px;
-  font-size: 0.9rem;
+  font-size: 16px; /* Prevents auto-zoom on mobile Safari */
+  min-height: 44px;
+  box-sizing: border-box;
 }
 
 .btn-chat-send {
@@ -1525,12 +1573,22 @@ input:checked + .slider:before {
   border: none;
   color: #fff;
   width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  touch-action: manipulation;
+  transition: all var(--transition-fast);
+}
+
+.btn-chat-send:active {
+  transform: scale(0.92);
+  background: #d61830;
 }
 
 /* ==========================================================================
@@ -2141,10 +2199,129 @@ input:checked + .slider:before {
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* Responsive */
+/* ==========================================================================
+   MOBILE-FIRST OPTIMIZATION & RESPONSIVE RULES (360px–430px & Scale-Up)
+   ========================================================================== */
+
+/* Universal Touch & Typography Defaults */
+html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="email"],
+textarea,
+select {
+  font-size: 16px !important; /* iOS Safari auto-zoomni butunlay to'xtatadi */
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+/* 44x44px Minimal Touch Targets */
+.btn, .btn-primary, .btn-secondary, .btn-outline, .btn-telegram, .btn-quick-match {
+  min-height: 44px;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.icon-btn {
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close-btn {
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+
+/* Mobil O'yin Navigatsiya Tablari (Maydon <-> Chat) */
+.mobile-game-tabs {
+  display: none;
+  background: rgba(14, 16, 22, 0.95);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 6px;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 58px;
+  z-index: 15;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-tab-btn {
+  flex: 1;
+  min-height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.mobile-tab-btn.active {
+  background: rgba(255, 42, 68, 0.22);
+  color: #fff;
+  border: 1px solid rgba(255, 42, 68, 0.45);
+  box-shadow: 0 2px 10px rgba(255, 42, 68, 0.25);
+}
+
+.mobile-chat-badge {
+  background: var(--mafia-red);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  animation: pulse 1.5s infinite;
+}
+
+/* Touch Active Feedbacks */
+.btn:active,
+.icon-btn:active,
+.emoji-btn:active,
+.avatar-opt:active,
+.mobile-tab-btn:active,
+.game-player-card:active:not(.is-dead) {
+  transform: scale(0.96) !important;
+  opacity: 0.92;
+}
+
+/* 1. PLANSHEt VA O'RTACHE O'LCHAM (max-width: 900px) */
 @media (max-width: 900px) {
   .lobby-layout {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .game-main-split {
@@ -2156,32 +2333,318 @@ input:checked + .slider:before {
   }
 }
 
-@media (max-width: 600px) {
+/* 2. MOBIL QURILMALAR (max-width: 768px) */
+@media (max-width: 768px) {
+  .mobile-game-tabs {
+    display: flex;
+  }
+
+  .game-main-split {
+    display: block;
+  }
+
+  .game-board-panel {
+    display: block;
+  }
+
+  .game-chat-panel {
+    display: none;
+    min-height: calc(100dvh - 240px);
+    padding: 12px;
+  }
+
+  /* Chat faollashtirilganda Maydon yashiriladi */
+  .game-main-split.mobile-show-chat .game-board-panel {
+    display: none;
+  }
+
+  .game-main-split.mobile-show-chat .game-chat-panel {
+    display: flex;
+  }
+
+  .game-top-bar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .my-role-badge {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 4px;
+    padding: 6px 12px;
+  }
+
+  .game-players-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .game-player-card {
+    min-height: 120px;
+    padding: 8px 6px;
+  }
+
+  .vote-skip-bar {
+    margin-top: 14px;
+  }
+
+  .vote-skip-bar .btn {
+    width: 100%;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  .chat-messages-container {
+    max-height: calc(100dvh - 340px);
+    min-height: 220px;
+  }
+
+  .chat-input-form {
+    position: sticky;
+    bottom: 0;
+    background: rgba(10, 12, 16, 0.96);
+    padding-top: 8px;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+  }
+
+  /* Lobbi harakat tugmalari barmog' yetadigan pastki zonaga o'tadi */
+  .lobby-actions-footer {
+    position: sticky;
+    bottom: 0;
+    background: rgba(10, 11, 14, 0.95);
+    backdrop-filter: blur(12px);
+    padding: 10px 0 env(safe-area-inset-bottom, 10px) 0;
+    margin-top: 14px;
+    border-top: 1px solid var(--border-color);
+    z-index: 10;
+  }
+
+  .lobby-actions-footer .btn {
+    min-height: 48px;
+  }
+}
+
+/* 3. KICHIK MOBIL EKRANLAR (360px–430px) */
+@media (max-width: 480px) {
   .main-container {
-    padding: 10px;
+    padding: 8px 6px;
+    width: 100%;
+    overflow-x: hidden;
   }
 
   .app-header {
-    padding: 10px 14px;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .brand-logo {
+    font-size: 1.05rem;
+  }
+
+  .server-ping-badge {
+    padding: 2px 5px;
+    font-size: 0.68rem;
+  }
+
+  .header-actions {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding-bottom: 2px;
+    max-width: calc(100vw - 120px);
+  }
+
+  .header-actions::-webkit-scrollbar {
+    display: none;
   }
 
   .btn-text {
     display: none;
   }
 
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
   .hero-card {
-    padding: 22px 16px;
+    padding: 18px 12px;
   }
 
   .game-title {
-    font-size: 2.3rem;
+    font-size: 2rem;
+    letter-spacing: 2px;
   }
 
   .action-buttons-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .action-buttons-grid .btn {
+    min-height: 48px;
+    font-size: 1rem;
   }
 
   .stats-cards-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .role-card {
+    padding: 20px 14px;
+    max-width: 94vw;
+  }
+
+  .role-badge-icon {
+    width: 68px;
+    height: 68px;
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .role-name-title {
+    font-size: 1.6rem;
+  }
+
+  .role-desc-text {
+    font-size: 0.85rem;
+  }
+
+  /* Modallar: Bottom-sheet uslubida pastdan silliq chiqadi */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0;
+    max-height: 88dvh;
+    margin: 0;
+    padding: 18px 14px env(safe-area-inset-bottom, 16px) 14px;
+    animation: sheetSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes sheetSlideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .cemetery-bar {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  .emoji-bar-wrap {
+    gap: 6px;
+  }
+
+  .emoji-btn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    font-size: 1.25rem;
+  }
+}
+
+/* 4. LANDSCAPE (ALBOM) ORIENTATSIYASI (max-height: 520px) */
+@media (orientation: landscape) and (max-height: 520px) {
+  .app-header {
+    padding: 4px 12px;
+    height: 42px;
+    min-height: 42px;
+  }
+
+  .brand-logo {
+    font-size: 1rem;
+  }
+
+  .main-container {
+    padding: 6px 8px;
+    height: calc(100vh - 46px);
+  }
+
+  .game-top-bar {
+    padding: 6px 12px;
+    margin-bottom: 6px;
+  }
+
+  .timer-circle {
+    width: 48px;
+    height: 48px;
+  }
+
+  .timer-value {
+    font-size: 1.1rem;
+  }
+
+  .mobile-game-tabs {
+    display: none !important;
+  }
+
+  .game-main-split {
+    display: grid !important;
+    grid-template-columns: 1.25fr 1fr !important;
+    gap: 8px !important;
+    height: calc(100vh - 120px) !important;
+  }
+
+  .game-board-panel,
+  .game-chat-panel {
+    display: flex !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    padding: 8px !important;
+  }
+
+  .chat-messages-container {
+    max-height: calc(100vh - 210px) !important;
+    min-height: 120px !important;
+  }
+
+  .game-players-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .game-player-card {
+    min-height: 90px !important;
+    padding: 6px !important;
+  }
+
+  .role-card {
+    padding: 12px 18px !important;
+    flex-direction: row !important;
+    gap: 16px !important;
+    max-width: 90vw !important;
+  }
+
+  .role-badge-icon {
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 0 !important;
+  }
+
+  .role-desc-text {
+    font-size: 0.8rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .modal-card {
+    max-height: 92vh !important;
+    padding: 12px 16px !important;
   }
 }
