@@ -56,6 +56,10 @@ function getOrCreateUser(userId, nickname, avatarIndex, telegramData = null) {
       telegramUsername: telegramData ? telegramData.username : null,
       createdAt: Date.now(),
       mmr: 1000, // Boshlang'ich MMR
+      coins: 100, // Boshlang'ich tangalar
+      streak: 1, // Boshlang'ich kunlik streak
+      lastLoginDate: null,
+      tutorialCompleted: false,
       stats: {
         gamesPlayed: 0,
         wins: 0,
@@ -80,6 +84,15 @@ function getOrCreateUser(userId, nickname, avatarIndex, telegramData = null) {
     }
     if (dbData.users[userId].mmr === undefined) {
       dbData.users[userId].mmr = 1000;
+    }
+    if (dbData.users[userId].coins === undefined) {
+      dbData.users[userId].coins = 100;
+    }
+    if (dbData.users[userId].streak === undefined) {
+      dbData.users[userId].streak = 1;
+    }
+    if (dbData.users[userId].tutorialCompleted === undefined) {
+      dbData.users[userId].tutorialCompleted = false;
     }
     saveDB();
   }
@@ -326,22 +339,147 @@ function getMutedUsers() {
 
 // Custom Presets
 function saveCustomPreset(userId, presetName, settings) {
+  if (!dbData.customPresets) dbData.customPresets = {};
   if (!dbData.customPresets[userId]) {
     dbData.customPresets[userId] = [];
   }
   const preset = {
-    id: `pst_${Date.now()}`,
+    id: `pst_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
     name: presetName,
     settings,
     createdAt: Date.now()
   };
   dbData.customPresets[userId].push(preset);
   saveDB();
-  return preset;
+  return { success: true, preset, ...preset };
 }
 
 function getCustomPresets(userId) {
+  if (!dbData.customPresets) dbData.customPresets = {};
   return dbData.customPresets[userId] || [];
+}
+
+function deleteCustomPreset(userId, presetId) {
+  if (!dbData.customPresets || !dbData.customPresets[userId]) return { success: false };
+  const initial = dbData.customPresets[userId].length;
+  dbData.customPresets[userId] = dbData.customPresets[userId].filter(p => p.id !== presetId);
+  if (dbData.customPresets[userId].length !== initial) {
+    saveDB();
+    return { success: true };
+  }
+  return { success: false };
+}
+
+// -------------------------------------------------------------
+// KUNLIK KIRISH STREAK VA TANGALAR TIZIMI (DAILY STREAK REWARDS)
+// -------------------------------------------------------------
+function getStreakInfo(userId) {
+  const user = dbData.users[userId];
+  if (!user) return { streak: 1, coins: 100, claimedToday: false, canClaimReward: true, nextReward: 50, reward: 50 };
+  if (user.coins === undefined) user.coins = 100;
+  if (!user.streak) user.streak = 1;
+
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const claimedToday = user.lastLoginDate === todayStr;
+
+  let currentStreak = user.streak || 1;
+
+  // Agar bugun hali olinmagan bo'lsa:
+  if (user.lastLoginDate && !claimedToday) {
+    const diffTime = Math.abs(new Date(todayStr) - new Date(user.lastLoginDate));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays > 1) {
+      currentStreak = 1; // Ketma-ket kun uzildi, 1 ga qaytadi
+      user.streak = 1;
+      saveDB();
+    } else if (diffDays === 1) {
+      currentStreak = (user.streak || 0) + 1; // Kecha olgan, demak bugun ketma-ket keyingi kun
+    }
+  }
+
+  const nextReward = Math.min(500, 50 * currentStreak);
+
+  return {
+    streak: currentStreak,
+    coins: user.coins || 100,
+    claimedToday,
+    canClaimReward: !claimedToday,
+    reward: nextReward,
+    nextReward,
+    lastLoginDate: user.lastLoginDate
+  };
+}
+
+function claimDailyReward(userId) {
+  const user = dbData.users[userId];
+  if (!user) return { success: false, message: 'Foydalanuvchi topilmadi' };
+
+  if (user.coins === undefined) user.coins = 100;
+  if (!user.streak) user.streak = 0;
+
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+
+  if (user.lastLoginDate === todayStr) {
+    return {
+      success: false,
+      alreadyClaimed: true,
+      canClaimReward: false,
+      streak: user.streak,
+      coins: user.coins,
+      totalCoins: user.coins,
+      reward: 0,
+      rewardCoins: 0,
+      message: 'Siz bugungi kunlik mukofotingizni allaqachon olgansiz! Ertaga yana kiring.'
+    };
+  }
+
+  let streak = user.streak || 0;
+  if (!user.lastLoginDate) {
+    streak = 1;
+  } else {
+    const diffTime = Math.abs(new Date(todayStr) - new Date(user.lastLoginDate));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 1) {
+      streak += 1;
+    } else if (diffDays > 1) {
+      streak = 1; // 1 kundan ortiq tashlab ketilgan, streak 1 dan boshlanadi
+    } else {
+      streak = Math.max(1, streak);
+    }
+  }
+
+  const rewardCoins = Math.min(500, 50 * streak);
+  user.streak = streak;
+  user.coins += rewardCoins;
+  user.lastLoginDate = todayStr;
+
+  saveDB();
+
+  return {
+    success: true,
+    streak: user.streak,
+    reward: rewardCoins,
+    rewardCoins,
+    coins: user.coins,
+    totalCoins: user.coins,
+    canClaimReward: false,
+    message: `Ajoyib! ${streak}-kunlik streak uchun +${rewardCoins} tanga berildi! 🔥`
+  };
+}
+
+function completeTutorial(userId) {
+  const user = dbData.users[userId];
+  if (!user) return { success: false };
+  if (!user.tutorialCompleted) {
+    user.tutorialCompleted = true;
+    user.coins = (user.coins || 100) + 100;
+    saveDB();
+    return { success: true, reward: 100, bonusCoins: 100, coins: user.coins, totalCoins: user.coins, tutorialCompleted: true };
+  }
+  return { success: true, alreadyCompleted: true, reward: 0, bonusCoins: 0, coins: user.coins || 100, totalCoins: user.coins || 100, tutorialCompleted: true };
 }
 
 function findUserByEmail(email) {
@@ -368,6 +506,10 @@ function registerUserWithEmail(email, passwordHash, nickname, avatarIndex) {
     avatarIndex: avatarIndex || 1,
     createdAt: Date.now(),
     mmr: 1000,
+    coins: 100,
+    streak: 1,
+    lastLoginDate: null,
+    tutorialCompleted: false,
     stats: {
       gamesPlayed: 0,
       wins: 0,
@@ -400,6 +542,10 @@ function googleLoginUser(email, name, avatarIndex, googleId) {
       avatarIndex: avatarIndex || 1,
       createdAt: Date.now(),
       mmr: 1000,
+      coins: 100,
+      streak: 1,
+      lastLoginDate: null,
+      tutorialCompleted: false,
       stats: {
         gamesPlayed: 0,
         wins: 0,
@@ -444,5 +590,10 @@ module.exports = {
   CURRENT_SEASON,
   getRankTier,
   saveCustomPreset,
-  getCustomPresets
+  getCustomPresets,
+  getUserPresets: getCustomPresets,
+  deleteCustomPreset,
+  getStreakInfo,
+  claimDailyReward,
+  completeTutorial
 };

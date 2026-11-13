@@ -606,6 +606,7 @@ class SocketClient {
       votes: r.votes,
       lastNightResult: r.lastNightResult || null,
       lastVoteResult: r.lastVoteResult || null,
+      aiRecap: r.aiRecap || null,
       gameResult: r.gameResult || null
     };
   }
@@ -1108,8 +1109,10 @@ class SocketClient {
     this.clearLocalTimers();
     const r = this.localRoom;
     r.phase = 'game_over';
+    r.aiRecap = this.generateLocalAIRecap(winData);
     r.gameResult = {
       ...winData,
+      aiRecap: r.aiRecap,
       roles: r.players.map(p => ({
         id: p.id,
         name: p.name,
@@ -1120,6 +1123,45 @@ class SocketClient {
       }))
     };
     this.broadcastLocalState();
+  }
+
+  generateLocalAIRecap(winData) {
+    const r = this.localRoom;
+    if (!r) return "";
+    const winner = winData?.winner || 'citizens';
+    const mafias = r.players.filter(p => p.role === 'mafia').map(p => p.name);
+    const doctors = r.players.filter(p => p.role === 'doctor').map(p => p.name);
+    const detectives = r.players.filter(p => p.role === 'detective').map(p => p.name);
+    const maniacs = r.players.filter(p => p.role === 'maniac').map(p => p.name);
+    const jesters = r.players.filter(p => p.role === 'jester').map(p => p.name);
+
+    let s1 = "", s2 = "", s3 = "";
+    if (winner === 'citizens') {
+      s1 = (doctors.length > 0 && r.lastNightResult?.savedByDoctor)
+        ? `Tunda Shifokor (${doctors[0]})ning qahramonona harakati fuqaroning hayotini saqlab qolib, o'yinda burilish yasadi.`
+        : `Dastlabki daqiqalardanoq fuqarolar o'rtasida qizg'in bahslar boshlandi va shubhalar bir necha o'yinchi atrofida aylandi.`;
+      s2 = (detectives.length > 0)
+        ? `Komissar (${detectives[0]})ning sinchkov tekshiruvlari orqali yashirin jinoyatchilar tezda fosh etildi.`
+        : `Kunduzgi linch sudida fuqarolar o'zaro ishonch bilan ovoz berib, xatolarga yo'l qo'ymadilar.`;
+      s3 = `Natijada Tinch aholi mantiqiy fikrlash va kuchli jamoaviy birdamlik evaziga barcha mafiyalarni yo'q qilib, yorqin g'alabaga erishdi! 🏆`;
+    } else if (winner === 'mafia') {
+      s1 = `Mafiya jamoasi (${mafias.join(' va ') || 'Don'}) birinchi tundan boshlab sovuqqonlik bilan harakat qilib, shahar ahlini mohirlik bilan chalg'itdi.`;
+      s2 = `Fuqarolar o'zaro bahslarda bir-birlariga shubha bilan qarab, haqiqiy jinoyatchilar o'rniga begunohlarni chiqarib yuborishdi.`;
+      s3 = `Kuchlar tenglashgan pallada Mafiya so'nggi zarbani berib, butun shahar ustidan o'zining qat'iy nazoratini o'rnatdi! 🎩`;
+    } else if (winner === 'maniac') {
+      s1 = `Mafiya va fuqarolar o'rtasidagi nizo davomida, soya ortidagi Manyak (${maniacs[0] || 'qotil'}) har kecha o'zining qonli izini qoldirdi.`;
+      s2 = `Hech kim uni payqamadi va har ikki tomon bir-birini ayblab, haqiqiy qotilga o'zi bilmagan holda yo'l ochib berdi.`;
+      s3 = `Qonli tuman tarqalganda esa, faqat Manyak yagona omon qoluvchi mutlaq g'olib sifatida tantana qildi! 🩸`;
+    } else if (winner === 'jester') {
+      s1 = `Masharaboz (${jesters[0] || 'Jester'}) o'zining shubhali xatti-harakatlari bilan butun shaharning g'azabini qo'zg'atdi.`;
+      s2 = `Fuqarolar uni 'aniq mafiya' degan qat'iy ishonch bilan bitta ovozdan osishga qaror qildilar — biroq bu uning puxta tuzog'i edi!`;
+      s3 = `Linch sudi hukmi ijro etilgach, Masharaboz qah-qaha otib barchani lol qoldirdi va o'yinning yagona g'olibi bo'ldi! 🃏`;
+    } else {
+      s1 = `O'yin nihoyatda qiziqarli va shiddatli kurashlar bilan o'tdi.`;
+      s2 = `O'yinchilar oxirgi nafasgacha o'z nuqtai nazarlarini himoya qilishdi.`;
+      s3 = `Barcha qatnashchilarga ajoyib o'yin uchun tashakkur! 🌟`;
+    }
+    return `${s1} ${s2} ${s3}`;
   }
 
   runPhaseCountdown(duration, onFinish) {
@@ -1432,10 +1474,16 @@ class SocketClient {
     if (this.socket && this.socket.connected) {
       this.socket.emit('save_preset', { playerId: this.playerId, presetName, settings }, callback);
     } else {
-      const presets = JSON.parse(localStorage.getItem('mafia_presets') || '{}');
-      presets[presetName] = settings;
-      localStorage.setItem('mafia_presets', JSON.stringify(presets));
-      if (callback) callback({ success: true });
+      const presets = JSON.parse(localStorage.getItem('mafia_presets_list') || '[]');
+      const newPreset = {
+        id: `pst_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        name: presetName,
+        settings,
+        createdAt: Date.now()
+      };
+      presets.push(newPreset);
+      localStorage.setItem('mafia_presets_list', JSON.stringify(presets));
+      if (callback) callback({ success: true, preset: newPreset });
     }
   }
 
@@ -1443,8 +1491,136 @@ class SocketClient {
     if (this.socket && this.socket.connected) {
       this.socket.emit('get_presets', { playerId: this.playerId }, callback);
     } else {
-      const presets = JSON.parse(localStorage.getItem('mafia_presets') || '{}');
+      const presets = JSON.parse(localStorage.getItem('mafia_presets_list') || '[]');
       if (callback) callback({ success: true, presets });
+    }
+  }
+
+  deletePreset(presetId, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('delete_preset', { playerId: this.playerId, presetId }, callback);
+    } else {
+      let presets = JSON.parse(localStorage.getItem('mafia_presets_list') || '[]');
+      presets = presets.filter(p => p.id !== presetId);
+      localStorage.setItem('mafia_presets_list', JSON.stringify(presets));
+      if (callback) callback({ success: true });
+    }
+  }
+
+  exportRulePresetCode(settings, name = "Maxsus Qoidalar") {
+    try {
+      const payload = { n: name, s: settings };
+      return 'MAFIA_RULE_' + btoa(encodeURIComponent(JSON.stringify(payload)));
+    } catch (e) {
+      return '';
+    }
+  }
+
+  importRulePresetCode(codeStr) {
+    try {
+      const clean = (codeStr || '').trim();
+      if (!clean.startsWith('MAFIA_RULE_')) return null;
+      const b64 = clean.replace('MAFIA_RULE_', '');
+      const json = decodeURIComponent(atob(b64));
+      return JSON.parse(json);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  checkDailyStreak(callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('check_daily_streak', { playerId: this.playerId }, callback);
+    } else {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const lastLogin = localStorage.getItem('mafia_last_login_date');
+      let streak = parseInt(localStorage.getItem('mafia_daily_streak'), 10) || 1;
+      let coins = parseInt(localStorage.getItem('mafia_coins'), 10);
+      if (isNaN(coins)) coins = 100;
+
+      const claimedToday = lastLogin === todayStr;
+      if (lastLogin && !claimedToday) {
+        const diffTime = Math.abs(new Date(todayStr) - new Date(lastLogin));
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 1) {
+          streak = 1;
+          localStorage.setItem('mafia_daily_streak', '1');
+        }
+      }
+      const nextReward = Math.min(500, 50 * streak);
+      if (callback) callback({ success: true, streak, coins, claimedToday, nextReward, lastLoginDate: lastLogin });
+    }
+  }
+
+  claimDailyReward(callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('claim_daily_reward', { playerId: this.playerId }, (res) => {
+        if (res && res.success) {
+          localStorage.setItem('mafia_coins', res.totalCoins);
+          localStorage.setItem('mafia_daily_streak', res.streak);
+          localStorage.setItem('mafia_last_login_date', new Date().toISOString().split('T')[0]);
+        }
+        if (callback) callback(res);
+      });
+    } else {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const lastLogin = localStorage.getItem('mafia_last_login_date');
+      let streak = parseInt(localStorage.getItem('mafia_daily_streak'), 10) || 0;
+      let coins = parseInt(localStorage.getItem('mafia_coins'), 10);
+      if (isNaN(coins)) coins = 100;
+
+      if (lastLogin === todayStr) {
+        return callback && callback({
+          success: false,
+          alreadyClaimed: true,
+          streak,
+          coins,
+          message: 'Siz bugungi kunlik mukofotingizni olib bo\'lgansiz! Ertaga yana kiring.'
+        });
+      }
+
+      if (!lastLogin) {
+        streak = 1;
+      } else {
+        const diffTime = Math.abs(new Date(todayStr) - new Date(lastLogin));
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          streak += 1;
+        } else if (diffDays > 1) {
+          streak = 1;
+        } else {
+          streak = Math.max(1, streak);
+        }
+      }
+
+      const rewardCoins = Math.min(500, 50 * streak);
+      coins += rewardCoins;
+      localStorage.setItem('mafia_daily_streak', streak);
+      localStorage.setItem('mafia_coins', coins);
+      localStorage.setItem('mafia_last_login_date', todayStr);
+
+      if (callback) {
+        callback({
+          success: true,
+          streak,
+          rewardCoins,
+          totalCoins: coins,
+          message: `Tabriklaymiz! ${streak}-kunlik streak uchun +${rewardCoins} tanga berildi! 🔥`
+        });
+      }
+    }
+  }
+
+  completeTutorial(callback) {
+    localStorage.setItem('mafia_tutorial_completed', 'true');
+    let coins = parseInt(localStorage.getItem('mafia_coins'), 10) || 100;
+    coins += 100;
+    localStorage.setItem('mafia_coins', coins);
+
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('complete_tutorial', { playerId: this.playerId }, callback);
+    } else if (callback) {
+      callback({ success: true, bonusCoins: 100, totalCoins: coins });
     }
   }
 

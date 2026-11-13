@@ -256,6 +256,31 @@ io.on('connection', (socket) => {
     if (callback) callback({ success: true, presets });
   });
 
+  socket.on('delete_preset', ({ playerId, presetId }, callback) => {
+    const success = db.deleteCustomPreset(playerId, presetId);
+    if (callback) callback({ success });
+  });
+
+  // 5.1 KUNLIK KIRISH STREAK (DAILY LOGIN STREAK REWARDS)
+  socket.on('check_daily_streak', ({ playerId }, callback) => {
+    const pId = playerId || socket.userId;
+    const info = db.getStreakInfo(pId);
+    if (callback) callback({ success: true, ...info });
+  });
+
+  socket.on('claim_daily_reward', ({ playerId }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.claimDailyReward(pId);
+    if (callback) callback(res);
+  });
+
+  // 5.2 O'RGANISH (TUTORIAL MODE)
+  socket.on('complete_tutorial', ({ playerId }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.completeTutorial(pId);
+    if (callback) callback(res);
+  });
+
   // 6. TOMOSHABIN (SPECTATOR) REJIMI
   socket.on('spectate_room', ({ roomCode }, callback) => {
     const room = gameManager.getRoom(roomCode);

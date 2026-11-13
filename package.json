@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/server.js",
     "tunnel": "npx localtunnel --port 7122 --subdomain mafiya7122",
-    "test": "node test/server_test.js && node test/manager_test.js && node test/advanced_test.js && node test/ai_bots_test.js && node test/core_logic_test.js"
+    "test": "node test/server_test.js && node test/manager_test.js && node test/advanced_test.js && node test/ai_bots_test.js && node test/core_logic_test.js && node test/phase4_features_test.js"
   },
   "keywords": [],
   "author": "",

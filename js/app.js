@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminModal = document.getElementById('admin-modal');
   const reportModal = document.getElementById('report-modal');
   const serverSettingsModal = document.getElementById('server-settings-modal');
+  const tutorialModal = document.getElementById('tutorial-modal');
+  const customRulesModal = document.getElementById('custom-rules-modal');
+  const streakRewardModal = document.getElementById('streak-reward-modal');
 
   const toastContainer = document.getElementById('toast-container');
   const floatingContainer = document.getElementById('floating-emojis-container');
@@ -98,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#admin') {
       openModal(adminModal);
     }
+
+    // Phase 4: Kunlik streak va Maxsus qoidalar muharriri
+    initDailyStreak();
+    initCustomRuleEditor();
   }
 
   function measurePing() {
@@ -1408,6 +1415,18 @@ document.addEventListener('DOMContentLoaded', () => {
       restartWait.style.display = 'block';
     }
 
+    // AI O'yin Tahlili & Sharhi (Post-Game AI Recap)
+    const recapBox = document.getElementById('ai-recap-box');
+    const recapText = document.getElementById('ai-recap-text');
+    if (recapText) {
+      if (state.aiRecap) {
+        recapText.textContent = state.aiRecap;
+      } else {
+        recapText.textContent = "O'yin juda murosasiz kechdi. O'yinchilarning har bir intellektual yurishi va munozaralari o'yin yakuniga katta ta'sir ko'rsatdi.";
+      }
+      if (recapBox) recapBox.style.display = 'block';
+    }
+
     const grid = document.getElementById('all-roles-grid');
     grid.innerHTML = '';
 
@@ -2099,6 +2118,528 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  // ==========================================================================
+  // PHASE 4: KUNLIK STREAK, TUTORIAL & MAXSUS QOIDALAR
+  // ==========================================================================
+
+  // 1. KUNLIK LOGIN STREAK TIZIMI
+  function initDailyStreak() {
+    window.socketClient.checkDailyStreak((res) => {
+      if (!res) return;
+      const streakDaysEl = document.getElementById('streak-count-days');
+      const coinsEl = document.getElementById('streak-coins-display');
+      const claimBtn = document.getElementById('btn-claim-daily-reward');
+
+      if (streakDaysEl) streakDaysEl.textContent = `${res.streak || 1} kun`;
+      if (coinsEl) coinsEl.textContent = `${res.coins || 100} Tanga`;
+
+      if (claimBtn) {
+        if (res.canClaimReward) {
+          claimBtn.disabled = false;
+          claimBtn.innerHTML = `<i class="fa-solid fa-gift"></i> ${window.i18n.t('claimReward') || 'Mukofotni olish'} (+${res.reward || 50})`;
+        } else {
+          claimBtn.disabled = true;
+          claimBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${window.i18n.t('claimed') || 'Olingan'}`;
+        }
+      }
+    });
+  }
+
+  const btnClaimReward = document.getElementById('btn-claim-daily-reward');
+  if (btnClaimReward) {
+    btnClaimReward.addEventListener('click', () => {
+      window.sounds.playClick();
+      window.socketClient.claimDailyReward((res) => {
+        if (res && res.success) {
+          if (window.sounds.playVictory) window.sounds.playVictory();
+          const coinsAwardEl = document.getElementById('streak-coins-award');
+          if (coinsAwardEl) coinsAwardEl.textContent = `+${res.reward} Tanga 💰`;
+          const streakDaysEl = document.getElementById('streak-count-days');
+          const coinsEl = document.getElementById('streak-coins-display');
+          if (streakDaysEl) streakDaysEl.textContent = `${res.streak} kun`;
+          if (coinsEl) coinsEl.textContent = `${res.coins} Tanga`;
+          btnClaimReward.disabled = true;
+          btnClaimReward.innerHTML = `<i class="fa-solid fa-check"></i> ${window.i18n.t('claimed') || 'Olingan'}`;
+          openModal(streakRewardModal);
+          showToast(`Tabriklaymiz! +${res.reward} tanga hisobingizga qo'shildi! 🔥`, 'success');
+        } else {
+          showToast(res?.error || 'Mukofot allaqachon olingan', 'warning');
+        }
+      });
+    });
+  }
+
+  const btnCloseStreak = document.getElementById('btn-close-streak-reward');
+  if (btnCloseStreak) {
+    btnCloseStreak.addEventListener('click', () => {
+      closeModal(streakRewardModal);
+    });
+  }
+
+  // 2. TUTORIAL / PRACTICE MODE (O'RGANISH REJIMI)
+  let currentTutorialStep = 1;
+  const totalTutorialSteps = 6;
+
+  function renderTutorialStep(step) {
+    currentTutorialStep = step;
+    
+    // Step indikatorlarni yangilash
+    for (let i = 1; i <= totalTutorialSteps; i++) {
+      const stepEl = document.getElementById(`t-step-${i}`);
+      if (stepEl) {
+        stepEl.classList.toggle('active', i === step);
+        stepEl.classList.toggle('completed', i < step);
+      }
+    }
+
+    const prevBtn = document.getElementById('btn-tutorial-prev');
+    const nextBtn = document.getElementById('btn-tutorial-next');
+    const dialogText = document.getElementById('tutorial-dialog-text');
+    const stage = document.getElementById('tutorial-interactive-stage');
+
+    if (prevBtn) prevBtn.style.display = step > 1 ? 'inline-flex' : 'none';
+    if (nextBtn) {
+      if (step === totalTutorialSteps) {
+        nextBtn.innerHTML = '<i class="fa-solid fa-award"></i> Yakunlash va 100 Tanga olish';
+        nextBtn.className = 'btn btn-primary btn-glow';
+      } else {
+        nextBtn.innerHTML = 'Keyingisi <i class="fa-solid fa-arrow-right"></i>';
+        nextBtn.className = 'btn btn-primary';
+      }
+    }
+
+    if (step === 1) {
+      dialogText.textContent = "Xush kelibsiz! Mafiya — bu psixologik va intellektual jamoaviy o'yin. Shaharda tinch fuqarolar va yashirin qotillar (Mafiya) bor. Tinch aholining maqsadi — munozara va ovoz berish orqali mafiyani topish; Mafiya esa tunda yashirincha tinch aholini yo'q qilishi kerak!";
+      stage.innerHTML = `
+        <div style="display:flex; justify-content:space-around; align-items:stretch; gap:12px; text-align:center;">
+          <div style="background:rgba(0, 230, 118, 0.12); border:1px solid #00e676; border-radius:12px; padding:14px; flex:1;">
+            <div style="font-size:38px;">👨‍👩‍👧‍👦</div>
+            <strong style="color:#00e676; font-size:14px; display:block; margin:6px 0;">Tinch Aholi Jamoasi</strong>
+            <p style="font-size:12px; color:#cbd5e1; margin:0; line-height:1.4;">Barcha mafiyalarni topib shahar sudida quvg'in qilish orqali g'alaba qozonadi.</p>
+          </div>
+          <div style="display:flex; align-items:center; font-size:22px; font-weight:800; color:#ffd700;">VS</div>
+          <div style="background:rgba(255, 42, 68, 0.12); border:1px solid #ff2a44; border-radius:12px; padding:14px; flex:1;">
+            <div style="font-size:38px;">🕶️</div>
+            <strong style="color:#ff2a44; font-size:14px; display:block; margin:6px 0;">Mafiya Guruhi</strong>
+            <p style="font-size:12px; color:#cbd5e1; margin:0; line-height:1.4;">Tunda tinch aholini ovlaydi va son jihatdan ularga tenglashganda g'alaba qiladi.</p>
+          </div>
+        </div>
+      `;
+    } else if (step === 2) {
+      dialogText.textContent = "O'yinda har bir ishtirokchiga maxsus rol beriladi. Keling, eng asosiy rollarning noyob qobiliyatlari bilan tanishamiz:";
+      stage.innerHTML = `
+        <div class="t-stage-grid">
+          <div class="t-role-card-mini">
+            <div class="role-icon">🕶️</div>
+            <span class="role-name" style="color:var(--mafia-red)">Mafiya</span>
+            <p class="role-desc">Tunda uyg'onadi va jamoadoshlari bilan bitta qurbonni o'ldirishga nishonlaydi.</p>
+          </div>
+          <div class="t-role-card-mini">
+            <div class="role-icon">👨‍⚕️</div>
+            <span class="role-name" style="color:var(--doctor-green)">Shifokor</span>
+            <p class="role-desc">Tunda 1 o'yinchini davolaydi. Agar uni mafiya o'qqa tutgan bo'lsa, u tirik qoladi!</p>
+          </div>
+          <div class="t-role-card-mini">
+            <div class="role-icon">🕵️‍♂️</div>
+            <span class="role-name" style="color:var(--detective-blue)">Komissar</span>
+            <p class="role-desc">Tunda gumonlanuvchini tekshiradi va uning Mafiya ekanligini fosh qiladi.</p>
+          </div>
+          <div class="t-role-card-mini">
+            <div class="role-icon">👨‍💼</div>
+            <span class="role-name" style="color:#ffd700">Mayor (Hokim)</span>
+            <p class="role-desc">Tinch aholi vakili. Kunduzgi umumiy ovoz berishda uning ovozi 2 ball hisoblanadi.</p>
+          </div>
+        </div>
+      `;
+    } else if (step === 3) {
+      dialogText.textContent = "Tun cho'kdi 🌙. Tasavvur qiling: siz Mafiyasiz va bu kecha shahar ko'chalarida qurolingiz bilan chiqdingiz! Pastdagi o'yinchilardan birini bosing va nishonga oling:";
+      stage.innerHTML = `
+        <div style="text-align:center;">
+          <div style="color:#94a3b8; font-size:12px; margin-bottom:12px;"><i class="fa-solid fa-crosshairs"></i> Qurbonni tanlang:</div>
+          <div class="t-mock-player-list">
+            <button type="button" class="t-mock-player-btn" data-target="Alisher (Bot)"><i class="fa-solid fa-user"></i> Alisher</button>
+            <button type="button" class="t-mock-player-btn" data-target="Madina (Bot)"><i class="fa-solid fa-user"></i> Madina</button>
+            <button type="button" class="t-mock-player-btn" data-target="Jasur (Bot)"><i class="fa-solid fa-user"></i> Jasur</button>
+            <button type="button" class="t-mock-player-btn" data-target="Sardor (Bot)"><i class="fa-solid fa-user"></i> Sardor</button>
+          </div>
+          <div id="t-night-target-info" style="margin-top:14px; font-size:13px; color:#ffd700; min-height:20px;"></div>
+        </div>
+      `;
+
+      stage.querySelectorAll('.t-mock-player-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (window.sounds.playGunshot) window.sounds.playGunshot();
+          stage.querySelectorAll('.t-mock-player-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          const targetName = btn.dataset.target;
+          const infoEl = document.getElementById('t-night-target-info');
+          if (infoEl) infoEl.innerHTML = `🎯 <strong>${targetName}</strong> nishonga olindi! Mafiya o'z vazifasini bajardi. Keyingi bosqichga o'ting!`;
+          dialogText.textContent = `Ajoyib nishon! Siz ${targetName}ni tanladingiz. Tong otdi deb hisoblaymiz, endi kunduzgi faza boshlanadi!`;
+        });
+      });
+    } else if (step === 4) {
+      dialogText.textContent = "Tong otdi ☀️! Tun qorong'uligi ketdi va barcha o'yinchilar umumiy chatda to'planishdi. Bu bosqichda hamma bir-birining gaplarini tahlil qiladi, yolg'onchilarni fosh qiladi:";
+      stage.innerHTML = `
+        <div style="background:rgba(0,0,0,0.4); border-radius:10px; padding:12px; border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:11px; color:#94a3b8; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:4px;">
+            <i class="fa-solid fa-comments"></i> Jonli Kunduzgi Chat Namoyishi
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; text-align:left;">
+            <div style="color:#93c5fd;"><strong>🕵️ Komissar Farrux:</strong> Tunda Jasurni tekshirdim, u qizil rangda chiqdi! U MAFIYA!</div>
+            <div style="color:#f87171;"><strong>🕶️ Jasur:</strong> Yolg'on! Men oddiy duradgorman, nega meni tuhmat qilyapsan?!</div>
+            <div style="color:#e2e8f0;"><strong>👨‍👩‍👧 Madina:</strong> Men Komissarga ishonaman, Jasur doim birinchi bo'lib o'zini oqlashga tushadi!</div>
+          </div>
+        </div>
+      `;
+    } else if (step === 5) {
+      dialogText.textContent = "Muhokama tugadi va shahar sudi boshlandi! Endi har bir o'yinchi shubhali shaxsni quvg'in qilish uchun ovoz beradi. Komissarning chaqirig'iga binoan shubhali Jasurga ovoz bering:";
+      stage.innerHTML = `
+        <div style="text-align:center;">
+          <div style="color:#cbd5e1; font-size:13px; margin-bottom:12px;"><i class="fa-solid fa-scale-balanced"></i> Shahar sudi: Kimni shahar quvg'in qilsin?</div>
+          <div class="t-mock-player-list">
+            <button type="button" class="t-mock-player-btn" id="t-vote-alisher"><i class="fa-solid fa-vote-yea"></i> Alisher (0 ovoz)</button>
+            <button type="button" class="t-mock-player-btn" id="t-vote-jasur" style="border-color:#ff5252;"><i class="fa-solid fa-skull"></i> Jasur (Gumonlanuvchi)</button>
+            <button type="button" class="t-mock-player-btn" id="t-vote-madina"><i class="fa-solid fa-vote-yea"></i> Madina (0 ovoz)</button>
+          </div>
+          <div id="t-vote-feedback" style="margin-top:14px; font-size:13px; color:#00e676; min-height:24px;"></div>
+        </div>
+      `;
+
+      const jasurBtn = document.getElementById('t-vote-jasur');
+      if (jasurBtn) {
+        jasurBtn.addEventListener('click', () => {
+          if (window.sounds.playVote) window.sounds.playVote();
+          jasurBtn.classList.add('selected');
+          jasurBtn.innerHTML = '<i class="fa-solid fa-check"></i> Jasur (Siz ovoz berdingiz!)';
+          const feedEl = document.getElementById('t-vote-feedback');
+          if (feedEl) feedEl.innerHTML = `⚖️ Sud qarori: Jasur ko'pchilik ovoz bilan shahardan haydaldi. U haqiqatdan ham <strong>MAFIYA</strong> bo'lib chiqdi! Shahar qutqarildi! 🎉`;
+          dialogText.textContent = "Ajoyib intuitsiya va to'g'ri qaror! Jasur jazolandi. Tinch aholi g'alabaga bir qadam yaqinlashdi! Oxirgi bosqichga o'ting.";
+        });
+      }
+    } else if (step === 6) {
+      dialogText.textContent = "TABRIKLAYMAN! Siz Mafiya o'yinining barcha asosiy tamoyillarini va fazalarini to'liq o'rganib chiqdingiz. Endi haqiqiy o'yinchilar bilan xona yarating yoki do'stlaringiz bilan qiziqarli janglarni boshlang!";
+      stage.innerHTML = `
+        <div style="text-align:center; padding:16px;">
+          <div style="font-size:52px; animation:flamePulse 1.5s infinite;">🏆</div>
+          <h3 style="color:#ffd700; margin:8px 0 4px; font-size:18px;">O'QUV KURSINI TUGATDINGIZ!</h3>
+          <p style="color:#e2e8f0; font-size:13px; margin-bottom:14px;">Muvaffaqiyatli yakunlaganingiz uchun sizga maxsus bonus beriladi:</p>
+          <div style="font-size:24px; font-weight:800; color:#ffd700; background:rgba(255,215,0,0.15); border:1px solid #ffd700; padding:10px; border-radius:12px; display:inline-block; margin-bottom:14px;">
+            +100 Tanga Mukofot! 💰
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Tutorial tugmalari
+  const btnOpenTutorial = document.getElementById('btn-open-tutorial');
+  if (btnOpenTutorial) {
+    btnOpenTutorial.addEventListener('click', () => {
+      openModal(tutorialModal);
+      renderTutorialStep(1);
+    });
+  }
+
+  document.getElementById('close-tutorial-modal')?.addEventListener('click', () => {
+    closeModal(tutorialModal);
+  });
+
+  document.getElementById('btn-tutorial-prev')?.addEventListener('click', () => {
+    window.sounds.playClick();
+    if (currentTutorialStep > 1) {
+      renderTutorialStep(currentTutorialStep - 1);
+    }
+  });
+
+  document.getElementById('btn-tutorial-next')?.addEventListener('click', () => {
+    window.sounds.playClick();
+    if (currentTutorialStep < totalTutorialSteps) {
+      renderTutorialStep(currentTutorialStep + 1);
+    } else {
+      // Yakunlash va mukofotni olish
+      window.socketClient.completeTutorial((res) => {
+        if (res && res.success) {
+          if (window.sounds.playVictory) window.sounds.playVictory();
+          const coinsEl = document.getElementById('streak-coins-display');
+          if (coinsEl) coinsEl.textContent = `${res.coins || 200} Tanga`;
+          showToast(`Tabriklaymiz! O'quv qo'llanmasi tugatildi va +${res.reward || 100} tanga berildi! 🎓`, 'success');
+        } else {
+          showToast("O'quv qo'llanmasi yakunlandi!", 'info');
+        }
+        closeModal(tutorialModal);
+      });
+    }
+  });
+
+  // Har bir qadamga to'g'ridan to'g'ri o'tish
+  for (let i = 1; i <= 6; i++) {
+    const sEl = document.getElementById(`t-step-${i}`);
+    if (sEl) {
+      sEl.addEventListener('click', () => {
+        window.sounds.playClick();
+        renderTutorialStep(i);
+      });
+    }
+  }
+
+  // 3. MAXSUS QOIDALAR MUHARRIRI (CUSTOM RULE EDITOR)
+  function initCustomRuleEditor() {
+    const btnOpenEditor = document.getElementById('btn-open-custom-rule-editor');
+    if (btnOpenEditor) {
+      btnOpenEditor.addEventListener('click', () => {
+        openModal(customRulesModal);
+        refreshSavedPresetsList();
+      });
+    }
+
+    document.getElementById('close-custom-rules-modal')?.addEventListener('click', () => closeModal(customRulesModal));
+    document.getElementById('btn-cancel-custom-rules')?.addEventListener('click', () => closeModal(customRulesModal));
+
+    // Rollar hisoblagichlari sozlamalari
+    function setupCounter(minusId, plusId, valId, min, max) {
+      const minusBtn = document.getElementById(minusId);
+      const plusBtn = document.getElementById(plusId);
+      const valEl = document.getElementById(valId);
+      if (!minusBtn || !plusBtn || !valEl) return;
+
+      minusBtn.addEventListener('click', () => {
+        window.sounds.playClick();
+        let cur = parseInt(valEl.textContent, 10) || min;
+        if (cur > min) {
+          valEl.textContent = cur - 1;
+        }
+      });
+
+      plusBtn.addEventListener('click', () => {
+        window.sounds.playClick();
+        let cur = parseInt(valEl.textContent, 10) || min;
+        if (cur < max) {
+          valEl.textContent = cur + 1;
+        }
+      });
+    }
+
+    setupCounter('cr-mafia-minus', 'cr-mafia-plus', 'cr-mafia-val', 1, 6);
+    setupCounter('cr-doctor-minus', 'cr-doctor-plus', 'cr-doctor-val', 0, 3);
+    setupCounter('cr-detective-minus', 'cr-detective-plus', 'cr-detective-val', 0, 3);
+    setupCounter('cr-mayor-minus', 'cr-mayor-plus', 'cr-mayor-val', 0, 2);
+    setupCounter('cr-maniac-minus', 'cr-maniac-plus', 'cr-maniac-val', 0, 2);
+    setupCounter('cr-jester-minus', 'cr-jester-plus', 'cr-jester-val', 0, 2);
+
+    // Vaqt slayderlari jonli qiymat ko'rsatish
+    const nightRange = document.getElementById('cr-time-night');
+    const nightVal = document.getElementById('cr-time-night-val');
+    if (nightRange && nightVal) {
+      nightRange.addEventListener('input', () => {
+        nightVal.textContent = `${nightRange.value} soniya`;
+      });
+    }
+
+    const discussRange = document.getElementById('cr-time-discuss');
+    const discussVal = document.getElementById('cr-time-discuss-val');
+    if (discussRange && discussVal) {
+      discussRange.addEventListener('input', () => {
+        discussVal.textContent = `${discussRange.value} soniya`;
+      });
+    }
+
+    const voteRange = document.getElementById('cr-time-vote');
+    const voteVal = document.getElementById('cr-time-vote-val');
+    if (voteRange && voteVal) {
+      voteRange.addEventListener('input', () => {
+        voteVal.textContent = `${voteRange.value} soniya`;
+      });
+    }
+
+    // Saqlangan to'plamlar ro'yxatini yangilash
+    function refreshSavedPresetsList() {
+      const selectEl = document.getElementById('select-saved-presets');
+      if (!selectEl) return;
+      selectEl.innerHTML = '<option value="">-- Saqlangan to\'plamni tanlang --</option>';
+
+      window.socketClient.getPresets((res) => {
+        if (res && res.success && Array.isArray(res.presets)) {
+          res.presets.forEach(pr => {
+            const opt = document.createElement('option');
+            opt.value = pr.id;
+            opt.textContent = pr.name;
+            opt.dataset.settings = JSON.stringify(pr.settings);
+            selectEl.appendChild(opt);
+          });
+        }
+      });
+    }
+
+    // Saqlangan to'plam tanlanganda maydonlarni to'ldirish
+    const selectSaved = document.getElementById('select-saved-presets');
+    if (selectSaved) {
+      selectSaved.addEventListener('change', () => {
+        const selOption = selectSaved.options[selectSaved.selectedIndex];
+        if (!selOption || !selOption.dataset.settings) return;
+        try {
+          const s = JSON.parse(selOption.dataset.settings);
+          applySettingsToCustomInputs(s);
+          const nameInput = document.getElementById('custom-rule-name-input');
+          if (nameInput) nameInput.value = selOption.textContent;
+          showToast(`"${selOption.textContent}" qoidalari yuklandi!`, 'info');
+        } catch (e) {}
+      });
+    }
+
+    // Tanlangan to'plamni o'chirish
+    const btnDeletePreset = document.getElementById('btn-delete-saved-preset');
+    if (btnDeletePreset) {
+      btnDeletePreset.addEventListener('click', () => {
+        const selOption = selectSaved.options[selectSaved.selectedIndex];
+        if (!selOption || !selOption.value) {
+          showToast("O'chirish uchun avval qoidalarni tanlang!", 'warning');
+          return;
+        }
+        window.socketClient.deletePreset(selOption.value, (res) => {
+          if (res && res.success) {
+            showToast("Qoidalar to'plami o'chirildi!", 'info');
+            refreshSavedPresetsList();
+          }
+        });
+      });
+    }
+
+    function getCustomSettingsFromInputs() {
+      return {
+        mafiaCount: parseInt(document.getElementById('cr-mafia-val').textContent, 10) || 1,
+        doctorCount: parseInt(document.getElementById('cr-doctor-val').textContent, 10) || 0,
+        detectiveCount: parseInt(document.getElementById('cr-detective-val').textContent, 10) || 0,
+        mayorCount: parseInt(document.getElementById('cr-mayor-val').textContent, 10) || 0,
+        maniacCount: parseInt(document.getElementById('cr-maniac-val').textContent, 10) || 0,
+        jesterCount: parseInt(document.getElementById('cr-jester-val').textContent, 10) || 0,
+        hasDoctor: (parseInt(document.getElementById('cr-doctor-val').textContent, 10) || 0) > 0,
+        hasDetective: (parseInt(document.getElementById('cr-detective-val').textContent, 10) || 0) > 0,
+        hasMayor: (parseInt(document.getElementById('cr-mayor-val').textContent, 10) || 0) > 0,
+        hasManiac: (parseInt(document.getElementById('cr-maniac-val').textContent, 10) || 0) > 0,
+        hasJester: (parseInt(document.getElementById('cr-jester-val').textContent, 10) || 0) > 0,
+        hasLovers: document.getElementById('cr-lovers-val').checked,
+        nightTime: parseInt(document.getElementById('cr-time-night').value, 10) || 30,
+        discussionTime: parseInt(document.getElementById('cr-time-discuss').value, 10) || 60,
+        votingTime: parseInt(document.getElementById('cr-time-vote').value, 10) || 30
+      };
+    }
+
+    function applySettingsToCustomInputs(s) {
+      if (!s) return;
+      if (s.mafiaCount !== undefined) document.getElementById('cr-mafia-val').textContent = s.mafiaCount;
+      if (s.doctorCount !== undefined) document.getElementById('cr-doctor-val').textContent = s.doctorCount;
+      else if (s.hasDoctor !== undefined) document.getElementById('cr-doctor-val').textContent = s.hasDoctor ? 1 : 0;
+      
+      if (s.detectiveCount !== undefined) document.getElementById('cr-detective-val').textContent = s.detectiveCount;
+      else if (s.hasDetective !== undefined) document.getElementById('cr-detective-val').textContent = s.hasDetective ? 1 : 0;
+
+      if (s.mayorCount !== undefined) document.getElementById('cr-mayor-val').textContent = s.mayorCount;
+      else if (s.hasMayor !== undefined) document.getElementById('cr-mayor-val').textContent = s.hasMayor ? 1 : 0;
+
+      if (s.maniacCount !== undefined) document.getElementById('cr-maniac-val').textContent = s.maniacCount;
+      else if (s.hasManiac !== undefined) document.getElementById('cr-maniac-val').textContent = s.hasManiac ? 1 : 0;
+
+      if (s.jesterCount !== undefined) document.getElementById('cr-jester-val').textContent = s.jesterCount;
+      else if (s.hasJester !== undefined) document.getElementById('cr-jester-val').textContent = s.hasJester ? 1 : 0;
+
+      if (s.hasLovers !== undefined) document.getElementById('cr-lovers-val').checked = !!s.hasLovers;
+
+      if (s.nightTime !== undefined) {
+        document.getElementById('cr-time-night').value = s.nightTime;
+        document.getElementById('cr-time-night-val').textContent = `${s.nightTime} soniya`;
+      }
+      if (s.discussionTime !== undefined) {
+        document.getElementById('cr-time-discuss').value = s.discussionTime;
+        document.getElementById('cr-time-discuss-val').textContent = `${s.discussionTime} soniya`;
+      }
+      if (s.votingTime !== undefined) {
+        document.getElementById('cr-time-vote').value = s.votingTime;
+        document.getElementById('cr-time-vote-val').textContent = `${s.votingTime} soniya`;
+      }
+    }
+
+    // Saqlash va Xonaga Qo'llash
+    const btnApply = document.getElementById('btn-apply-custom-rules');
+    if (btnApply) {
+      btnApply.addEventListener('click', () => {
+        window.sounds.playClick();
+        const nameInput = document.getElementById('custom-rule-name-input');
+        const presetName = (nameInput?.value.trim()) || 'Maxsus Qoidalar';
+        const settings = getCustomSettingsFromInputs();
+
+        // Xost bo'lsa xonaga yangilaymiz
+        if (currentRoomState && currentRoomState.hostId === window.socketClient.playerId) {
+          window.socketClient.updateSettings(settings);
+          
+          // Lobby sozlamalari UI sini ham sinxronlash
+          const mafiaValLobby = document.getElementById('mafia-count-val');
+          if (mafiaValLobby) mafiaValLobby.textContent = settings.mafiaCount;
+          if (document.getElementById('setting-doctor')) document.getElementById('setting-doctor').checked = settings.hasDoctor;
+          if (document.getElementById('setting-detective')) document.getElementById('setting-detective').checked = settings.hasDetective;
+          if (document.getElementById('setting-mayor')) document.getElementById('setting-mayor').checked = settings.hasMayor;
+          if (document.getElementById('setting-maniac')) document.getElementById('setting-maniac').checked = settings.hasManiac;
+          if (document.getElementById('setting-jester')) document.getElementById('setting-jester').checked = settings.hasJester;
+          if (document.getElementById('setting-lovers')) document.getElementById('setting-lovers').checked = settings.hasLovers;
+          if (document.getElementById('time-night')) document.getElementById('time-night').value = settings.nightTime;
+          if (document.getElementById('time-discuss')) document.getElementById('time-discuss').value = settings.discussionTime;
+          if (document.getElementById('time-vote')) document.getElementById('time-vote').value = settings.votingTime;
+        }
+
+        // Presetni saqlash
+        window.socketClient.savePreset(presetName, settings, (res) => {
+          showToast(`"${presetName}" qoidalari xonaga muvaffaqiyatli qo'llandi!`, 'success');
+          closeModal(customRulesModal);
+        });
+      });
+    }
+
+    // Qoidalar kodini nusxalash (Do'stlarga ulashish)
+    const btnCopyCode = document.getElementById('btn-copy-rule-share-code');
+    if (btnCopyCode) {
+      btnCopyCode.addEventListener('click', () => {
+        window.sounds.playClick();
+        const nameInput = document.getElementById('custom-rule-name-input');
+        const presetName = (nameInput?.value.trim()) || 'Do\'stlar Ligasi';
+        const settings = getCustomSettingsFromInputs();
+        const code = window.socketClient.exportRulePresetCode(presetName, settings);
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(() => {
+            showToast("Qoidalar kodi nusxalandi! Do'stlaringizga yuboring 📋", 'success');
+          }).catch(() => {
+            prompt("Ushbu kodni nusxalab oling:", code);
+          });
+        } else {
+          prompt("Ushbu kodni nusxalab oling:", code);
+        }
+      });
+    }
+
+    // Do'sti yuborgan qoidalar kodini import qilish
+    const btnImport = document.getElementById('btn-import-rule-code');
+    if (btnImport) {
+      btnImport.addEventListener('click', () => {
+        window.sounds.playClick();
+        const inputEl = document.getElementById('input-import-rule-code');
+        const code = inputEl?.value.trim();
+        if (!code) {
+          showToast("Iltimos, qoidalar kodini kiriting!", 'warning');
+          return;
+        }
+        const imported = window.socketClient.importRulePresetCode(code);
+        if (imported) {
+          applySettingsToCustomInputs(imported.settings);
+          const nameInput = document.getElementById('custom-rule-name-input');
+          if (nameInput) nameInput.value = imported.name;
+          showToast(`"${imported.name}" qoidalari muvaffaqiyatli import qilindi!`, 'success');
+          inputEl.value = '';
+        } else {
+          showToast("Kiritilgan qoidalar kodi yaroqsiz!", 'danger');
+        }
+      });
+    }
+  }
 
   initApp();
   window.socketClient.init();

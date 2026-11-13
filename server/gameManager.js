@@ -1,7 +1,7 @@
 /**
  * Production-Ready GameManager — Zero Client Trust, Disconnect Grace Period & Bot Takeover, Spectator Mode
  */
-const { ROLES, ROLE_INFO, PHASES, assignRoles, checkWinner, resolveNight, resolveDayVote } = require('./gameLogic');
+const { ROLES, ROLE_INFO, PHASES, assignRoles, checkWinner, resolveNight, resolveDayVote, generateAIRecap } = require('./gameLogic');
 const BotManager = require('./botManager');
 const db = require('./db');
 const logger = require('./logger');
@@ -62,6 +62,8 @@ class Room {
     this.winner = null;
     this.lastNightResult = null;
     this.lastLynchResult = null;
+    this.matchHistory = { events: [], suspects: new Set() };
+    this.aiRecap = null;
 
     // Disconnect grace timers
     this.disconnectTimers = new Map(); // playerId -> Timeout
@@ -262,6 +264,8 @@ class Room {
     this.winner = null;
     this.lastNightResult = null;
     this.lastLynchResult = null;
+    this.matchHistory = { events: [], suspects: new Set() };
+    this.aiRecap = null;
     this.chatHistory = [];
 
     const { assigned, loverPair } = assignRoles(this.players, this.settings);
@@ -384,6 +388,13 @@ class Room {
     };
     this.nightActions.detectiveResult = result;
 
+    if (isMafia) {
+      this.matchHistory.events.push({
+        type: 'detective_found',
+        target: result.targetName
+      });
+    }
+
     const player = this.getPlayer(detectiveId);
     if (player && player.socketId) {
       this.io.to(player.socketId).emit('detective_result', result);
@@ -430,6 +441,14 @@ class Room {
   endNightPhase() {
     const result = resolveNight(this.nightActions, this.playersState);
     this.lastNightResult = result;
+
+    if (result.savedByDoctor) {
+      this.matchHistory.events.push({ type: 'doctor_saved' });
+    }
+    if (result.killedList.length > 0) {
+      const names = result.killedList.map(k => this.getPlayer(k.id)?.name || 'Kimdir');
+      this.matchHistory.events.push({ type: 'night_kill', killed: names });
+    }
 
     let announceText = '';
     if (result.killedList.length > 0) {
@@ -544,6 +563,13 @@ class Room {
       const roleName = ROLE_INFO[result.role]?.name || result.role;
       announceText = `Shahar qarori bilan **${eliminatedPlayer ? eliminatedPlayer.name : 'Kimdir'}** chiqarildi! Haqiqiy roli: **${roleName}** edi!`;
 
+      this.matchHistory.events.push({
+        type: 'lynch',
+        eliminated: eliminatedPlayer ? eliminatedPlayer.name : 'Kimdir',
+        role: result.role,
+        wasMafia: result.role === ROLES.MAFIA
+      });
+
       if (result.loverDiedId) {
         const loverPlayer = this.getPlayer(result.loverDiedId);
         announceText += ` Sevishgani halok bo'lgani sababli **${loverPlayer ? loverPlayer.name : 'Sevishgan'}** ham vafot etdi!`;
@@ -573,6 +599,7 @@ class Room {
     const winResult = checkWinner(this.playersState, context);
     if (winResult) {
       this.winner = winResult;
+      this.aiRecap = generateAIRecap(winResult, this.players, this.playersState, this.matchHistory);
       this.setPhase(PHASES.GAME_OVER, 0, null);
 
       this.broadcastChatMessage({
@@ -633,6 +660,8 @@ class Room {
     this.chatHistory = [];
     this.lastNightResult = null;
     this.lastLynchResult = null;
+    this.matchHistory = { events: [], suspects: new Set() };
+    this.aiRecap = null;
 
     this.broadcastChatMessage({
       senderName: 'Tizim',
@@ -807,6 +836,7 @@ class Room {
       winner: this.winner,
       lastNightResult: this.lastNightResult,
       lastLynchResult: this.lastLynchResult,
+      aiRecap: this.aiRecap,
       votes: this.phase === PHASES.DAY_VOTING ? this.votes : {},
       nightActions: (!isSpectator && isMafia && this.phase === PHASES.NIGHT) ? {
         voterPicks: this.nightActions.mafiaVoterPicks,

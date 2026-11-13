@@ -37,7 +37,13 @@ const TRANSLATIONS = {
     shareLink: "Ulashish",
     openRoom: "Ochiq xona (Global)",
     closedRoom: "Yopiq xona (Parolli)",
-    roomPassword: "Xona paroli (ixtiyoriy)"
+    roomPassword: "Xona paroli (ixtiyoriy)",
+    tutorialBtn: "O'rganish rejimi (AI Trening)",
+    streakTitle: "Kunlik Kirish Mukofoti",
+    customRulesBtn: "Maxsus Qoidalar Muharriri",
+    aiRecapTitle: "AI O'yin Tahlili & Sharhi",
+    claimReward: "Mukofotni olish",
+    claimed: "Olingan"
   },
   ru: {
     gameTitle: "МАФИЯ",
@@ -73,7 +79,13 @@ const TRANSLATIONS = {
     shareLink: "Поделиться",
     openRoom: "Открытая комната",
     closedRoom: "Закрытая комната",
-    roomPassword: "Пароль комнаты (опционально)"
+    roomPassword: "Пароль комнаты (опционально)",
+    tutorialBtn: "Режим обучения (AI)",
+    streakTitle: "Ежедневная награда",
+    customRulesBtn: "Редактор правил",
+    aiRecapTitle: "AI Анализ игры",
+    claimReward: "Забрать награду",
+    claimed: "Получено"
   },
   en: {
     gameTitle: "MAFIA",
@@ -109,7 +121,13 @@ const TRANSLATIONS = {
     shareLink: "Share Link",
     openRoom: "Public Room",
     closedRoom: "Private Room",
-    roomPassword: "Room Password (optional)"
+    roomPassword: "Room Password (optional)",
+    tutorialBtn: "Tutorial Mode (AI Practice)",
+    streakTitle: "Daily Login Streak",
+    customRulesBtn: "Custom Rule Editor",
+    aiRecapTitle: "Post-Game AI Recap",
+    claimReward: "Claim Reward",
+    claimed: "Claimed"
   }
 };
 

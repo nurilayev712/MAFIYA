@@ -87,11 +87,11 @@ const PHASES = {
 function assignRoles(players, settings) {
   const count = players.length;
   let mafiaCount = parseInt(settings.mafiaCount, 10) || 1;
-  const hasDoctor = Boolean(settings.hasDoctor);
-  const hasDetective = Boolean(settings.hasDetective);
-  const hasMayor = Boolean(settings.hasMayor);
-  const hasManiac = Boolean(settings.hasManiac);
-  const hasJester = Boolean(settings.hasJester);
+  const doctorCount = settings.doctorCount !== undefined ? parseInt(settings.doctorCount, 10) : (settings.hasDoctor ? 1 : 0);
+  const detectiveCount = settings.detectiveCount !== undefined ? parseInt(settings.detectiveCount, 10) : (settings.hasDetective ? 1 : 0);
+  const mayorCount = settings.mayorCount !== undefined ? parseInt(settings.mayorCount, 10) : (settings.hasMayor ? 1 : 0);
+  const maniacCount = settings.maniacCount !== undefined ? parseInt(settings.maniacCount, 10) : (settings.hasManiac ? 1 : 0);
+  const jesterCount = settings.jesterCount !== undefined ? parseInt(settings.jesterCount, 10) : (settings.hasJester ? 1 : 0);
   const hasLovers = Boolean(settings.hasLovers);
 
   // Mafiya chegarasi
@@ -100,12 +100,12 @@ function assignRoles(players, settings) {
 
   const roleDeck = [];
 
-  for (let i = 0; i < mafiaCount; i++) roleDeck.push(ROLES.MAFIA);
-  if (hasDoctor && roleDeck.length < count) roleDeck.push(ROLES.DOCTOR);
-  if (hasDetective && roleDeck.length < count) roleDeck.push(ROLES.DETECTIVE);
-  if (hasMayor && roleDeck.length < count) roleDeck.push(ROLES.MAYOR);
-  if (hasManiac && roleDeck.length < count) roleDeck.push(ROLES.MANIAC);
-  if (hasJester && roleDeck.length < count) roleDeck.push(ROLES.JESTER);
+  for (let i = 0; i < mafiaCount && roleDeck.length < count; i++) roleDeck.push(ROLES.MAFIA);
+  for (let i = 0; i < doctorCount && roleDeck.length < count; i++) roleDeck.push(ROLES.DOCTOR);
+  for (let i = 0; i < detectiveCount && roleDeck.length < count; i++) roleDeck.push(ROLES.DETECTIVE);
+  for (let i = 0; i < mayorCount && roleDeck.length < count; i++) roleDeck.push(ROLES.MAYOR);
+  for (let i = 0; i < maniacCount && roleDeck.length < count; i++) roleDeck.push(ROLES.MANIAC);
+  for (let i = 0; i < jesterCount && roleDeck.length < count; i++) roleDeck.push(ROLES.JESTER);
 
   while (roleDeck.length < count) {
     roleDeck.push(ROLES.CITIZEN);
@@ -378,6 +378,81 @@ function resolveDayVote(votes, playersState) {
   };
 }
 
+/**
+ * O'yin yakunida AI tomonidan qisqa, qiziqarli tahlil (Post-game Recap) yaratish
+ * 2-4 jumlada: kimdan dastlab shubhalanildi, ovoz berishdagi burilish va g'alaba omili.
+ */
+function generateAIRecap(winResult, players = [], playersState = {}, matchHistory = {}) {
+  const winner = winResult?.winner || 'citizens';
+  const events = matchHistory?.events || [];
+  
+  // Asosiy ishtirokchilar
+  const mafias = players.filter(p => playersState[p.id]?.role === 'mafia').map(p => p.name);
+  const doctors = players.filter(p => playersState[p.id]?.role === 'doctor').map(p => p.name);
+  const detectives = players.filter(p => playersState[p.id]?.role === 'detective').map(p => p.name);
+  const maniacs = players.filter(p => playersState[p.id]?.role === 'maniac').map(p => p.name);
+  const jesters = players.filter(p => playersState[p.id]?.role === 'jester').map(p => p.name);
+
+  // Hodisalardan burilish nuqtalarini aniqlash
+  const docSaves = events.filter(e => e.type === 'doctor_saved');
+  const detFinds = events.filter(e => e.type === 'detective_found');
+  const lynches = events.filter(e => e.type === 'lynch');
+  const mafiaLynched = lynches.filter(l => l.wasMafia);
+  const innocentLynched = lynches.filter(l => !l.wasMafia && l.role !== 'jester');
+
+  let s1 = "";
+  let s2 = "";
+  let s3 = "";
+
+  if (winner === 'citizens') {
+    if (docSaves.length > 0) {
+      s1 = `O'yin boshidanoq Shifokor (${doctors[0] || 'shahar shifokori'})ning kechasi fuqaroni o'limdan asrab qolgani mafiya rejasiga jiddiy zarba berdi.`;
+    } else if (mafias.length > 0) {
+      s1 = `Dastlabki raundlarda shahar ahli sarosimaga tushdi, biroq mafiya (${mafias.slice(0, 2).join(' va ')})ning shubhali harakatlari tez orada e'tiborni tortdi.`;
+    } else {
+      s1 = `O'yin juda keskin kurashlar bilan boshlandi va dastlabki shubhalar bir necha faol o'yinchilar atrofida aylandi.`;
+    }
+
+    if (detFinds.length > 0) {
+      s2 = `Burilish nuqtasi Komissar (${detectives[0] || 'detektiv'})ning tunda olib borgan aniq tekshiruvi bo'ldi — jinoyatchining niqobi yirtildi.`;
+    } else if (mafiaLynched.length > 0) {
+      s2 = `Hal qiluvchi ovoz berishda ko'pchilik birlashib, mafiya a'zosi (${mafiaLynched[0].eliminated})ni sud qarori bilan chetlatdi.`;
+    } else {
+      s2 = `Kunduzgi muhokamalarda fuqarolar o'zaro ishonchni tiklab, xatolarga yo'l qo'ymadilar.`;
+    }
+
+    s3 = `Natijada Tinch aholi mantiqiy fikrlash va kuchli jamoaviy birdamlik evaziga barcha dushmanlarni bartaraf etib, haqli g'alabaga erishdi! 🏆`;
+  } else if (winner === 'mafia') {
+    s1 = `Mafiya jamoasi (${mafias.slice(0, 2).join(' va ') || 'Don'}) birinchi tundan boshlab sovuqqonlik bilan nishonlarni yo'q qildi va shahar ahlini mohirlik bilan chalg'itdi.`;
+    
+    if (innocentLynched.length > 0) {
+      s2 = `O'yindagi asosiy burilish fuqarolarning shubha ostida o'z begunoh sherigi (${innocentLynched[0].eliminated})ni ovoz berishda chiqarib yuborishi bo'ldi.`;
+    } else {
+      s2 = `Kunduzgi bahslarda mafiya a'zolari o'zlarini beg'ubor fuqaro qilib ko'rsatib, e'tiborni boshqa odamlarga qaratishga muvaffaq bo'lishdi.`;
+    }
+
+    s3 = `Shahar o'ziga kelguniga qadar kuchlar tenglashdi va Mafiya butun shahar ustidan o'zining qat'iy nazoratini o'rnatdi! 🎩`;
+  } else if (winner === 'maniac') {
+    s1 = `Shahar mafiya va fuqarolar o'rtasidagi nizo bilan ovora bo'lib turganda, soya ortidagi Manyak (${maniacs[0] || 'qotil'}) har kecha o'zining qonli izini qoldirdi.`;
+    s2 = `Hech kim uni payqamadi va har ikki tomon bir-birini ayblab, haqiqiy qotilga qo'l bermay turib unga yo'l ochib berdi.`;
+    s3 = `Tong yorishganda barcha raqiblar maydondan chetlatilgan, faqat yovvoyi Manyak maydonda yagona omon qoluvchi mutlaq g'olib sifatida tantana qildi! 🩸`;
+  } else if (winner === 'jester') {
+    s1 = `Masharaboz (${jesters[0] || 'Jester'}) o'yin boshidanoq ataylab shubhali harakatlar qilib, butun shaharning g'azabini o'ziga jalb etdi.`;
+    s2 = `Fuqarolar uni 'aniq mafiya' degan qat'iy ishonch bilan bitta ovozdan osishga qaror qildilar — biroq bu uning puxta rejalashtirilgan eng katta tuzog'i edi!`;
+    s3 = `Linch sudi hukmi ijro etilgach, Masharaboz qah-qaha otib barchani lol qoldirdi va o'yinning yagona daho g'olibi bo'ldi! 🃏`;
+  } else if (winner === 'lovers') {
+    s1 = `O'yin davomida har ikki jabhada ayovsiz jang ketdi, biroq maxfiy Sevishganlar juftligi har qanday zarbadan bir-birlarini himoya qilib keldilar.`;
+    s2 = `Xavfli daqiqalarda ular o'z sirlarini saqlab qolishdi va shaharning barcha fitnalaridan omon o'tishdi.`;
+    s3 = `Shafqatsiz o'yinda yovuzlik ham, adolat ham emas, balki sof Muhabbat barcha to'siqlarni yengib chiqdi! 💖`;
+  } else {
+    s1 = `Ushbu o'yin kutilmagan burilishlar va dramatik qarorlarga boy tarzda kechdi.`;
+    s2 = `O'yinchilar oxirgi nafasgacha o'z nuqtai nazarlarini himoya qilishdi.`;
+    s3 = `Adolat va mantiq sinovida g'olib bo'lgan tomonni chin yurakdan tabriklaymiz! 🌟`;
+  }
+
+  return `${s1} ${s2} ${s3}`;
+}
+
 module.exports = {
   ROLES,
   ROLE_INFO,
@@ -385,5 +460,6 @@ module.exports = {
   assignRoles,
   checkWinner,
   resolveNight,
-  resolveDayVote
+  resolveDayVote,
+  generateAIRecap
 };

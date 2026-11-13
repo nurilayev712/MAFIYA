@@ -168,6 +168,32 @@
                 <span data-i18n="joinWithCode">Kod bilan kirish</span>
               </button>
             </div>
+
+            <!-- KUNLIK KIRISH STREAK VA TANGALAR -->
+            <div class="streak-widget-card" id="streak-widget-card">
+              <div class="streak-info-col">
+                <div class="streak-badge-row">
+                  <span class="streak-flame">🔥</span>
+                  <span class="streak-count" id="streak-count-text">1 kunlik streak</span>
+                </div>
+                <div class="coins-badge-row">
+                  <i class="fa-solid fa-coins" style="color: #ffd700;"></i>
+                  <span id="player-coins-text">100 tanga</span>
+                </div>
+              </div>
+              <button class="btn btn-streak-claim" id="btn-claim-daily-reward" title="Kunlik bonusni olish">
+                <i class="fa-solid fa-gift"></i> <span id="streak-claim-btn-text">Bonus</span>
+              </button>
+            </div>
+
+            <!-- O'RGANISH (TUTORIAL / PRACTICE MODE) CTA -->
+            <div class="tutorial-cta-wrap">
+              <button class="btn btn-tutorial-start" id="btn-open-tutorial" title="Yangi o'yinchilar uchun 1 daqiqalik o'quv mashg'uloti">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>O'rganish (Tutorial) — Namunaviy raund</span>
+                <span class="tutorial-reward-pill">+100 Tanga</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -217,9 +243,12 @@
         <div class="glass-panel lobby-settings-panel">
           <div class="panel-header">
             <h3><i class="fa-solid fa-sliders"></i> <span data-i18n="roomSettings">O'yin sozlamalari</span></h3>
-            <div class="preset-action-bar">
+            <div class="preset-action-bar" style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button class="btn-small" id="btn-open-custom-rule-editor" title="Qoidalar muharriri (Har bir rol va vaqtni aniq sozlash)">
+                <i class="fa-solid fa-sliders"></i> <span>Qoidalar Muharriri</span>
+              </button>
               <button class="btn-small" id="btn-save-custom-preset" title="Sozlamalarni preset sifatida saqlash">
-                <i class="fa-solid fa-bookmark"></i> Saqlash
+                <i class="fa-solid fa-bookmark"></i> <span>Saqlash</span>
               </button>
             </div>
           </div>
@@ -562,6 +591,19 @@
           </div>
           <h1 class="victory-title" id="victory-title">TINCH AHOLI G'ALABA QOZONDI!</h1>
           <p class="victory-reason" id="victory-reason">Barcha mafiyalar fosh qilindi va yo'q qilindi!</p>
+        </div>
+
+        <!-- AI O'YIN TAHLILI VA SHARHI (POST-GAME AI RECAP) -->
+        <div class="ai-recap-box" id="ai-recap-box">
+          <div class="ai-recap-header">
+            <div class="ai-recap-badge">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> <span>AI O'yin Tahlili & Sharhi</span>
+            </div>
+            <span class="ai-recap-tag">Aqlli Tahlil</span>
+          </div>
+          <p class="ai-recap-text" id="ai-recap-text">
+            O'yin voqealari tahlil qilinmoqda...
+          </p>
         </div>
 
         <div class="all-roles-reveal-box">
@@ -1011,6 +1053,218 @@
         <button class="btn btn-secondary" id="btn-reset-server">Standartga qaytarish</button>
         <button class="btn btn-primary" id="btn-save-server">Saqlash va Ulanish</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: O'RGANISH REJIMI (TUTORIAL / PRACTICE MODE) -->
+  <div class="modal-overlay" id="tutorial-modal">
+    <div class="modal-card glass-panel tutorial-modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-graduation-cap" style="color:#60a5fa"></i> <span>Mafiya: O'rganish & Trening</span></h3>
+        <button class="modal-close-btn" id="close-tutorial-modal">&times;</button>
+      </div>
+      <div class="modal-body tutorial-modal-body">
+        
+        <!-- Step Indicator -->
+        <div class="tutorial-steps-bar">
+          <div class="t-step active" id="t-step-1" data-step="1">1. Kirish</div>
+          <div class="t-step" id="t-step-2" data-step="2">2. Rollar</div>
+          <div class="t-step" id="t-step-3" data-step="3">3. Tun</div>
+          <div class="t-step" id="t-step-4" data-step="4">4. Kunduz</div>
+          <div class="t-step" id="t-step-5" data-step="5">5. Ovoz berish</div>
+          <div class="t-step" id="t-step-6" data-step="6">6. G'alaba</div>
+        </div>
+
+        <!-- AI Ustoz Doniyor dialog bloki -->
+        <div class="tutorial-bot-dialog">
+          <div class="t-bot-avatar">🤖</div>
+          <div class="t-bot-speech">
+            <strong class="t-bot-name">Doniyor (AI Maslahatchi):</strong>
+            <p id="tutorial-dialog-text">Xush kelibsiz! Men sizga Mafiya o'yinining barcha sir-asrorlarini 1 daqiqada sodda tilda o'rgataman. Qani, boshladikmi?</p>
+          </div>
+        </div>
+
+        <!-- Interaktiv ko'rgazma maydoni -->
+        <div class="tutorial-interactive-stage" id="tutorial-interactive-stage">
+          <!-- JS orqali dinamik kontent -->
+        </div>
+
+      </div>
+      <div class="modal-footer tutorial-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="btn btn-outline" id="btn-tutorial-prev" style="display:none;"><i class="fa-solid fa-arrow-left"></i> Oldingisi</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-primary" id="btn-tutorial-next">Keyingisi <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MAXSUS QOIDALAR MUHARRIRI (CUSTOM RULE EDITOR) -->
+  <div class="modal-overlay" id="custom-rules-modal">
+    <div class="modal-card glass-panel custom-rules-modal-card" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-sliders" style="color:var(--gold-accent)"></i> <span>Maxsus Qoidalar Muharriri</span></h3>
+        <button class="modal-close-btn" id="close-custom-rules-modal">&times;</button>
+      </div>
+      <div class="modal-body custom-rules-body">
+        
+        <!-- Preset Name & Library -->
+        <div class="rule-edit-section">
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-tag"></i> Qoidalar To'plami Nomi:</label>
+            <input type="text" id="custom-rule-name-input" placeholder="Masalan: Do'stlar Ligasi (Tezkor)" value="Mening Qoidalarim" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+
+          <div class="rule-presets-dropdown-row" style="margin-top:8px;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-folder-open"></i> Saqlangan Qoidalarim:</label>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <select id="select-saved-presets" class="input-select" style="flex:1; padding:8px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                <option value="">-- Saqlangan to'plamni tanlang --</option>
+              </select>
+              <button type="button" class="btn btn-danger btn-small" id="btn-delete-saved-preset" title="Tanlangan qoidani o'chirish">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. ROLLARI ANIQ SONI -->
+        <div class="rule-edit-section">
+          <h4 class="rule-section-title" style="font-size:13px; color:var(--gold-accent); margin:12px 0 8px;"><i class="fa-solid fa-users-gear"></i> Rollar Soni</h4>
+          <div class="rule-counters-grid">
+            
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-user-secret" style="color:var(--mafia-red)"></i> Mafiya:</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-mafia-minus">-</button>
+                <span class="counter-value" id="cr-mafia-val">1</span>
+                <button type="button" class="btn-counter" id="cr-mafia-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-user-doctor" style="color:var(--doctor-green)"></i> Shifokor:</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-doctor-minus">-</button>
+                <span class="counter-value" id="cr-doctor-val">1</span>
+                <button type="button" class="btn-counter" id="cr-doctor-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-user-shield" style="color:var(--detective-blue)"></i> Komissar:</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-detective-minus">-</button>
+                <span class="counter-value" id="cr-detective-val">1</span>
+                <button type="button" class="btn-counter" id="cr-detective-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-landmark" style="color:#ffb300"></i> Mayor (Hokim):</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-mayor-minus">-</button>
+                <span class="counter-value" id="cr-mayor-val">0</span>
+                <button type="button" class="btn-counter" id="cr-mayor-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-skull-crossbones" style="color:var(--maniac-pink)"></i> Manyak:</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-maniac-minus">-</button>
+                <span class="counter-value" id="cr-maniac-val">0</span>
+                <button type="button" class="btn-counter" id="cr-maniac-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item">
+              <span class="rc-label"><i class="fa-solid fa-masks-theater" style="color:#ab47bc"></i> Masharaboz:</span>
+              <div class="counter-control">
+                <button type="button" class="btn-counter" id="cr-jester-minus">-</button>
+                <span class="counter-value" id="cr-jester-val">0</span>
+                <button type="button" class="btn-counter" id="cr-jester-plus">+</button>
+              </div>
+            </div>
+
+            <div class="rule-counter-item lovers-full-row">
+              <span class="rc-label"><i class="fa-solid fa-heart" style="color:#ff4081"></i> Sevishganlar (Lovers)</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="cr-lovers-val">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 2. FAZALARNING ANIQ VAQTLARI -->
+        <div class="rule-edit-section">
+          <h4 class="rule-section-title" style="font-size:13px; color:var(--gold-accent); margin:12px 0 8px;"><i class="fa-solid fa-stopwatch"></i> Fazalar Vaqtlari</h4>
+          <div class="rule-time-sliders">
+            
+            <div class="time-slider-item">
+              <div class="ts-header">
+                <span><i class="fa-solid fa-moon"></i> Tun Fazasi:</span>
+                <strong id="cr-time-night-val">30 soniya</strong>
+              </div>
+              <input type="range" id="cr-time-night" min="10" max="120" step="5" value="30">
+            </div>
+
+            <div class="time-slider-item">
+              <div class="ts-header">
+                <span><i class="fa-solid fa-comments"></i> Kunduzgi Muhokama:</span>
+                <strong id="cr-time-discuss-val">60 soniya</strong>
+              </div>
+              <input type="range" id="cr-time-discuss" min="15" max="300" step="5" value="60">
+            </div>
+
+            <div class="time-slider-item">
+              <div class="ts-header">
+                <span><i class="fa-solid fa-scale-balanced"></i> Ovoz Berish:</span>
+                <strong id="cr-time-vote-val">30 soniya</strong>
+              </div>
+              <input type="range" id="cr-time-vote" min="10" max="120" step="5" value="30">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. DO'STLAR BILAN ULASHISH VA IMPORT QILISH -->
+        <div class="rule-edit-section share-import-box" style="margin-top:10px;">
+          <h4 class="rule-section-title" style="font-size:13px; color:var(--gold-accent); margin:12px 0 8px;"><i class="fa-solid fa-share-nodes"></i> Qoidalarni Do'stlarga Ulashish & Import Qilish</h4>
+          <div style="display:flex; gap:8px; margin-bottom:8px;">
+            <input type="text" id="input-import-rule-code" placeholder="Do'stingiz yuborgan qoidalar kodi (MAFIA_RULE_...)" style="flex:1; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+            <button type="button" class="btn btn-secondary btn-small" id="btn-import-rule-code">
+              <i class="fa-solid fa-file-import"></i> Import
+            </button>
+          </div>
+          <button type="button" class="btn btn-outline btn-small" id="btn-copy-rule-share-code" style="width:100%; font-size:12px;">
+            <i class="fa-solid fa-copy"></i> Ushbu qoidalar kodini nusxalash (Do'stlarga yuborish)
+          </button>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; gap:10px;">
+        <button class="btn btn-outline" id="btn-cancel-custom-rules">Bekor qilish</button>
+        <button class="btn btn-primary" id="btn-apply-custom-rules">
+          <i class="fa-solid fa-check"></i> Saqlash va Xonaga Qo'llash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: KUNLIK STREAK MUKOFOTI POPUP -->
+  <div class="modal-overlay" id="streak-reward-modal">
+    <div class="modal-card glass-panel" style="max-width: 400px; text-align: center;">
+      <div class="streak-celebration-flame" style="font-size:48px; margin-bottom:8px; animation: flamePulse 1.5s infinite;">🔥</div>
+      <h2 id="streak-reward-title" style="color:var(--gold-accent); margin:0 0 6px;">KUNLIK MUKOFOT!</h2>
+      <p id="streak-reward-msg" style="color:#e2e8f0; font-size:14px; margin-bottom:16px;">Siz ketma-ket har kuni kirmasdan o'ynamoqdasiz!</p>
+      <div class="streak-coins-award" id="streak-coins-award" style="font-size:26px; font-weight:800; color:#ffd700; margin-bottom:20px;">
+        +50 Tanga 💰
+      </div>
+      <button class="btn btn-primary btn-glow" id="btn-close-streak-reward" style="width:100%;">
+        Ajoyib, qabul qilindi!
+      </button>
     </div>
   </div>
 
