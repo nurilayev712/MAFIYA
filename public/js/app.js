@@ -77,6 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('mafia_player_name') || '';
     if (savedName) {
       document.getElementById('player-name-input').value = savedName;
+    } else {
+      const defaultName = `Don_${Math.floor(100 + Math.random() * 900)}`;
+      document.getElementById('player-name-input').value = defaultName;
+      localStorage.setItem('mafia_player_name', defaultName);
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -480,15 +484,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id).addEventListener('change', emitSettingsChange);
   });
 
-  document.getElementById('btn-add-bot').addEventListener('click', () => {
+  const onAddBotClick = () => {
     window.sounds.playClick();
     window.socketClient.addBot();
-  });
+    showToast("Bot qo'shildi 🤖", 'info');
+  };
+  document.getElementById('btn-add-bot').addEventListener('click', onAddBotClick);
+  const quickAddBotBtn = document.getElementById('btn-quick-add-bot');
+  if (quickAddBotBtn) {
+    quickAddBotBtn.addEventListener('click', onAddBotClick);
+  }
 
   document.getElementById('btn-start-game').addEventListener('click', () => {
     window.sounds.playClick();
+    if (!currentRoomState) return;
+
+    const count = currentRoomState.players ? currentRoomState.players.length : 1;
+    const autoFill = currentRoomState.settings ? (currentRoomState.settings.autoFillBots !== false) : true;
+
+    if (count < 3 && !autoFill) {
+      showToast("O'yinni boshlash uchun kamida 3 nafar o'yinchi kerak! '+ Bot qo'shish' tugmasini bosing yoki sozlamalarda avto-to'ldirishni yoqing.", 'error');
+      return;
+    }
+
+    const startBtn = document.getElementById('btn-start-game');
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> O\'yin boshlanmoqda...';
+
     window.socketClient.startGame((res) => {
-      if (res && !res.success) showToast(res.message, 'error');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fa-solid fa-play"></i> <span data-i18n="startGame">O\'yinni boshlash</span>';
+      if (res && !res.success) {
+        showToast(res.message || "O'yinni boshlashda xatolik yuz berdi", 'error');
+      }
     });
   });
 
@@ -766,15 +794,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('room-visibility-badge').textContent = state.isPublic ? '🌐 Ochiq xona' : '🔒 Yopiq xona';
     document.getElementById('room-avg-mmr').textContent = `MMR: ${state.avgMmr || 1000}`;
 
-    const isHost = state.hostId === window.socketClient.playerId;
+    const myId = window.socketClient.playerId;
+    const isHost = (state.hostId === myId) || 
+                   (state.players && state.players.some(p => p.id === myId && p.isHost));
     const startBtn = document.getElementById('btn-start-game');
     const waitingMsg = document.getElementById('waiting-host-msg');
     const addBotBtn = document.getElementById('btn-add-bot');
+    const quickAddBotBtn = document.getElementById('btn-quick-add-bot');
 
     if (isHost) {
       startBtn.style.display = 'inline-flex';
       waitingMsg.style.display = 'none';
-      addBotBtn.style.display = 'inline-flex';
+      if (addBotBtn) addBotBtn.style.display = 'inline-flex';
+      if (quickAddBotBtn) quickAddBotBtn.style.display = 'inline-flex';
 
       ['btn-mafia-plus', 'btn-mafia-minus', 'setting-doctor', 'setting-detective', 'setting-mayor', 'setting-maniac', 'setting-jester', 'setting-lovers', 'setting-auto-fill-bots', 'setting-reveal-bots', 'setting-bot-difficulty'].forEach(id => {
         const el = document.getElementById(id);
@@ -783,7 +815,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       startBtn.style.display = 'none';
       waitingMsg.style.display = 'block';
-      addBotBtn.style.display = 'none';
+      if (addBotBtn) addBotBtn.style.display = 'none';
+      if (quickAddBotBtn) quickAddBotBtn.style.display = 'none';
 
       ['btn-mafia-plus', 'btn-mafia-minus', 'setting-doctor', 'setting-detective', 'setting-mayor', 'setting-maniac', 'setting-jester', 'setting-lovers', 'setting-auto-fill-bots', 'setting-reveal-bots', 'setting-bot-difficulty'].forEach(id => {
         const el = document.getElementById(id);
@@ -846,15 +879,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const minHint = document.getElementById('min-players-hint');
+    const autoFill = state.settings?.autoFillBots !== false;
+
     if (state.players.length < 3) {
-      minHint.textContent = `Kamida 3 o'yinchi kerak (yana ${3 - state.players.length} ta)`;
-      minHint.style.color = '#ff6b7d';
-      startBtn.disabled = true;
+      if (autoFill) {
+        minHint.textContent = `Avto-to'ldirish yoqilgan (boshlanganda 4 tagacha botlar qo'shiladi)`;
+        minHint.style.color = '#60a5fa';
+      } else {
+        minHint.textContent = `Kamida 3 o'yinchi kerak (yana ${3 - state.players.length} ta)`;
+        minHint.style.color = '#ff6b7d';
+      }
     } else {
       minHint.textContent = 'O\'yinni boshlashga tayyor!';
       minHint.style.color = '#69f0ae';
-      startBtn.disabled = false;
     }
+
+    // Xost uchun 'O'yinni boshlash' tugmasi doimo bosiladigan faol holatda qoladi
+    startBtn.disabled = false;
   }
 
   function renderRoleReveal(state) {

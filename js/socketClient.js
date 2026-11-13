@@ -587,7 +587,8 @@ class SocketClient {
       hostId: r.hostId,
       isPublic: r.isPublic,
       phase: r.phase,
-      dayNumber: r.dayNumber,
+      round: r.round || r.dayNumber || 1,
+      dayNumber: r.dayNumber || 1,
       avgMmr: r.avgMmr,
       players: safePlayers,
       settings: r.settings,
@@ -596,6 +597,11 @@ class SocketClient {
       isAlive: me ? me.isAlive : true,
       isSpectator: false,
       partners: partners,
+      mafiaPartners: me && me.role === 'mafia' ? partners : [],
+      isLover: me ? r.lovers.includes(me.id) : false,
+      loverPartner: (me && r.lovers.includes(me.id)) ? (
+        r.players.find(p => p.id === r.lovers.find(id => id !== me.id))
+      ) : null,
       nightActions: me && me.role === 'mafia' ? { mafiaVotes: r.nightActions.mafiaVotes } : {},
       votes: r.votes,
       lastNightResult: r.lastNightResult || null,
@@ -627,8 +633,8 @@ class SocketClient {
     if (!this.localRoom) return;
     const r = this.localRoom;
 
-    // Agar o'yinchilar 3 tadan kam bo'lsa, botlar qo'shamiz
-    if (r.players.length < 3) {
+    // Yakka o'yinda yoki o'yinchilar 4 tadan kam bo'lsa botlar to'ldiramiz
+    if (r.players.length < 4) {
       const needed = 4 - r.players.length;
       for (let i = 0; i < needed; i++) {
         this.addLocalBot();
@@ -637,6 +643,8 @@ class SocketClient {
 
     // Rollarni taqsimlash
     this.assignLocalRoles();
+    r.round = 1;
+    r.dayNumber = 1;
     r.phase = 'role_reveal';
     this.broadcastLocalState();
 
@@ -1486,6 +1494,8 @@ class SocketClient {
     } else if (this.isHost && this.localRoom) {
       this.startLocalGame();
       if (callback) callback({ success: true });
+    } else if (callback) {
+      callback({ success: false, message: 'Faqat xona egasi (xost) o\'yinni boshlashi mumkin!' });
     }
   }
 

@@ -198,8 +198,13 @@
             </div>
           </div>
 
-          <div class="players-header">
-            <h3><i class="fa-solid fa-users"></i> <span data-i18n="players">O'yinchilar</span> (<span id="player-count">0</span>/16)</h3>
+          <div class="players-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h3><i class="fa-solid fa-users"></i> <span data-i18n="players">O'yinchilar</span> (<span id="player-count">0</span>/16)</h3>
+              <button type="button" class="btn-small btn-bot" id="btn-quick-add-bot" title="Yakka o'ynash uchun bot qo'shish">
+                <i class="fa-solid fa-plus"></i> <span data-i18n="addBot">+ Bot qo'shish</span>
+              </button>
+            </div>
             <span class="min-players-hint" id="min-players-hint">Kamida 3 o'yinchi kerak</span>
           </div>
 

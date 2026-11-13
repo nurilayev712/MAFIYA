@@ -508,12 +508,17 @@ io.on('connection', (socket) => {
 
   // 13. O'YINNI BOSHLASH
   socket.on('start_game', ({ roomCode }, callback) => {
-    const room = gameManager.getRoom(roomCode);
-    if (!room) return;
-    const player = room.getPlayerBySocket(socket.id);
+    const code = (roomCode || '').toUpperCase().trim();
+    const room = gameManager.getRoom(code);
+    if (!room) {
+      return callback && callback({ success: false, message: 'Xona topilmadi!' });
+    }
+    const player = room.getPlayerBySocket(socket.id) || (socket.userId ? room.getPlayer(socket.userId) : null);
     if (!player || !player.isHost) {
       return callback && callback({ success: false, message: 'Faqat xost o\'yinni boshlashi mumkin!' });
     }
+    // Socket ID yangilanishini ta'minlash
+    player.socketId = socket.id;
 
     const result = room.startGame();
     if (callback) callback(result);
