@@ -1,7 +1,7 @@
 /**
  * Production-Ready GameManager — Zero Client Trust, Disconnect Grace Period & Bot Takeover, Spectator Mode
  */
-const { ROLES, ROLE_INFO, PHASES, assignRoles, checkWinner, resolveNight, resolveDayVote, generateAIRecap } = require('./gameLogic');
+const { ROLES, ROLE_INFO, PHASES, assignRoles, checkWinner, resolveNight, resolveDayVote, generateAIRecap, generateAIReplayMoments } = require('./gameLogic');
 const BotManager = require('./botManager');
 const db = require('./db');
 const logger = require('./logger');
@@ -64,6 +64,7 @@ class Room {
     this.lastLynchResult = null;
     this.matchHistory = { events: [], suspects: new Set() };
     this.aiRecap = null;
+    this.aiReplay = [];
 
     // Disconnect grace timers
     this.disconnectTimers = new Map(); // playerId -> Timeout
@@ -266,6 +267,7 @@ class Room {
     this.lastLynchResult = null;
     this.matchHistory = { events: [], suspects: new Set() };
     this.aiRecap = null;
+    this.aiReplay = [];
     this.chatHistory = [];
 
     const { assigned, loverPair } = assignRoles(this.players, this.settings);
@@ -600,6 +602,7 @@ class Room {
     if (winResult) {
       this.winner = winResult;
       this.aiRecap = generateAIRecap(winResult, this.players, this.playersState, this.matchHistory);
+      this.aiReplay = generateAIReplayMoments(winResult, this.players, this.playersState, this.matchHistory);
       this.setPhase(PHASES.GAME_OVER, 0, null);
 
       this.broadcastChatMessage({
@@ -610,6 +613,7 @@ class Room {
       });
 
       this.saveGameResultsToDB(winResult);
+      this.postTelegramHighlight(winResult);
       return true;
     }
     return false;
@@ -636,9 +640,30 @@ class Room {
       if (unlocked && unlocked.length > 0 && p.socketId) {
         this.io.to(p.socketId).emit('achievements_unlocked', unlocked);
       }
+
+      // Jang Pasporti (Battle Pass) XP qo'shish
+      const xpRes = db.addMatchXP(p.id, won);
+      if (xpRes && p.socketId) {
+        this.io.to(p.socketId).emit('battle_pass_xp_gained', xpRes);
+      }
     });
 
     this.recalculateAvgMmr();
+  }
+
+  postTelegramHighlight(winResult) {
+    const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+    const tgChat = process.env.TELEGRAM_CHAT_ID || '@MAFIYA_712';
+    if (!tgToken) return;
+
+    try {
+      const text = `🎭 *MAFIYA O'yin Natijasi* (Xona: #${this.code})\n🏆 *G'olib*: ${winResult.title}\n📜 *Tafsilot*: ${winResult.reason}\n\n👉 Do'stlaringiz bilan birga o'ynang: https://t.me/MAFIYA_712`;
+      fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: tgChat, text, parse_mode: 'Markdown' })
+      }).catch(() => {});
+    } catch (e) {}
   }
 
   restartToLobby() {
@@ -662,6 +687,7 @@ class Room {
     this.lastLynchResult = null;
     this.matchHistory = { events: [], suspects: new Set() };
     this.aiRecap = null;
+    this.aiReplay = [];
 
     this.broadcastChatMessage({
       senderName: 'Tizim',
@@ -837,6 +863,7 @@ class Room {
       lastNightResult: this.lastNightResult,
       lastLynchResult: this.lastLynchResult,
       aiRecap: this.aiRecap,
+      aiReplay: this.aiReplay || [],
       votes: this.phase === PHASES.DAY_VOTING ? this.votes : {},
       nightActions: (!isSpectator && isMafia && this.phase === PHASES.NIGHT) ? {
         voterPicks: this.nightActions.mafiaVoterPicks,

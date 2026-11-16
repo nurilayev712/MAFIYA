@@ -281,6 +281,87 @@ io.on('connection', (socket) => {
     if (callback) callback(res);
   });
 
+  // 5.3 MAVSUMIY JANG PASPORTI (BATTLE PASS & CLICK/PAYME)
+  socket.on('get_battle_pass', ({ playerId }, callback) => {
+    const pId = playerId || socket.userId;
+    const bp = db.getBattlePass(pId);
+    if (callback) callback({ success: true, battlePass: bp });
+  });
+
+  socket.on('claim_bp_reward', ({ playerId, tierLevel, isPremium }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.claimBattlePassReward(pId, tierLevel, isPremium);
+    if (callback) callback(res);
+  });
+
+  socket.on('buy_battle_pass', ({ playerId, provider }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.purchaseBattlePass(pId, provider);
+    if (callback) callback(res);
+  });
+
+  // 5.4 HAMJAMIYAT IJODXONA MARKAZI (COMMUNITY COSMETICS)
+  socket.on('get_cosmetics', ({ type }, callback) => {
+    const cosmetics = db.getCosmetics(type, false);
+    if (callback) callback({ success: true, cosmetics });
+  });
+
+  socket.on('submit_cosmetic', ({ playerId, name, type, css, description }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.submitCosmetic(pId, { name, type, css, description });
+    if (callback) callback(res);
+  });
+
+  socket.on('equip_cosmetic', ({ playerId, type, cosmeticId }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.equipCosmetic(pId, type, cosmeticId);
+    if (callback) callback(res);
+  });
+
+  socket.on('adm_get_pending_cosmetics', (callback) => {
+    const cosmetics = db.getCosmetics(null, true);
+    if (callback) callback({ success: true, cosmetics });
+  });
+
+  socket.on('adm_moderate_cosmetic', ({ cosmeticId, action }, callback) => {
+    const res = db.moderateCosmetic(cosmeticId, action);
+    if (callback) callback(res);
+  });
+
+  // 5.5 PAROLNI TIKLASH (FORGOT PASSWORD RESET FLOW)
+  socket.on('request_password_reset', ({ email }, callback) => {
+    const res = db.requestPasswordReset(email);
+    if (callback) callback(res);
+  });
+
+  socket.on('confirm_password_reset', async ({ email, code, newPassword }, callback) => {
+    if (!newPassword || newPassword.length < 6) {
+      return callback && callback({ success: false, message: 'Parol kamida 6 ta belgidan iborat bo\'lishi shart' });
+    }
+    const hash = await hashPassword(newPassword);
+    const res = db.confirmPasswordReset(email, code, hash);
+    if (callback) callback(res);
+  });
+
+  // 5.6 DO'STLAR VA STATISTIKA TAQQOSLASH (COMPARE STATS & INVITE)
+  socket.on('compare_friend_stats', ({ playerId, friendId }, callback) => {
+    const pId = playerId || socket.userId;
+    const res = db.getFriendComparison(pId, friendId);
+    if (callback) callback(res);
+  });
+
+  socket.on('send_room_invite', ({ playerId, friendId, roomCode }, callback) => {
+    const pId = playerId || socket.userId;
+    const user = db.getUser(pId);
+    io.emit('friend_room_invited', {
+      fromId: pId,
+      fromName: user?.nickname || 'Do\'stingiz',
+      targetId: friendId,
+      roomCode
+    });
+    if (callback) callback({ success: true, message: 'Taklif yuborildi!' });
+  });
+
   // 6. TOMOSHABIN (SPECTATOR) REJIMI
   socket.on('spectate_room', ({ roomCode }, callback) => {
     const room = gameManager.getRoom(roomCode);

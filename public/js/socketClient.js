@@ -244,6 +244,16 @@ class SocketClient {
         if (this.callbacks.onAchievementsUnlocked) this.callbacks.onAchievementsUnlocked(unlockedList);
       });
 
+      this.socket.on('battle_pass_xp_gained', (data) => {
+        if (this.callbacks.onBattlePassXPGained) this.callbacks.onBattlePassXPGained(data);
+      });
+
+      this.socket.on('friend_room_invited', (data) => {
+        if (data.targetId === this.playerId && this.callbacks.onFriendRoomInvited) {
+          this.callbacks.onFriendRoomInvited(data);
+        }
+      });
+
       this.socket.on('room_invitation', (data) => {
         if (this.callbacks.onRoomInvitation) this.callbacks.onRoomInvitation(data);
       });
@@ -607,6 +617,7 @@ class SocketClient {
       lastNightResult: r.lastNightResult || null,
       lastVoteResult: r.lastVoteResult || null,
       aiRecap: r.aiRecap || null,
+      aiReplay: r.aiReplay || [],
       gameResult: r.gameResult || null
     };
   }
@@ -1110,9 +1121,11 @@ class SocketClient {
     const r = this.localRoom;
     r.phase = 'game_over';
     r.aiRecap = this.generateLocalAIRecap(winData);
+    r.aiReplay = this.generateLocalAIReplay(winData);
     r.gameResult = {
       ...winData,
       aiRecap: r.aiRecap,
+      aiReplay: r.aiReplay,
       roles: r.players.map(p => ({
         id: p.id,
         name: p.name,
@@ -1123,6 +1136,63 @@ class SocketClient {
       }))
     };
     this.broadcastLocalState();
+  }
+
+  generateLocalAIReplay(winData) {
+    const r = this.localRoom;
+    const winner = winData?.winner || 'citizens';
+    const mafias = r ? r.players.filter(p => p.role === 'mafia').map(p => p.name) : [];
+    const doctors = r ? r.players.filter(p => p.role === 'doctor').map(p => p.name) : [];
+
+    return [
+      {
+        step: 1,
+        phase: 'role_reveal',
+        title: "1. Rollar Taqsimoti va Yashirin Fitna",
+        icon: "fa-masks-theater",
+        accent: "#a855f7",
+        eventText: `Rollar taqsimlandi: ${mafias.length > 0 ? mafias.join(', ') : 'Mafiya'} qotillik rejasini boshladi.`,
+        aiNarration: "O'yin boshida har bir ishtirokchi o'zining yashirin missiyasini qabul qildi. Shahar uyquga ketgan bo'lsa-da, mafiya o'zining qora niyatlarini pinhona muhokama qila boshladi."
+      },
+      {
+        step: 2,
+        phase: 'night',
+        title: "2. Qorong'u Tungi Hujum va Qutqaruv",
+        icon: "fa-moon",
+        accent: "#3b82f6",
+        eventText: doctors.length > 0 ? `Shifokor (${doctors[0]}) shahar ahlidan birini asrab qoldi!` : "Tungi shafqatsiz zarba o'z nishoniga yetdi.",
+        aiNarration: "Birinchi tunda mafiya sovuqqonlik bilan hujum qildi. Shifokor esa o'zining tibbiy mahorati bilan shaharga umid baxsh etdi."
+      },
+      {
+        step: 3,
+        phase: 'day_voting',
+        title: "3. Kunduzgi Shahar Sudi (Linch)",
+        icon: "fa-gavel",
+        accent: "#eab308",
+        eventText: "Umumiy munozaradan so'ng fuqarolar ko'pchilik ovoz bilan hukm chiqardilar.",
+        aiNarration: "Kunduzgi qizg'in bahslarda o'zaro ishonchsizlik avjiga chiqdi. Shahar sudi eng shubhali shaxsni quvg'in qilib, o'yin muvozanatini o'zgartirdi."
+      },
+      {
+        step: 4,
+        phase: 'investigation',
+        title: "4. Komissarning Hal Qiluvchi Tergovi",
+        icon: "fa-magnifying-glass",
+        accent: "#06b6d4",
+        eventText: "Komissar qorong'uda yashiringan jinoyatchi izlarini ochib berdi.",
+        aiNarration: "Komissarning xufyona tergovi qotillarning niqobini yirtib tashladi va fuqarolarga kimga ishonish kerakligini ko'rsatdi."
+      },
+      {
+        step: 5,
+        phase: 'game_over',
+        title: "5. Hal Qiluvchi G'alaba Tantanalari",
+        icon: "fa-trophy",
+        accent: winner === 'mafia' ? '#ff2a44' : '#00e676',
+        eventText: `${winData?.title || "G'alaba aniqlandi!"}`,
+        aiNarration: winner === 'mafia'
+          ? "Mafiya o'zining sovuqqon rejalari va makkorona aldovlari evaziga shaharni to'liq o'z nazoratiga oldi! 🎩"
+          : "Tinch fuqarolar aql, mantiq va mustahkam birdamlik evaziga barcha yovuz kuchlarni tor-mor etdilar! 🏆"
+      }
+    ];
   }
 
   generateLocalAIRecap(winData) {
@@ -1907,6 +1977,169 @@ class SocketClient {
         type: 'TYPING',
         data: { userId: this.playerId, userName: this.playerName, isTyping }
       });
+    }
+  }
+
+  // 20. JANG PASPORTI (BATTLE PASS & CLICK/PAYME)
+  getBattlePass(callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('get_battle_pass', { playerId: this.playerId }, callback);
+    } else {
+      let xp = parseInt(localStorage.getItem('mafia_bp_xp'), 10) || 0;
+      let isPremium = localStorage.getItem('mafia_bp_premium') === 'true';
+      let claimed = JSON.parse(localStorage.getItem('mafia_bp_claimed') || '[]');
+      let level = Math.min(10, Math.floor(xp / 500) + 1);
+
+      const tiers = [
+        { level: 1, xpRequired: 0, free: { type: 'coins', value: 100, name: '100 Tanga 💰' }, premium: { type: 'coins', value: 300, name: '300 Tanga 💰' } },
+        { level: 2, xpRequired: 500, free: { type: 'title', value: 'Boshlovchi Detektiv', name: 'Unvon: Boshlovchi Detektiv 🕵️' }, premium: { type: 'frame', value: 'frame_gold', name: 'Oltin Ramka 👑' } },
+        { level: 3, xpRequired: 1000, free: { type: 'coins', value: 150, name: '150 Tanga 💰' }, premium: { type: 'chat_bg', value: 'bg_noir', name: 'Retro Noir Chati 🕶️' } },
+        { level: 4, xpRequired: 1500, free: { type: 'title', value: 'Shahar Himoyachisi', name: 'Unvon: Shahar Himoyachisi 🛡️' }, premium: { type: 'coins', value: 500, name: '500 Tanga 💰' } },
+        { level: 5, xpRequired: 2000, free: { type: 'coins', value: 200, name: '200 Tanga 💰' }, premium: { type: 'theme', value: 'theme_neon_red', name: 'Neon Qon Mavzusi 🩸' } },
+        { level: 6, xpRequired: 2500, free: { type: 'frame', value: 'frame_bronze', name: 'Bronza Ramka 🥉' }, premium: { type: 'title', value: 'Sokin Qotil', name: 'Unvon: Sokin Qotil 🗡️' } },
+        { level: 7, xpRequired: 3000, free: { type: 'coins', value: 250, name: '250 Tanga 💰' }, premium: { type: 'coins', value: 700, name: '700 Tanga 💰' } },
+        { level: 8, xpRequired: 3500, free: { type: 'title', value: 'Tungi Qidiruvchi', name: 'Unvon: Tungi Qidiruvchi 🌙' }, premium: { type: 'frame', value: 'frame_cyber', name: 'Kiber Ramka ⚡' } },
+        { level: 9, xpRequired: 4000, free: { type: 'coins', value: 300, name: '300 Tanga 💰' }, premium: { type: 'chat_bg', value: 'bg_tashkent', name: 'Tungi Toshkent Chati 🌃' } },
+        { level: 10, xpRequired: 4500, free: { type: 'title', value: 'Afsonaviy O\'yinchi', name: 'Unvon: Afsonaviy O\'yinchi 🏆' }, premium: { type: 'title', value: 'Don Salieri', name: 'Eksklyuziv Unvon: Don Salieri (+1000 Tanga) 🎩' } }
+      ].map(t => {
+        const isUnlocked = xp >= t.xpRequired;
+        const isFreeClaimed = claimed.includes(`free_${t.level}`);
+        const isPremiumClaimed = claimed.includes(`premium_${t.level}`);
+        return {
+          level: t.level,
+          xpRequired: t.xpRequired,
+          free: { ...t.free, claimed: isFreeClaimed, canClaim: isUnlocked && !isFreeClaimed },
+          premium: { ...t.premium, claimed: isPremiumClaimed, canClaim: isUnlocked && isPremium && !isPremiumClaimed }
+        };
+      });
+
+      if (callback) {
+        callback({
+          success: true,
+          battlePass: { level, xp, nextXp: level * 500, isPremium, tiers }
+        });
+      }
+    }
+  }
+
+  claimBPReward(tierLevel, isPremium, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('claim_bp_reward', { playerId: this.playerId, tierLevel, isPremium }, callback);
+    } else {
+      let claimed = JSON.parse(localStorage.getItem('mafia_bp_claimed') || '[]');
+      const key = isPremium ? `premium_${tierLevel}` : `free_${tierLevel}`;
+      claimed.push(key);
+      localStorage.setItem('mafia_bp_claimed', JSON.stringify(claimed));
+      let coins = parseInt(localStorage.getItem('mafia_coins'), 10) || 100;
+      coins += (isPremium ? 300 : 100);
+      localStorage.setItem('mafia_coins', coins);
+      if (callback) callback({ success: true, reward: { name: 'Mukofot qabul qilindi' }, coins });
+    }
+  }
+
+  buyBattlePass(provider, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('buy_battle_pass', { playerId: this.playerId, provider }, callback);
+    } else {
+      localStorage.setItem('mafia_bp_premium', 'true');
+      let coins = parseInt(localStorage.getItem('mafia_coins'), 10) || 100;
+      coins += 500;
+      localStorage.setItem('mafia_coins', coins);
+      if (callback) callback({
+        success: true,
+        isPremium: true,
+        message: `Premium Jang Pasporti faollashtirildi (${provider.toUpperCase()})! +500 Tanga olindi.`
+      });
+    }
+  }
+
+  // 21. HAMJAMIYAT IJODXONA MARKAZI (COMMUNITY COSMETICS)
+  getCosmetics(type, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('get_cosmetics', { type }, callback);
+    } else {
+      const cosmetics = [
+        { id: 'frame_gold', type: 'frame', name: 'Oltin Qirol Ramkasi', author: 'MAFIYA Official', css: 'border: 3px solid #ffd700; box-shadow: 0 0 10px #ffd700;', status: 'approved' },
+        { id: 'frame_cyber', type: 'frame', name: 'Neon Kiber Ramka', author: 'CyberDon', css: 'border: 3px solid #00b0ff; box-shadow: 0 0 12px #00b0ff;', status: 'approved' },
+        { id: 'frame_blood', type: 'frame', name: 'Qonli Alanga Ramkasi', author: 'RedMafia', css: 'border: 3px solid #ff2a44; box-shadow: 0 0 14px rgba(255,42,68,0.7);', status: 'approved' },
+        { id: 'bg_noir', type: 'chat_bg', name: 'Retro Noir', author: 'MAFIYA Official', css: 'background: linear-gradient(180deg, #18181b 0%, #09090b 100%);', status: 'approved' },
+        { id: 'bg_tashkent', type: 'chat_bg', name: 'Tungi Toshkent', author: 'ToshkentlikDon', css: 'background: linear-gradient(180deg, #0f172a 0%, #020617 100%); border: 1px solid #3b82f6;', status: 'approved' },
+        { id: 'theme_neon_red', type: 'room_theme', name: 'Neon Qon Mavzusi', author: 'MAFIYA Official', css: '--accent-red: #ff1744;', status: 'approved' },
+        { id: 'theme_emerald', type: 'room_theme', name: 'Zahar Zumrad Mavzusi', author: 'EmeraldBoss', css: '--accent-emerald: #00e676;', status: 'approved' }
+      ];
+      if (callback) callback({ success: true, cosmetics: type ? cosmetics.filter(c => c.type === type) : cosmetics });
+    }
+  }
+
+  submitCosmetic(data, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('submit_cosmetic', { playerId: this.playerId, ...data }, callback);
+    } else if (callback) {
+      callback({ success: true, message: 'Kosmetika moderatsiyaga yuborildi!' });
+    }
+  }
+
+  equipCosmetic(type, cosmeticId, callback) {
+    localStorage.setItem(`mafia_cosmetic_${type}`, cosmeticId || '');
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('equip_cosmetic', { playerId: this.playerId, type, cosmeticId }, callback);
+    } else if (callback) {
+      callback({ success: true, equippedCosmetics: { [type]: cosmeticId } });
+    }
+  }
+
+  admGetPendingCosmetics(callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('adm_get_pending_cosmetics', callback);
+    } else if (callback) {
+      callback({ success: true, cosmetics: [] });
+    }
+  }
+
+  admModerateCosmetic(cosmeticId, action, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('adm_moderate_cosmetic', { cosmeticId, action }, callback);
+    } else if (callback) {
+      callback({ success: true, status: action === 'approve' ? 'approved' : 'rejected' });
+    }
+  }
+
+  // 22. PAROLNI TIKLASH
+  requestPasswordReset(email, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('request_password_reset', { email }, callback);
+    } else if (callback) {
+      callback({ success: true, code: '123456', message: 'Demo tiklash kodi: 123456' });
+    }
+  }
+
+  confirmPasswordReset(email, code, newPassword, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('confirm_password_reset', { email, code, newPassword }, callback);
+    } else if (callback) {
+      callback({ success: true, message: 'Parol muvaffaqiyatli yangilandi!' });
+    }
+  }
+
+  // 23. DO'STLAR BILAN STATISTIKANI TAQQOSLASH VA TAKLIF YUBORISH
+  compareFriendStats(friendId, callback) {
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('compare_friend_stats', { playerId: this.playerId, friendId }, callback);
+    } else if (callback) {
+      callback({
+        success: true,
+        me: { nickname: this.playerName, mmr: 1000, rank: 'Bronza', gamesPlayed: 10, wins: 6, winRate: '60%', coins: 150, bpLevel: 1 },
+        friend: { nickname: 'Do\'stingiz', mmr: 1050, rank: 'Kumush', gamesPlayed: 15, wins: 9, winRate: '60%', coins: 200, bpLevel: 2 }
+      });
+    }
+  }
+
+  sendRoomInvite(friendId, roomCode, callback) {
+    const code = roomCode || this.roomCode;
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('send_room_invite', { playerId: this.playerId, friendId, roomCode: code }, callback);
+    } else if (callback) {
+      callback({ success: true, message: 'Xonaga taklif yuborildi!' });
     }
   }
 }

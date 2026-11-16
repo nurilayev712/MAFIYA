@@ -52,6 +52,18 @@
         <span class="btn-text">Jonli</span>
       </button>
 
+      <!-- Mavsumiy Jang Pasporti (Battle Pass) -->
+      <button class="icon-btn" id="btn-open-battlepass" title="Mavsumiy Jang Pasporti (Battle Pass)">
+        <i class="fa-solid fa-shield-halved" style="color:#ffd700"></i>
+        <span class="btn-text">Pasport</span>
+      </button>
+
+      <!-- Hamjamiyat Ijodxonasi (Community Content Hub) -->
+      <button class="icon-btn" id="btn-open-community" title="Hamjamiyat Ijodxonasi (Cosmetics & Themes)">
+        <i class="fa-solid fa-palette" style="color:#ec4899"></i>
+        <span class="btn-text">Ijodxona</span>
+      </button>
+
       <!-- Kirish / Ro'yxatdan o'tish -->
       <button class="icon-btn" id="btn-open-auth" title="Kirish / Ro'yxatdan o'tish">
         <i class="fa-solid fa-user-lock"></i>
@@ -194,6 +206,20 @@
                 <span class="tutorial-reward-pill">+100 Tanga</span>
               </button>
             </div>
+
+            <!-- TELEGRAM HAMJAMIYAT GURUHI BANNERI (https://t.me/MAFIYA_712) -->
+            <a href="https://t.me/MAFIYA_712" target="_blank" rel="noopener noreferrer" class="telegram-community-card" id="telegram-community-banner" title="Rasmiy Telegram guruhimizga qo'shiling!">
+              <div class="tg-banner-left">
+                <div class="tg-banner-icon"><i class="fa-brands fa-telegram"></i></div>
+                <div class="tg-banner-text">
+                  <strong>Telegram Guruhimizga Qo'shiling!</strong>
+                  <span>Jonli muhokamalar, turnirlar va yangiliklar: @MAFIYA_712</span>
+                </div>
+              </div>
+              <div class="tg-banner-btn">
+                <span>Qo'shilish</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </div>
+            </a>
           </div>
         </div>
       </div>
@@ -606,6 +632,13 @@
           </p>
         </div>
 
+        <!-- AI REPLAY THEATER CTA -->
+        <div style="margin: 14px 0 18px; text-align: center;">
+          <button class="btn btn-secondary btn-glow" id="btn-watch-replay" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); border: 1px solid #a78bfa; color:#fff; font-weight:600; padding:12px 20px; border-radius:12px; width:100%; max-width:340px; margin:0 auto; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 4px 15px rgba(99,102,241,0.4);">
+            <i class="fa-solid fa-film" style="font-size:16px;"></i> <span>AI Kinematik Replay (Sharh)</span>
+          </button>
+        </div>
+
         <div class="all-roles-reveal-box">
           <h3><i class="fa-solid fa-masks-theater"></i> Barcha o'yinchilarning haqiqiy rollari:</h3>
           <div class="all-roles-grid" id="all-roles-grid"></div>
@@ -662,7 +695,36 @@
             <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-lock"></i> Parol</label>
             <input type="password" id="auth-login-pass" required placeholder="••••••••" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
           </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:-4px;">
+            <button type="button" id="btn-show-forgot-pass" style="background:none; border:none; color:#60a5fa; font-size:11px; cursor:pointer; text-decoration:underline; padding:0;">Parolni unutdingizmi?</button>
+          </div>
           <button type="submit" class="btn btn-primary" style="margin-top:6px;">Kirish</button>
+        </form>
+
+        <!-- Parolni unutganlar uchun forma -->
+        <form id="form-auth-forgot" style="display:none; flex-direction:column; gap:12px;">
+          <p style="font-size:12px; color:#94a3b8; margin:0;">Tizimda ro'yxatdan o'tgan emailingizni kiriting. Tasdiqlash kodi yuboriladi:</p>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-envelope"></i> Email</label>
+            <input type="email" id="auth-forgot-email" required placeholder="nomi@misol.uz" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:6px;">Tiklash Kodini Olish</button>
+          <button type="button" class="btn btn-outline btn-small" id="btn-back-to-login-1">Ortga (Kirish)</button>
+        </form>
+
+        <!-- Kod va Yangi Parol kiritish formasi -->
+        <form id="form-auth-reset" style="display:none; flex-direction:column; gap:12px;">
+          <p style="font-size:12px; color:#94a3b8; margin:0;">Emailingizga yuborilgan 6 xonali tasdiqlash kodini va yangi parolni kiriting:</p>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-key"></i> 6 xonali kod</label>
+            <input type="text" id="auth-reset-code" maxlength="6" required placeholder="123456" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff; letter-spacing:4px; font-weight:700; text-align:center;">
+          </div>
+          <div class="form-group" style="text-align:left;">
+            <label style="font-size:12px; color:#cbd5e1;"><i class="fa-solid fa-lock"></i> Yangi parol (kamida 6 ta belgi)</label>
+            <input type="password" id="auth-reset-pass" required minlength="6" placeholder="••••••••" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:6px;">Parolni Yangilash</button>
+          <button type="button" class="btn btn-outline btn-small" id="btn-back-to-login-2">Ortga (Kirish)</button>
         </form>
 
         <!-- Ro'yxatdan o'tish Formasi -->
@@ -756,6 +818,7 @@
             <button class="admin-tab-btn active" id="btn-adm-tab-rooms">Xonalar</button>
             <button class="admin-tab-btn" id="btn-adm-tab-reports">Shikoyatlar</button>
             <button class="admin-tab-btn" id="btn-adm-tab-broadcast">Global E'lon</button>
+            <button class="admin-tab-btn" id="btn-adm-tab-cosmetics">Ijodxona</button>
           </div>
 
           <!-- Xonalarni boshqarish -->
@@ -777,6 +840,17 @@
             <button class="btn btn-primary" id="btn-adm-send-broadcast" style="margin-top:8px;">
               <i class="fa-solid fa-bullhorn"></i> Hammaga Yuborish
             </button>
+          </div>
+
+          <!-- Hamjamiyat Ijodxonasi Moderatsiyasi -->
+          <div class="admin-tab-content" id="adm-tab-cosmetics-content" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h4 style="font-size:13px; color:var(--gold-accent); margin:0;"><i class="fa-solid fa-palette"></i> Tasdiqlashni kutayotgan dizaynlar</h4>
+              <button class="btn btn-outline btn-small" id="btn-adm-refresh-cosmetics"><i class="fa-solid fa-rotate"></i> Yangilash</button>
+            </div>
+            <div class="admin-cosmetics-list" id="adm-cosmetics-list">
+              <p style="color:#94a3b8; font-size:12px;">Hozircha tekshiruvda yangi dizayn yo'q.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1265,6 +1339,239 @@
       <button class="btn btn-primary btn-glow" id="btn-close-streak-reward" style="width:100%;">
         Ajoyib, qabul qilindi!
       </button>
+    </div>
+  </div>
+
+  <!-- MODAL: MAVSUMIY JANG PASPORTI (BATTLE PASS) -->
+  <div class="modal-overlay" id="battle-pass-modal">
+    <div class="modal-card glass-panel bp-modal-card" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-shield-halved" style="color:var(--gold-accent); font-size:22px;"></i>
+          <div>
+            <h3 style="margin:0; font-size:1.15rem;">Mavsumiy Jang Pasporti (Battle Pass)</h3>
+            <span style="font-size:11px; color:#94a3b8;">1-Mavsum: "Kosa Tagidagi Qon"</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="close-battle-pass-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto; padding:16px;">
+        <!-- Battle Pass Status Card -->
+        <div class="bp-status-hero" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div class="bp-level-badge" id="bp-level-badge" style="width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#ffd700,#b45309); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px; color:#000; box-shadow:0 0 12px rgba(255,215,0,0.5);">1</div>
+            <div>
+              <div style="font-size:13px; font-weight:700; color:#fff; margin-bottom:4px;">
+                Tajriba: <span id="bp-current-xp">0</span> / <span id="bp-max-xp">500</span> XP
+              </div>
+              <div style="width:160px; height:8px; background:rgba(0,0,0,0.5); border-radius:4px; overflow:hidden;">
+                <div id="bp-xp-bar-fill" style="width:0%; height:100%; background:linear-gradient(90deg,#ffd700,#ef4444); transition:width 0.3s;"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="bp-status-tag" id="bp-status-tag" style="padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; background:rgba(255,255,255,0.1); color:#94a3b8;">BEPUL TARIF</span>
+            <button class="btn btn-primary btn-glow" id="btn-upgrade-premium-bp" style="font-size:12px; padding:8px 14px; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; color:#000; font-weight:800;">
+              <i class="fa-solid fa-crown"></i> Premiumga Oshirish (25,000 UZS)
+            </button>
+          </div>
+        </div>
+
+        <p style="font-size:12px; color:#cbd5e1; margin:0 0 14px;">
+          🎮 Har bir o'ynalgan o'yin uchun <strong>+100 XP</strong>, g'alaba qozonsangiz qo'shimcha <strong>+150 XP</strong> beriladi!
+        </p>
+
+        <!-- 10 Darajali Zanjir -->
+        <div class="bp-tiers-container" id="bp-tiers-container" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Dinamik JS orqali to'ldiriladi -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TO'LOV TIZIMI (CLICK / PAYME) -->
+  <div class="modal-overlay" id="payment-modal">
+    <div class="modal-card glass-panel payment-modal-card" style="max-width: 440px; text-align:center;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-credit-card" style="color:var(--gold-accent)"></i> <span>Xavfsiz To'lov (Click & Payme)</span></h3>
+        <button class="modal-close-btn" id="close-payment-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <div class="payment-item-summary" style="background:rgba(255,255,255,0.05); padding:14px; border-radius:12px; margin-bottom:16px; border:1px solid rgba(255,215,0,0.3);">
+          <h4 style="margin:0 0 4px; color:#fff;">Premium Jang Pasporti (1-Mavsum)</h4>
+          <div style="font-size:26px; font-weight:800; color:#ffd700; margin:6px 0;">25,000 UZS</div>
+          <p style="font-size:11px; color:#94a3b8; margin:0;">Barcha 10 ta eksklyuziv mukofotlar va bir zumda +500 Tanga bonus</p>
+        </div>
+
+        <p style="font-size:12px; color:#cbd5e1; margin-bottom:12px;">Qulay to'lov tizimini tanlang:</p>
+
+        <div class="payment-methods-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <button type="button" class="payment-provider-card" id="btn-pay-click" style="background:#0055a5; border:2px solid transparent; border-radius:12px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; color:#fff; transition:0.2s;">
+            <i class="fa-solid fa-bolt" style="font-size:26px; color:#ffd700;"></i>
+            <strong style="font-size:15px; letter-spacing:1px;">CLICK</strong>
+            <span style="font-size:11px; opacity:0.85;">Click Pass / Click Up</span>
+          </button>
+
+          <button type="button" class="payment-provider-card" id="btn-pay-payme" style="background:#00a3a6; border:2px solid transparent; border-radius:12px; padding:16px; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:8px; color:#fff; transition:0.2s;">
+            <i class="fa-solid fa-wallet" style="font-size:26px;"></i>
+            <strong style="font-size:15px; letter-spacing:1px;">Payme</strong>
+            <span style="font-size:11px; opacity:0.85;">Payme Go / Ilova</span>
+          </button>
+        </div>
+
+        <div class="payment-sim-notice" style="font-size:11px; color:#94a3b8; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; line-height:1.5;">
+          🔒 O'zbekiston bank kartalari (Uzcard / Humo / Visa) orqali xavfsiz to'lov shlyuzi.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HAMJAMIYAT IJODXONASI (COMMUNITY COSMETICS & THEMES) -->
+  <div class="modal-overlay" id="community-modal">
+    <div class="modal-card glass-panel community-modal-card" style="max-width: 660px; max-height: 90vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-palette" style="color:#ec4899; font-size:20px;"></i>
+          <h3 style="margin:0;">Hamjamiyat Ijodxonasi (Kosmetika & Temalar)</h3>
+        </div>
+        <button class="modal-close-btn" id="close-community-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto; padding:16px;">
+        <!-- Tabs: Ko'rish / Yangi yaratish -->
+        <div class="community-tabs" style="display:flex; gap:8px; margin-bottom:14px;">
+          <button type="button" class="btn btn-small active" id="tab-comm-catalog" style="flex:1;">
+            <i class="fa-solid fa-store"></i> Katalog & Jihozlash
+          </button>
+          <button type="button" class="btn btn-small btn-outline" id="tab-comm-submit" style="flex:1;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Yangi Yaratish
+          </button>
+        </div>
+
+        <!-- Filtrlar: Hammasi, Ramkalar, Fonlar, Temalar -->
+        <div id="comm-catalog-view">
+          <div class="comm-filter-chips" style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;">
+            <button type="button" class="btn-chip active" data-filter="all">Barchasi</button>
+            <button type="button" class="btn-chip" data-filter="frame">Avatar Ramkalari</button>
+            <button type="button" class="btn-chip" data-filter="chat_bg">Chat Fonlari</button>
+            <button type="button" class="btn-chip" data-filter="theme">Xona Temalari</button>
+          </div>
+
+          <div class="cosmetics-grid" id="cosmetics-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(180px, 1fr)); gap:12px;">
+            <!-- Dinamik kosmetikalar -->
+          </div>
+        </div>
+
+        <!-- Yangi kosmetika yuklash / yaratish -->
+        <div id="comm-submit-view" style="display:none;">
+          <form id="form-submit-cosmetic" style="display:flex; flex-direction:column; gap:12px;">
+            <div class="form-group" style="text-align:left;">
+              <label style="font-size:12px; color:#cbd5e1;">Kosmetika Nomi:</label>
+              <input type="text" id="comm-item-name" required placeholder="Masalan: Oltin Qotil Ramkasi" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+            </div>
+
+            <div class="form-group" style="text-align:left;">
+              <label style="font-size:12px; color:#cbd5e1;">Turi:</label>
+              <select id="comm-item-type" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+                <option value="frame">Avatar Ramkasi (Frame)</option>
+                <option value="chat_bg">Chat Foni (Chat Background)</option>
+                <option value="theme">Xona Temasi (Room Theme)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="text-align:left;">
+              <label style="font-size:12px; color:#cbd5e1;">Rangi yoki CSS Uslubi (Gradient / Kod):</label>
+              <input type="text" id="comm-item-css" required placeholder="linear-gradient(135deg, #f59e0b, #ef4444)" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+            </div>
+
+            <div class="form-group" style="text-align:left;">
+              <label style="font-size:12px; color:#cbd5e1;">Belgi / Emoji (ixtiyoriy):</label>
+              <input type="text" id="comm-item-badge" placeholder="👑 yoki ⚡" maxlength="4" style="width:100%; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.2); color:#fff;">
+            </div>
+
+            <p style="font-size:11px; color:#94a3b8; margin:0;">
+              ℹ️ Siz taqdim etgan dizayn administrator tomonidan tekshirilgach barcha o'yinchilar katalogida paydo bo'ladi.
+            </p>
+
+            <button type="submit" class="btn btn-primary" style="margin-top:6px;">
+              <i class="fa-solid fa-paper-plane"></i> Tasdiqlashga Yuborish
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AI KINEMATIK QAYTARISH TEATRI (AI REPLAY THEATER) -->
+  <div class="modal-overlay" id="replay-modal">
+    <div class="modal-card glass-panel replay-modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-film" style="color:#818cf8; font-size:20px;"></i>
+          <h3 style="margin:0;">AI Kinematik O'yin Sharhi (Replay)</h3>
+        </div>
+        <button class="modal-close-btn" id="close-replay-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <!-- Step progress dots -->
+        <div class="replay-step-dots" id="replay-step-dots" style="display:flex; justify-content:center; gap:8px; margin-bottom:16px;">
+          <span class="replay-dot active" data-step="0"></span>
+          <span class="replay-dot" data-step="1"></span>
+          <span class="replay-dot" data-step="2"></span>
+          <span class="replay-dot" data-step="3"></span>
+          <span class="replay-dot" data-step="4"></span>
+        </div>
+
+        <div class="replay-cinema-box" style="background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:20px; text-align:center;">
+          <div class="replay-moment-badge" id="replay-moment-badge" style="display:inline-block; padding:4px 12px; border-radius:20px; background:rgba(99,102,241,0.2); color:#818cf8; font-size:11px; font-weight:700; text-transform:uppercase; margin-bottom:12px;">
+            1-Kadriyat / 5
+          </div>
+          <div class="replay-moment-icon" id="replay-moment-icon" style="font-size:42px; margin-bottom:12px;">🎬</div>
+          <h3 class="replay-moment-title" id="replay-moment-title" style="margin:0 0 10px; color:#fff; font-size:1.15rem;">Boshlanish</h3>
+          <p class="replay-narration-text" id="replay-narration-text" style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:12px;">
+            Sharh yuklanmoqda...
+          </p>
+          <div class="replay-why-box" id="replay-why-box" style="background:rgba(255,255,255,0.05); padding:10px 14px; border-radius:8px; font-size:12px; color:var(--gold-accent); text-align:left; border-left:3px solid var(--gold-accent);">
+            <strong>Nega bu muhim edi:</strong> <span id="replay-why-text">...</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="replay-controls-bar" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
+          <button class="btn btn-outline btn-small" id="btn-replay-prev"><i class="fa-solid fa-backward-step"></i> Oldingi</button>
+          <button class="btn btn-secondary btn-small" id="btn-replay-autoplay"><i class="fa-solid fa-play"></i> Avto ijro</button>
+          <button class="btn btn-primary btn-small" id="btn-replay-next">Keyingi <i class="fa-solid fa-forward-step"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DO'ST BILAN STATISTIKANI SOLISHTIRISH -->
+  <div class="modal-overlay" id="compare-stats-modal">
+    <div class="modal-card glass-panel compare-modal-card" style="max-width: 520px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-scale-balanced" style="color:var(--gold-accent); font-size:20px;"></i>
+          <h3 style="margin:0;">Statistikalarni Solishtirish</h3>
+        </div>
+        <button class="modal-close-btn" id="close-compare-modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <div class="compare-header-row" style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center; text-align:center; margin-bottom:16px; background:rgba(255,255,255,0.05); border-radius:12px; padding:12px;">
+          <div class="compare-player-card">
+            <div class="compare-avatar" id="comp-my-avatar" style="font-size:32px;">🕵️‍♂️</div>
+            <strong id="comp-my-name" style="display:block; font-size:13px; margin-top:4px;">Siz</strong>
+          </div>
+          <div style="font-weight:800; font-size:16px; color:#94a3b8; padding:0 10px;">VS</div>
+          <div class="compare-player-card">
+            <div class="compare-avatar" id="comp-friend-avatar" style="font-size:32px;">👤</div>
+            <strong id="comp-friend-name" style="display:block; font-size:13px; margin-top:4px;">Do'st</strong>
+          </div>
+        </div>
+
+        <div class="compare-stats-table" id="compare-stats-table" style="display:flex; flex-direction:column; gap:8px;">
+          <!-- JS orqali to'ldiriladi -->
+        </div>
+      </div>
     </div>
   </div>
 

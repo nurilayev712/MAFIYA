@@ -453,6 +453,94 @@ function generateAIRecap(winResult, players = [], playersState = {}, matchHistor
   return `${s1} ${s2} ${s3}`;
 }
 
+/**
+ * AI-Narrated Replay - O'yinning eng hal qiluvchi 4-5 lahzasini
+ * AI sharhi bilan xronologik slaydlar shaklida tuzish
+ */
+function generateAIReplayMoments(winResult, players = [], playersState = {}, matchHistory = {}) {
+  const winner = winResult?.winner || 'citizens';
+  const kills = matchHistory.nightKills || [];
+  const saves = matchHistory.doctorSaves || [];
+  const finds = matchHistory.detectiveFinds || [];
+  const lynched = matchHistory.lynchedPlayers || [];
+
+  const mafias = players.filter(p => playersState[p.id]?.role === 'mafia').map(p => p.name);
+  const detectives = players.filter(p => playersState[p.id]?.role === 'detective').map(p => p.name);
+  const doctors = players.filter(p => playersState[p.id]?.role === 'doctor').map(p => p.name);
+
+  const moments = [
+    {
+      step: 1,
+      phase: 'role_reveal',
+      title: "1. Rollar Taqsimoti va Yashirin Fitna",
+      icon: "fa-masks-theater",
+      accent: "#a855f7",
+      eventText: `Shahar o'z rollarini qabul qildi: ${mafias.length > 0 ? mafias.join(', ') + ' - Mafiya' : 'Mafiya'} guruhiga qarshi tinch fuqarolar.`,
+      aiNarration: "O'yin boshida har bir o'yinchi o'zining yashirin vazifasini qabul qildi. Mafiya darhol o'zaro ko'z urishtirib, eng xavfli intellektual o'yinchilarni birinchi bo'lib yo'q qilish rejasini tuzdi. Ushbu dastlabki pinhona kelishuv o'yin ritmini belgilab berdi."
+    },
+    {
+      step: 2,
+      phase: 'night',
+      title: "2. Ilk Tungi Hujum va Shifokor Sinovi",
+      icon: "fa-moon",
+      accent: "#3b82f6",
+      eventText: saves.length > 0
+        ? `Shifokor (${doctors[0] || 'Shifokor'}) shubhali nishonni davolash orqali ${saves[0]}ni o'limdan saqlab qoldi!`
+        : (kills.length > 0 ? `Mafiya ilk tunda ${kills[0]}ni nishonga oldi va shahar birinchi yo'qotishga uchradi.` : "Tunda hech kim halok bo'lmadi, shahar tinch tong ottirdi."),
+      aiNarration: saves.length > 0
+        ? `Nega bu lahza hal qiluvchi bo'ldi? Chunki Shifokorning aql-idroki tufayli mafiyaning rejasi chippakka chiqdi va shahar ahli o'z yetakchisini yo'qotmadi!`
+        : `Birinchi kechaning o'zidayoq mafiya sovuqqonlik bilan zarba berdi. Bu esa kunduzgi munozarada vahima va shubhani yanada kuchaytirdi.`
+    },
+    {
+      step: 3,
+      phase: 'day_voting',
+      title: "3. Shahar Sudining Ilk Qarori (Linch)",
+      icon: "fa-gavel",
+      accent: "#eab308",
+      eventText: lynched.length > 0
+        ? `Shahar sudi ko'pchilik ovoz bilan ${lynched[0]}ni quvg'in qildi.`
+        : "Ovozlar teng kelgani sababli sud hech kimni jazoga tortmadi.",
+      aiNarration: lynched.length > 0
+        ? `Kunduzgi bahslarda hissiyotlar avjiga chiqdi. Birgina shubhali so'z sababli ${lynched[0]} o'yindan chetlatildi. Bu qaror shaharning kelgusi taqdirini 180 darajaga o'zgartirib yubordi.`
+        : "Durang ovozlar shahar ahlida ishonchsizlikni kuchaytirdi va mafiyaga o'z saflarini mustahkamlash uchun ajoyib imkoniyat yaratdi."
+    },
+    {
+      step: 4,
+      phase: 'investigation',
+      title: "4. Komissar Foshi va Detektiv Burilishi",
+      icon: "fa-magnifying-glass",
+      accent: "#06b6d4",
+      eventText: finds.length > 0
+        ? `Komissar (${detectives[0] || 'Detektiv'}) yashirin mafiya a'zosi ${finds[0]}ni aniqlashga muvaffaq bo'ldi!`
+        : "Komissar qorong'uda izquvarlik qilib shahar ahliga to'g'ri yo'lni ko'rsatishga intildi.",
+      aiNarration: finds.length > 0
+        ? `Bu lahza o'yinning kulminatsion nuqtasi bo'ldi! Qotilning fosh qilinishi fuqarolarga yangi umid bag'ishladi va qora bulutlarni tarqatdi.`
+        : "Yashirin harakatlar davomida komissar o'z shaxsiyatini saqlab qolgan holda dalillarni yig'ishda davom etdi."
+    },
+    {
+      step: 5,
+      phase: 'game_over',
+      title: "5. Hal Qiluvchi G'alaba Lahzasi",
+      icon: "fa-trophy",
+      accent: winner === 'mafia' ? '#ff2a44' : (winner === 'maniac' ? '#ff4081' : '#00e676'),
+      eventText: `${winResult?.title || "G'alaba aniqlandi!"}`,
+      aiNarration: winner === 'mafia'
+        ? "So'nggi lahzada Mafiya o'zining sovuqqon strategiyasi va mohirona aldovlari evaziga shaharni to'liq o'z izmiga bo'ysundirdi. Haqli g'alaba!"
+        : (winner === 'maniac'
+          ? "Soya ortidagi yolg'iz Manyak barcha raqiblarini chalg'itib, so'nggi omon qoluvchi qotil sifatida tarixga kirdi!"
+          : (winner === 'jester'
+            ? "Masharaboz butun shaharni laqillatib, o'zini osishga majbur qildi va o'yinning eng zukko artisti bo'lib chiqdi!"
+            : "Tinch fuqarolar o'zaro ishonch va qat'iy mantiqiy xulosalar tufayli yovuzlik ustidan yorqin adolat g'alabasini tantana qildilar! 🏆"))
+    }
+  ];
+
+  return moments.map(m => ({
+    ...m,
+    narration: m.aiNarration || m.narration,
+    whyItMattered: m.eventText || m.whyItMattered
+  }));
+}
+
 module.exports = {
   ROLES,
   ROLE_INFO,
@@ -461,5 +549,6 @@ module.exports = {
   checkWinner,
   resolveNight,
   resolveDayVote,
-  generateAIRecap
+  generateAIRecap,
+  generateAIReplayMoments
 };

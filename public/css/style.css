@@ -3152,3 +3152,258 @@ select {
   border-radius: var(--radius-md);
   border-left: 3px solid #c084fc;
 }
+
+/* ==========================================================================
+   TELEGRAM HAMJAMIYAT BANNERI (https://t.me/MAFIYA_712)
+   ========================================================================== */
+.telegram-community-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(36, 161, 222, 0.22) 0%, rgba(0, 136, 204, 0.12) 100%);
+  border: 1px solid rgba(36, 161, 222, 0.45);
+  border-radius: var(--radius-lg);
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 136, 204, 0.15);
+}
+
+.telegram-community-card:hover {
+  transform: translateY(-2px);
+  border-color: #24a1de;
+  box-shadow: 0 6px 20px rgba(36, 161, 222, 0.35);
+  background: linear-gradient(135deg, rgba(36, 161, 222, 0.3) 0%, rgba(0, 136, 204, 0.2) 100%);
+}
+
+.tg-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tg-banner-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #24a1de;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(36, 161, 222, 0.6);
+}
+
+.tg-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tg-banner-text strong {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.tg-banner-text span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.tg-banner-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #38bdf8;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(36, 161, 222, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   BATTLE PASS (MAVSUMIY JANG PASPORTI)
+   ========================================================================== */
+.bp-tier-card {
+  display: grid;
+  grid-template-columns: 56px 1fr 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+
+.bp-tier-card.unlocked {
+  border-color: rgba(255, 215, 0, 0.35);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.bp-tier-level-num {
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--gold-accent);
+  text-align: center;
+}
+
+.bp-reward-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.82rem;
+}
+
+.bp-reward-slot.premium {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+}
+
+.bp-reward-slot.claimed {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.bp-claim-btn {
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   PAYMENT MODAL (CLICK / PAYME)
+   ========================================================================== */
+.payment-provider-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.payment-provider-card:active {
+  transform: scale(0.97);
+}
+
+/* ==========================================================================
+   HAMJAMIYAT IJODXONASI (COSMETICS)
+   ========================================================================== */
+.btn-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-chip.active, .btn-chip:hover {
+  background: rgba(236, 72, 153, 0.2);
+  border-color: #ec4899;
+  color: #fff;
+}
+
+.cosmetic-item-card {
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.cosmetic-item-card:hover {
+  border-color: rgba(236, 72, 153, 0.5);
+  transform: translateY(-2px);
+}
+
+.cosmetic-item-card.equipped {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.25);
+}
+
+.cosmetic-preview-box {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 4px 0;
+}
+
+/* ==========================================================================
+   AI KINEMATIK REPLAY THEATER
+   ========================================================================== */
+.replay-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.replay-dot.active {
+  background: #818cf8;
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
+}
+
+.replay-moment-icon {
+  animation: floatBounce 2.5s infinite ease-in-out;
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ==========================================================================
+   DO'ST STATISTIKALARINI SOLISHTIRISH
+   ========================================================================== */
+.compare-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 140px 1fr;
+  align-items: center;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.compare-val-left {
+  font-weight: 700;
+  color: #38bdf8;
+  text-align: left;
+}
+
+.compare-val-right {
+  font-weight: 700;
+  color: #f472b6;
+  text-align: right;
+}
+
+.compare-label {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}

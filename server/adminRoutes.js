@@ -168,5 +168,17 @@ module.exports = function (gameManager, io, onlineUserIds) {
     res.json({ success: true });
   });
 
+  // Hamjamiyat kosmetika arizalari (Community Submissions)
+  router.get('/cosmetics', requireAdminAuth, (req, res) => {
+    const cosmetics = db.getCosmetics(null, true);
+    res.json({ success: true, cosmetics });
+  });
+
+  router.post('/cosmetics/moderate', requireAdminAuth, (req, res) => {
+    const { cosmeticId, action } = req.body;
+    const result = db.moderateCosmetic(cosmeticId, action);
+    res.json(result);
+  });
+
   return router;
 };

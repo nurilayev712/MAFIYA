@@ -43,7 +43,14 @@ const TRANSLATIONS = {
     customRulesBtn: "Maxsus Qoidalar Muharriri",
     aiRecapTitle: "AI O'yin Tahlili & Sharhi",
     claimReward: "Mukofotni olish",
-    claimed: "Olingan"
+    claimed: "Olingan",
+    battlePass: "Jang Pasporti",
+    communityHub: "Hamjamiyat Ijodxonasi",
+    aiReplay: "AI Kinematik Replay",
+    watchReplay: "Replay Tomosha Qilish",
+    compareStats: "Statistikani Solishtirish",
+    telegramJoin: "Telegram Guruhimiz",
+    forgotPassword: "Parolni Unutdingizmi?"
   },
   ru: {
     gameTitle: "МАФИЯ",
@@ -85,7 +92,14 @@ const TRANSLATIONS = {
     customRulesBtn: "Редактор правил",
     aiRecapTitle: "AI Анализ игры",
     claimReward: "Забрать награду",
-    claimed: "Получено"
+    claimed: "Получено",
+    battlePass: "Боевой Пропуск",
+    communityHub: "Мастерская Сообщества",
+    aiReplay: "AI Киноповтор",
+    watchReplay: "Смотреть Повтор",
+    compareStats: "Сравнить Статистику",
+    telegramJoin: "Наш Telegram",
+    forgotPassword: "Забыли Пароль?"
   },
   en: {
     gameTitle: "MAFIA",
@@ -127,7 +141,14 @@ const TRANSLATIONS = {
     customRulesBtn: "Custom Rule Editor",
     aiRecapTitle: "Post-Game AI Recap",
     claimReward: "Claim Reward",
-    claimed: "Claimed"
+    claimed: "Claimed",
+    battlePass: "Battle Pass",
+    communityHub: "Community Hub",
+    aiReplay: "AI Cinematic Replay",
+    watchReplay: "Watch Replay",
+    compareStats: "Compare Stats",
+    telegramJoin: "Join Telegram",
+    forgotPassword: "Forgot Password?"
   }
 };
 

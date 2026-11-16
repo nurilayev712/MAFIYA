@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const tutorialModal = document.getElementById('tutorial-modal');
   const customRulesModal = document.getElementById('custom-rules-modal');
   const streakRewardModal = document.getElementById('streak-reward-modal');
+  const battlePassModal = document.getElementById('battle-pass-modal');
+  const paymentModal = document.getElementById('payment-modal');
+  const communityModal = document.getElementById('community-modal');
+  const replayModal = document.getElementById('replay-modal');
+  const compareStatsModal = document.getElementById('compare-stats-modal');
 
   const toastContainer = document.getElementById('toast-container');
   const floatingContainer = document.getElementById('floating-emojis-container');
@@ -102,9 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
       openModal(adminModal);
     }
 
-    // Phase 4: Kunlik streak va Maxsus qoidalar muharriri
+    // Phase 4 & Full Spec: Kunlik streak, Maxsus qoidalar, Battle Pass, Hamjamiyat, Replay, Auth Tiklash
     initDailyStreak();
     initCustomRuleEditor();
+    initBattlePassUI();
+    initCommunityHubUI();
+    initReplayTheaterUI();
+    initAuthPasswordResetUI();
   }
 
   function measurePing() {
@@ -220,6 +229,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('close-report-modal').addEventListener('click', () => closeModal(reportModal));
   document.getElementById('btn-cancel-report').addEventListener('click', () => closeModal(reportModal));
+
+  // Battle Pass, Replay & Compare Stats modallari
+  document.getElementById('btn-watch-replay')?.addEventListener('click', () => openReplayTheater());
+  document.getElementById('close-compare-modal')?.addEventListener('click', () => closeModal(compareStatsModal));
 
   // Server sozlamalari modali
   const btnOpenServer = document.getElementById('btn-open-server-settings');
@@ -722,6 +735,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.socketClient.callbacks.onUserUnmuted = ({ message }) => {
     showToast(`🔊 ${message || 'Ovozsiz rejim bekor qilindi.'}`, 'success');
+  };
+
+  window.socketClient.callbacks.onBattlePassXPGained = (data) => {
+    showToast(`+${data.xpGained} Battle Pass XP! (${data.totalXp} XP)`, 'info');
+    if (data.leveledUp) {
+      showToast(`🎉 Jang Pasporti yangi ${data.level}-darajaga ko'tarildi!`, 'success');
+      window.sounds.playVictory();
+    }
+  };
+
+  window.socketClient.callbacks.onFriendRoomInvited = (data) => {
+    if (confirm(`${data.fromNickname} sizni ${data.roomCode} xonasiga taklif qildi. Qo'shilasizmi?`)) {
+      document.getElementById('join-room-code-input').value = data.roomCode;
+      document.getElementById('btn-confirm-join').click();
+    }
   };
 
   window.socketClient.callbacks.onActionError = ({ message }) => {
@@ -1698,18 +1726,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabRoomsBtn = document.getElementById('btn-adm-tab-rooms');
   const tabReportsBtn = document.getElementById('btn-adm-tab-reports');
   const tabBcastBtn = document.getElementById('btn-adm-tab-broadcast');
+  const tabCosmeticsBtn = document.getElementById('btn-adm-tab-cosmetics');
 
   const contentRooms = document.getElementById('adm-tab-rooms-content');
   const contentReports = document.getElementById('adm-tab-reports-content');
   const contentBcast = document.getElementById('adm-tab-broadcast-content');
+  const contentCosmetics = document.getElementById('adm-tab-cosmetics-content');
 
   tabRoomsBtn.addEventListener('click', () => {
     tabRoomsBtn.classList.add('active');
     tabReportsBtn.classList.remove('active');
     tabBcastBtn.classList.remove('active');
+    if (tabCosmeticsBtn) tabCosmeticsBtn.classList.remove('active');
     contentRooms.style.display = 'block';
     contentReports.style.display = 'none';
     contentBcast.style.display = 'none';
+    if (contentCosmetics) contentCosmetics.style.display = 'none';
     loadAdminRooms();
   });
 
@@ -1717,9 +1749,11 @@ document.addEventListener('DOMContentLoaded', () => {
     tabReportsBtn.classList.add('active');
     tabRoomsBtn.classList.remove('active');
     tabBcastBtn.classList.remove('active');
+    if (tabCosmeticsBtn) tabCosmeticsBtn.classList.remove('active');
     contentReports.style.display = 'block';
     contentRooms.style.display = 'none';
     contentBcast.style.display = 'none';
+    if (contentCosmetics) contentCosmetics.style.display = 'none';
     loadAdminReports();
   });
 
@@ -1727,9 +1761,29 @@ document.addEventListener('DOMContentLoaded', () => {
     tabBcastBtn.classList.add('active');
     tabRoomsBtn.classList.remove('active');
     tabReportsBtn.classList.remove('active');
+    if (tabCosmeticsBtn) tabCosmeticsBtn.classList.remove('active');
     contentBcast.style.display = 'block';
     contentRooms.style.display = 'none';
     contentReports.style.display = 'none';
+    if (contentCosmetics) contentCosmetics.style.display = 'none';
+  });
+
+  if (tabCosmeticsBtn && contentCosmetics) {
+    tabCosmeticsBtn.addEventListener('click', () => {
+      tabCosmeticsBtn.classList.add('active');
+      tabRoomsBtn.classList.remove('active');
+      tabReportsBtn.classList.remove('active');
+      tabBcastBtn.classList.remove('active');
+      contentCosmetics.style.display = 'block';
+      contentRooms.style.display = 'none';
+      contentReports.style.display = 'none';
+      contentBcast.style.display = 'none';
+      loadAdminCosmetics();
+    });
+  }
+
+  document.getElementById('btn-adm-refresh-cosmetics')?.addEventListener('click', () => {
+    loadAdminCosmetics();
   });
 
   document.getElementById('btn-adm-send-broadcast').addEventListener('click', async () => {
@@ -1799,10 +1853,20 @@ document.addEventListener('DOMContentLoaded', () => {
               <strong>${escapeHtml(f.nickname)}</strong>
               <small style="color:var(--gold-accent)">(${f.mmr} MMR)</small>
             </div>
-            <button class="btn-small btn-invite-friend" data-fid="${f.id}">
-              <i class="fa-solid fa-paper-plane"></i> Taklif
-            </button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-small btn-compare-friend" data-fid="${f.id}" title="Statistikani solishtirish" style="background:rgba(255,215,0,0.15); border:1px solid rgba(255,215,0,0.4); color:var(--gold-accent); padding:4px 8px; border-radius:6px; cursor:pointer;">
+                <i class="fa-solid fa-scale-balanced"></i> Solishtirish
+              </button>
+              <button class="btn-small btn-invite-friend" data-fid="${f.id}">
+                <i class="fa-solid fa-paper-plane"></i> Taklif
+              </button>
+            </div>
           `;
+
+          item.querySelector('.btn-compare-friend').addEventListener('click', () => {
+            window.sounds.playClick();
+            openFriendComparison(f.id);
+          });
 
           item.querySelector('.btn-invite-friend').addEventListener('click', () => {
             window.sounds.playClick();
@@ -2639,6 +2703,573 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
+  }
+
+  // ==========================================================================
+  // PAROLNI TIKLASH (FORGOT / RESET PASSWORD)
+  // ==========================================================================
+  function initAuthPasswordResetUI() {
+    const btnShowForgot = document.getElementById('btn-show-forgot-pass');
+    const formLogin = document.getElementById('form-auth-login');
+    const formForgot = document.getElementById('form-auth-forgot');
+    const formReset = document.getElementById('form-auth-reset');
+    const btnBack1 = document.getElementById('btn-back-to-login-1');
+    const btnBack2 = document.getElementById('btn-back-to-login-2');
+    let resetEmail = '';
+
+    if (btnShowForgot) {
+      btnShowForgot.addEventListener('click', () => {
+        window.sounds.playClick();
+        formLogin.style.display = 'none';
+        formForgot.style.display = 'flex';
+        formReset.style.display = 'none';
+        document.getElementById('auth-modal-title').textContent = 'Parolni Tiklash';
+      });
+    }
+
+    const backToLogin = () => {
+      window.sounds.playClick();
+      formLogin.style.display = 'flex';
+      formForgot.style.display = 'none';
+      formReset.style.display = 'none';
+      document.getElementById('auth-modal-title').textContent = 'Tizimga Kirish';
+    };
+
+    if (btnBack1) btnBack1.addEventListener('click', backToLogin);
+    if (btnBack2) btnBack2.addEventListener('click', backToLogin);
+
+    if (formForgot) {
+      formForgot.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-forgot-email').value.trim();
+        if (!email) return;
+
+        window.socketClient.requestPasswordReset(email, (res) => {
+          if (res && res.success) {
+            resetEmail = email;
+            showToast(res.message || 'Tasdiqlash kodi yuborildi!', 'success');
+            formForgot.style.display = 'none';
+            formReset.style.display = 'flex';
+          } else {
+            showToast(res?.message || 'Xatolik yuz berdi', 'error');
+          }
+        });
+      });
+    }
+
+    if (formReset) {
+      formReset.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('auth-reset-code').value.trim();
+        const newPass = document.getElementById('auth-reset-pass').value;
+
+        window.socketClient.confirmPasswordReset(resetEmail, code, newPass, (res) => {
+          if (res && res.success) {
+            showToast('Parolingiz muvaffaqiyatli yangilandi! Endi kiring', 'success');
+            backToLogin();
+            document.getElementById('auth-login-email').value = resetEmail;
+            document.getElementById('auth-login-pass').value = '';
+          } else {
+            showToast(res?.message || 'Kod noto\'g\'ri yoki eskirgan', 'error');
+          }
+        });
+      });
+    }
+  }
+
+  // ==========================================================================
+  // JANG PASPORTI VA TO'LOVLAR (BATTLE PASS & CLICK/PAYME)
+  // ==========================================================================
+  function initBattlePassUI() {
+    const btnOpenBP = document.getElementById('btn-open-battlepass');
+    const closeBP = document.getElementById('close-battle-pass-modal');
+    const btnUpgrade = document.getElementById('btn-upgrade-premium-bp');
+    const closePayment = document.getElementById('close-payment-modal');
+    const btnPayClick = document.getElementById('btn-pay-click');
+    const btnPayPayme = document.getElementById('btn-pay-payme');
+
+    if (btnOpenBP) {
+      btnOpenBP.addEventListener('click', () => {
+        openModal(battlePassModal);
+        renderBattlePass();
+      });
+    }
+
+    if (closeBP) {
+      closeBP.addEventListener('click', () => closeModal(battlePassModal));
+    }
+
+    if (btnUpgrade) {
+      btnUpgrade.addEventListener('click', () => {
+        window.sounds.playClick();
+        openModal(paymentModal);
+      });
+    }
+
+    if (closePayment) {
+      closePayment.addEventListener('click', () => closeModal(paymentModal));
+    }
+
+    const processPayment = (provider) => {
+      window.sounds.playClick();
+      window.socketClient.buyBattlePass(provider, (res) => {
+        if (res && res.success) {
+          showToast(`To'lov muvaffaqiyatli! (${provider.toUpperCase()}) Premium Jang Pasporti faollashtirildi!`, 'success');
+          window.sounds.playVictory();
+          closeModal(paymentModal);
+          renderBattlePass();
+        } else {
+          showToast(res?.message || 'To\'lovda xatolik', 'error');
+        }
+      });
+    };
+
+    if (btnPayClick) btnPayClick.addEventListener('click', () => processPayment('click'));
+    if (btnPayPayme) btnPayPayme.addEventListener('click', () => processPayment('payme'));
+  }
+
+  function renderBattlePass() {
+    const list = document.getElementById('bp-tiers-container');
+    if (!list) return;
+
+    window.socketClient.getBattlePass((res) => {
+      if (!res || !res.success) return;
+      const bp = res.battlePass;
+      document.getElementById('bp-level-badge').textContent = bp.level;
+      document.getElementById('bp-current-xp').textContent = bp.currentXp;
+      document.getElementById('bp-max-xp').textContent = bp.xpNeeded;
+
+      const pct = Math.min(100, Math.floor((bp.currentXp / bp.xpNeeded) * 100));
+      document.getElementById('bp-xp-bar-fill').style.width = `${pct}%`;
+
+      const statusTag = document.getElementById('bp-status-tag');
+      const upgradeBtn = document.getElementById('btn-upgrade-premium-bp');
+      if (bp.isPremium) {
+        statusTag.textContent = 'PREMIUM TARIF ⭐';
+        statusTag.style.background = 'rgba(255, 215, 0, 0.2)';
+        statusTag.style.color = '#ffd700';
+        if (upgradeBtn) upgradeBtn.style.display = 'none';
+      } else {
+        statusTag.textContent = 'BEPUL TARIF';
+        statusTag.style.background = 'rgba(255, 255, 255, 0.1)';
+        statusTag.style.color = '#94a3b8';
+        if (upgradeBtn) upgradeBtn.style.display = 'inline-flex';
+      }
+
+      list.innerHTML = '';
+      bp.tiers.forEach(t => {
+        const isUnlocked = bp.level >= t.tier;
+        const isFreeClaimed = bp.claimedTiers.includes(`free_${t.tier}`);
+        const isPremClaimed = bp.claimedTiers.includes(`premium_${t.tier}`);
+
+        const row = document.createElement('div');
+        row.className = `bp-tier-card ${isUnlocked ? 'unlocked' : ''}`;
+
+        row.innerHTML = `
+          <div class="bp-tier-level-num">${t.tier}</div>
+          <div class="bp-reward-slot ${isFreeClaimed ? 'claimed' : ''}">
+            <span style="font-size:16px;">🎁</span>
+            <div>
+              <div style="font-weight:600; color:#fff;">${t.free.name}</div>
+              <small style="color:#94a3b8; font-size:10px;">Bepul mukofot</small>
+            </div>
+            ${isUnlocked && !isFreeClaimed ? `
+              <button class="btn btn-primary btn-small bp-claim-btn" data-tier="${t.tier}" data-prem="0" style="margin-left:auto;">
+                Olish
+              </button>
+            ` : (isFreeClaimed ? '<span style="color:#4ade80; font-size:11px; margin-left:auto;">✓ Olingan</span>' : '')}
+          </div>
+          <div class="bp-reward-slot premium ${isPremClaimed ? 'claimed' : ''}">
+            <span style="font-size:16px;">👑</span>
+            <div>
+              <div style="font-weight:600; color:#ffd700;">${t.premium.name}</div>
+              <small style="color:#f59e0b; font-size:10px;">Premium mukofot</small>
+            </div>
+            ${bp.isPremium && isUnlocked && !isPremClaimed ? `
+              <button class="btn btn-primary btn-small bp-claim-btn" data-tier="${t.tier}" data-prem="1" style="margin-left:auto; background:linear-gradient(135deg,#f59e0b,#d97706); border:none; color:#000;">
+                Olish
+              </button>
+            ` : (isPremClaimed ? '<span style="color:#ffd700; font-size:11px; margin-left:auto;">✓ Olingan</span>' : (!bp.isPremium ? '<i class="fa-solid fa-lock" style="color:#f59e0b; font-size:11px; margin-left:auto;" title="Premium talab qilinadi"></i>' : ''))}
+          </div>
+        `;
+
+        row.querySelectorAll('.bp-claim-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            window.sounds.playClick();
+            const tierNum = parseInt(btn.dataset.tier, 10);
+            const isPrem = btn.dataset.prem === '1';
+            window.socketClient.claimBPReward(tierNum, isPrem, (claimRes) => {
+              if (claimRes && claimRes.success) {
+                showToast(`Mukofot qabul qilindi: ${claimRes.reward.name}!`, 'success');
+                window.sounds.playVictory();
+                renderBattlePass();
+              } else {
+                showToast(claimRes?.message || 'Mukofotni olib bo\'lmadi', 'error');
+              }
+            });
+          });
+        });
+
+        list.appendChild(row);
+      });
+    });
+  }
+
+  // ==========================================================================
+  // HAMJAMIYAT IJODXONASI (COMMUNITY HUB & COSMETICS)
+  // ==========================================================================
+  let activeCosmeticsFilter = 'all';
+
+  function initCommunityHubUI() {
+    const btnOpenComm = document.getElementById('btn-open-community');
+    const closeComm = document.getElementById('close-community-modal');
+    const tabCatalog = document.getElementById('tab-comm-catalog');
+    const tabSubmit = document.getElementById('tab-comm-submit');
+    const catalogView = document.getElementById('comm-catalog-view');
+    const submitView = document.getElementById('comm-submit-view');
+    const formSubmit = document.getElementById('form-submit-cosmetic');
+
+    if (btnOpenComm) {
+      btnOpenComm.addEventListener('click', () => {
+        openModal(communityModal);
+        loadCosmetics(activeCosmeticsFilter);
+      });
+    }
+
+    if (closeComm) {
+      closeComm.addEventListener('click', () => closeModal(communityModal));
+    }
+
+    if (tabCatalog && tabSubmit) {
+      tabCatalog.addEventListener('click', () => {
+        window.sounds.playClick();
+        tabCatalog.className = 'btn btn-small active';
+        tabSubmit.className = 'btn btn-small btn-outline';
+        catalogView.style.display = 'block';
+        submitView.style.display = 'none';
+        loadCosmetics(activeCosmeticsFilter);
+      });
+
+      tabSubmit.addEventListener('click', () => {
+        window.sounds.playClick();
+        tabSubmit.className = 'btn btn-small active';
+        tabCatalog.className = 'btn btn-small btn-outline';
+        submitView.style.display = 'block';
+        catalogView.style.display = 'none';
+      });
+    }
+
+    document.querySelectorAll('.comm-filter-chips .btn-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        window.sounds.playClick();
+        document.querySelectorAll('.comm-filter-chips .btn-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCosmeticsFilter = chip.dataset.filter;
+        loadCosmetics(activeCosmeticsFilter);
+      });
+    });
+
+    if (formSubmit) {
+      formSubmit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = {
+          name: document.getElementById('comm-item-name').value.trim(),
+          type: document.getElementById('comm-item-type').value,
+          cssStyle: document.getElementById('comm-item-css').value.trim(),
+          badge: document.getElementById('comm-item-badge').value.trim() || '🎨'
+        };
+
+        window.socketClient.submitCosmetic(data, (res) => {
+          if (res && res.success) {
+            showToast('Dizayn qabul qilindi! Admin tasdiqlagach ro\'yxatda ko\'rinadi', 'success');
+            formSubmit.reset();
+            tabCatalog.click();
+          } else {
+            showToast(res?.message || 'Yuklashda xatolik', 'error');
+          }
+        });
+      });
+    }
+  }
+
+  function loadCosmetics(filterType) {
+    const grid = document.getElementById('cosmetics-grid');
+    if (!grid) return;
+    grid.innerHTML = '<div style="color:#94a3b8; font-size:12px; grid-column:1/-1; text-align:center;">Yuklanmoqda...</div>';
+
+    window.socketClient.getCosmetics(filterType, (res) => {
+      if (!res || !res.success) return;
+      grid.innerHTML = '';
+      if (!res.cosmetics || res.cosmetics.length === 0) {
+        grid.innerHTML = '<div style="color:#94a3b8; font-size:12px; grid-column:1/-1; text-align:center;">Hozircha dizaynlar mavjud emas.</div>';
+        return;
+      }
+
+      const equipped = res.equipped || {};
+
+      res.cosmetics.forEach(c => {
+        const isEquipped = equipped[c.type] === c.id;
+        const card = document.createElement('div');
+        card.className = `cosmetic-item-card ${isEquipped ? 'equipped' : ''}`;
+
+        let previewHtml = '';
+        if (c.type === 'frame') {
+          previewHtml = `<div class="cosmetic-preview-box" style="border: 3px solid transparent; background-image: ${c.cssStyle}; background-origin: border-box; box-shadow: 0 0 10px rgba(255,215,0,0.4);">🕵️‍♂️</div>`;
+        } else if (c.type === 'chat_bg') {
+          previewHtml = `<div class="cosmetic-preview-box" style="background: ${c.cssStyle}; border-radius: 8px; width: 80px; height: 42px;">💬</div>`;
+        } else {
+          previewHtml = `<div class="cosmetic-preview-box" style="background: ${c.cssStyle}; border-radius: 8px; width: 80px; height: 42px;">🏛️</div>`;
+        }
+
+        const typeLabels = { frame: 'Avatar Ramkasi', chat_bg: 'Chat Foni', theme: 'Xona Temasi' };
+
+        card.innerHTML = `
+          ${previewHtml}
+          <strong style="font-size:13px; color:#fff;">${c.name}</strong>
+          <small style="color:#94a3b8; font-size:10px;">${typeLabels[c.type] || c.type} • ${c.author}</small>
+          <button class="btn ${isEquipped ? 'btn-secondary' : 'btn-outline'} btn-small btn-equip-cosmetic" style="width:100%; font-size:11px; margin-top:4px;">
+            ${isEquipped ? '<i class="fa-solid fa-check"></i> Jihozlangan' : 'Jihozlash'}
+          </button>
+        `;
+
+        card.querySelector('.btn-equip-cosmetic').addEventListener('click', () => {
+          window.sounds.playClick();
+          const targetId = isEquipped ? null : c.id;
+          window.socketClient.equipCosmetic(c.type, targetId, (eqRes) => {
+            if (eqRes && eqRes.success) {
+              showToast(isEquipped ? 'Yechildi' : `"${c.name}" muvaffaqiyatli jihozlandi!`, 'success');
+              loadCosmetics(activeCosmeticsFilter);
+            }
+          });
+        });
+
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  // ==========================================================================
+  // AI KINEMATIK O'YIN QAYTARILISHI (AI REPLAY THEATER)
+  // ==========================================================================
+  let replayMoments = [];
+  let currentReplayIndex = 0;
+  let replayAutoplayTimer = null;
+
+  function initReplayTheaterUI() {
+    const prevBtn = document.getElementById('btn-replay-prev');
+    const nextBtn = document.getElementById('btn-replay-next');
+    const autoBtn = document.getElementById('btn-replay-autoplay');
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        window.sounds.playClick();
+        if (currentReplayIndex > 0) {
+          currentReplayIndex--;
+          renderReplayStep(currentReplayIndex);
+        }
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        window.sounds.playClick();
+        if (currentReplayIndex < replayMoments.length - 1) {
+          currentReplayIndex++;
+          renderReplayStep(currentReplayIndex);
+        }
+      });
+    }
+
+    if (autoBtn) {
+      autoBtn.addEventListener('click', () => {
+        window.sounds.playClick();
+        if (replayAutoplayTimer) {
+          clearInterval(replayAutoplayTimer);
+          replayAutoplayTimer = null;
+          autoBtn.innerHTML = '<i class="fa-solid fa-play"></i> Avto ijro';
+          autoBtn.className = 'btn btn-secondary btn-small';
+        } else {
+          autoBtn.innerHTML = '<i class="fa-solid fa-pause"></i> To\'xtatish';
+          autoBtn.className = 'btn btn-primary btn-small';
+          replayAutoplayTimer = setInterval(() => {
+            if (currentReplayIndex < replayMoments.length - 1) {
+              currentReplayIndex++;
+              renderReplayStep(currentReplayIndex);
+            } else {
+              clearInterval(replayAutoplayTimer);
+              replayAutoplayTimer = null;
+              autoBtn.innerHTML = '<i class="fa-solid fa-play"></i> Avto ijro';
+              autoBtn.className = 'btn btn-secondary btn-small';
+            }
+          }, 3500);
+        }
+      });
+    }
+
+    document.querySelectorAll('#replay-step-dots .replay-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const idx = parseInt(dot.dataset.step, 10);
+        if (!isNaN(idx) && idx < replayMoments.length) {
+          window.sounds.playClick();
+          currentReplayIndex = idx;
+          renderReplayStep(idx);
+        }
+      });
+    });
+  }
+
+  function openReplayTheater() {
+    if (currentRoomState?.aiReplay && currentRoomState.aiReplay.length > 0) {
+      replayMoments = currentRoomState.aiReplay;
+    } else {
+      replayMoments = window.socketClient.generateLocalAIReplay(
+        currentRoomState?.winner || 'civilians',
+        currentRoomState?.players || []
+      );
+    }
+
+    currentReplayIndex = 0;
+    renderReplayStep(0);
+    openModal(replayModal);
+  }
+
+  function renderReplayStep(idx) {
+    if (!replayMoments || replayMoments.length === 0) return;
+    const item = replayMoments[idx] || replayMoments[0];
+
+    document.querySelectorAll('#replay-step-dots .replay-dot').forEach((d, i) => {
+      d.classList.toggle('active', i === idx);
+    });
+
+    document.getElementById('replay-moment-badge').textContent = `${idx + 1}-Kadriyat / ${replayMoments.length}`;
+    document.getElementById('replay-moment-icon').textContent = item.icon || '🎬';
+    document.getElementById('replay-moment-title').textContent = item.title || 'Sharh';
+    document.getElementById('replay-narration-text').textContent = item.narration || '';
+    document.getElementById('replay-why-text').textContent = item.whyItMattered || '';
+
+    const prevBtn = document.getElementById('btn-replay-prev');
+    const nextBtn = document.getElementById('btn-replay-next');
+    if (prevBtn) prevBtn.disabled = idx === 0;
+    if (nextBtn) nextBtn.disabled = idx === replayMoments.length - 1;
+  }
+
+  // ==========================================================================
+  // DO'ST STATISTIKASINI SOLISHTIRISH (FRIEND STATS COMPARISON)
+  // ==========================================================================
+  function openFriendComparison(friendId) {
+    window.socketClient.compareFriendStats(friendId, (res) => {
+      if (!res || !res.success) {
+        showToast(res?.message || 'Statistikani solishtirib bo\'lmadi', 'error');
+        return;
+      }
+      const data = res.data;
+      document.getElementById('comp-my-name').textContent = data.me.nickname;
+      document.getElementById('comp-friend-name').textContent = data.friend.nickname;
+
+      const myAv = AVATARS.find(a => a.id === data.me.avatarIndex)?.icon || '🕵️‍♂️';
+      const frAv = AVATARS.find(a => a.id === data.friend.avatarIndex)?.icon || '👤';
+      document.getElementById('comp-my-avatar').textContent = myAv;
+      document.getElementById('comp-friend-avatar').textContent = frAv;
+
+      const table = document.getElementById('compare-stats-table');
+      table.innerHTML = `
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.games}</span>
+          <span class="compare-label">O'yinlar Soni</span>
+          <span class="compare-val-right">${data.friend.games}</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.wins}</span>
+          <span class="compare-label">G'alabalar</span>
+          <span class="compare-val-right">${data.friend.wins}</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.winRate}%</span>
+          <span class="compare-label">G'alaba Foizi</span>
+          <span class="compare-val-right">${data.friend.winRate}%</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.mmr}</span>
+          <span class="compare-label">MMR Reytingi</span>
+          <span class="compare-val-right">${data.friend.mmr}</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.mafiaWins}</span>
+          <span class="compare-label">Mafiya G'alabalari</span>
+          <span class="compare-val-right">${data.friend.mafiaWins}</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.detectiveFinds}</span>
+          <span class="compare-label">Fosh Qilishlar</span>
+          <span class="compare-val-right">${data.friend.detectiveFinds}</span>
+        </div>
+        <div class="compare-stat-row">
+          <span class="compare-val-left">${data.me.doctorSaves}</span>
+          <span class="compare-label">Qutqaruvlar</span>
+          <span class="compare-val-right">${data.friend.doctorSaves}</span>
+        </div>
+      `;
+
+      openModal(compareStatsModal);
+    });
+  }
+
+  // ==========================================================================
+  // ADMIN IJODXONA (COSMETICS QUEUE) MODERATSIYASI
+  // ==========================================================================
+  function loadAdminCosmetics() {
+    const list = document.getElementById('adm-cosmetics-list');
+    if (!list) return;
+    list.innerHTML = '<div style="color:#94a3b8; font-size:12px;">Yuklanmoqda...</div>';
+
+    window.socketClient.admGetPendingCosmetics((res) => {
+      if (!res || !res.success) return;
+      list.innerHTML = '';
+      if (!res.pending || res.pending.length === 0) {
+        list.innerHTML = '<p style="color:#94a3b8; font-size:12px;">Hozircha tekshiruvda yangi dizayn yo\'q.</p>';
+        return;
+      }
+
+      res.pending.forEach(item => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;';
+
+        div.innerHTML = `
+          <div>
+            <strong style="color:#fff; font-size:13px;">${item.name}</strong> (${item.type})
+            <div style="font-size:11px; color:#94a3b8;">Muallif: ${item.author} | Uslub: <code>${item.cssStyle}</code></div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-primary btn-small btn-adm-appr" style="font-size:11px; padding:4px 8px; background:#10b981; border:none;">
+              Tasdiqlash
+            </button>
+            <button class="btn btn-danger btn-small btn-adm-rej" style="font-size:11px; padding:4px 8px;">
+              Rad etish
+            </button>
+          </div>
+        `;
+
+        div.querySelector('.btn-adm-appr').addEventListener('click', () => {
+          window.socketClient.admModerateCosmetic(item.id, 'approve', (mRes) => {
+            if (mRes?.success) {
+              showToast(`"${item.name}" tasdiqlandi va katalogga qo'shildi!`, 'success');
+              loadAdminCosmetics();
+            }
+          });
+        });
+
+        div.querySelector('.btn-adm-rej').addEventListener('click', () => {
+          window.socketClient.admModerateCosmetic(item.id, 'reject', (mRes) => {
+            if (mRes?.success) {
+              showToast(`"${item.name}" rad etildi.`, 'info');
+              loadAdminCosmetics();
+            }
+          });
+        });
+
+        list.appendChild(div);
+      });
+    });
   }
 
   initApp();
