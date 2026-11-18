@@ -316,25 +316,54 @@ document.addEventListener('DOMContentLoaded', () => {
     function openMobileDrawer() {
       window.sounds.playClick();
       if (mobileDrawer) {
+        mobileDrawer.style.display = 'flex';
         mobileDrawer.classList.add('open');
         mobileDrawer.setAttribute('aria-hidden', 'false');
       }
-      if (mobileBackdrop) mobileBackdrop.classList.add('open');
+      if (mobileBackdrop) {
+        mobileBackdrop.style.display = 'block';
+        mobileBackdrop.classList.add('open');
+      }
       document.body.style.overflow = 'hidden';
     }
 
     function closeMobileDrawer() {
       if (mobileDrawer) {
         mobileDrawer.classList.remove('open');
+        mobileDrawer.style.display = 'none';
         mobileDrawer.setAttribute('aria-hidden', 'true');
       }
-      if (mobileBackdrop) mobileBackdrop.classList.remove('open');
+      if (mobileBackdrop) {
+        mobileBackdrop.classList.remove('open');
+        mobileBackdrop.style.display = 'none';
+      }
       document.body.style.overflow = '';
     }
 
     if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMobileDrawer);
     if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeMobileDrawer);
     if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileDrawer);
+
+    // Desktop Dropdown ichidagi havolalarni asosiy tugmalarga bog'lash
+    const dropMappings = [
+      { dropId: 'btn-drop-spectator', targetId: 'btn-open-spectator' },
+      { dropId: 'btn-drop-leaderboard', targetId: 'btn-open-leaderboard' },
+      { dropId: 'btn-drop-community', targetId: 'btn-open-community' },
+      { dropId: 'btn-drop-rules', targetId: 'rules-btn' },
+      { dropId: 'btn-drop-server', targetId: 'btn-open-server-settings' },
+      { dropId: 'btn-drop-admin', targetId: 'btn-open-admin' }
+    ];
+
+    dropMappings.forEach(({ dropId, targetId }) => {
+      const el = document.getElementById(dropId);
+      if (el) {
+        el.addEventListener('click', () => {
+          if (accDropdownMenu) accDropdownMenu.style.display = 'none';
+          if (accDropdownWrap) accDropdownWrap.classList.remove('open');
+          document.getElementById(targetId)?.click();
+        });
+      }
+    });
 
     // Mobil Tezkor O'ynash CTA tugmasi
     const mobileQuickPlay = document.getElementById('btn-mobile-quick-play');

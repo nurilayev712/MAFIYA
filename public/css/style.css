@@ -237,11 +237,19 @@ body {
   text-shadow: 0 0 8px var(--mafia-glow);
 }
 
-/* 2. O'ng tomon: Profil va Utilitlar guruhi */
+/* 2. O'ng tomon: Bitta qatordagi to'g'ri gorizontal flex konteyner */
 .header-right-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.header-right-group > * {
+  flex-shrink: 0 !important;
 }
 
 /* Kirish tugmasi */
@@ -323,12 +331,13 @@ body {
   transform: rotate(180deg);
 }
 
-/* Account Dropdown Menyu */
+/* Account Dropdown Menyu (STANDARTDA BUTKUL YASHIRIN) */
 .account-dropdown-menu {
+  display: none;
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 260px;
+  min-width: 270px;
   background: #0f121a;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
@@ -391,6 +400,15 @@ body {
 
 .acc-drop-streak {
   color: #ff9800;
+}
+
+.dropdown-category-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #6b7280;
+  padding: 6px 12px 2px;
+  text-transform: uppercase;
 }
 
 .account-dropdown-divider {
@@ -636,12 +654,13 @@ body {
 }
 
 /* ========================================================
-   MOBIL SLIDE-OUT DRAWER
+   MOBIL SLIDE-OUT DRAWER (STANDART HOLATDA BUTKUL YASHIRIN)
    ======================================================== */
 .mobile-nav-backdrop {
+  display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 1998;
@@ -651,11 +670,13 @@ body {
 }
 
 .mobile-nav-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 .mobile-nav-drawer {
+  display: none;
   position: fixed;
   top: 0;
   right: 0;
@@ -668,7 +689,6 @@ body {
   z-index: 1999;
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
   flex-direction: column;
   overflow-y: auto;
   padding: 18px 16px;
@@ -676,7 +696,17 @@ body {
 }
 
 .mobile-nav-drawer.open {
-  transform: translateX(0);
+  display: flex !important;
+  transform: translateX(0) !important;
+}
+
+/* Desktop ekranlarda (>= 769px) mobil menyu va elementlar MUTLAQO CHIQMASIN */
+@media (min-width: 769px) {
+  .mobile-nav-drawer,
+  .mobile-nav-backdrop,
+  .mobile-nav-actions {
+    display: none !important;
+  }
 }
 
 .mobile-drawer-header {
@@ -3020,17 +3050,26 @@ select {
   /* Navbar mobil ko'rinishi */
   .primary-nav,
   .nav-vertical-divider,
+  .lang-selector,
+  #sound-btn,
+  #rules-btn,
+  #btn-open-server-settings,
+  #btn-open-admin,
+  #server-ping,
+  .pwa-install-btn,
   .utility-icons-group {
     display: none !important;
   }
 
   .mobile-nav-actions {
     display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
   }
 
   .app-header {
-    height: 56px;
-    padding: 0 12px;
+    height: 56px !important;
+    padding: 0 12px !important;
   }
 
   .brand-logo-icon {
