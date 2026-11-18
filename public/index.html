@@ -31,103 +31,259 @@
   <div class="blood-bg-overlay"></div>
   <div class="smoke-effect"></div>
 
-  <!-- Yuqori global bar -->
-  <header class="app-header">
-    <div class="brand-logo" id="brand-logo">
-      <i class="fa-solid fa-skull-crossbones blood-red-icon"></i>
-      <span>MAFIYA</span>
-      <span class="server-ping-badge" id="server-ping"><span class="ping-dot"></span> <span id="ping-text">24ms</span></span>
+  <!-- YUQORI GLOBAL NAVIGATION BAR (REDESIGNED) -->
+  <header class="app-header" id="app-header">
+    <div class="nav-left-group">
+      <!-- 1. Chap tomon: Logo va Sayt nomi -->
+      <a href="#" class="brand-logo" id="brand-logo" title="Bosh sahifaga qaytish">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-masks-theater"></i>
+        </div>
+        <div class="brand-logo-text">
+          <span class="brand-name">MAFIYA</span>
+          <span class="brand-badge">ONLINE</span>
+        </div>
+      </a>
+
+      <!-- 2. Asosiy Navigatsiya (Primary Nav - Desktop) -->
+      <nav class="primary-nav" id="primary-nav">
+        <button class="nav-item-btn" id="btn-open-spectator" title="Jonli o'yinlarni tomosha qilish">
+          <i class="fa-solid fa-eye"></i>
+          <span>Jonli</span>
+        </button>
+
+        <button class="nav-item-btn" id="btn-open-leaderboard" title="Reyting Jadvali (TOP MMR)">
+          <i class="fa-solid fa-ranking-star"></i>
+          <span>TOP MMR</span>
+        </button>
+
+        <button class="nav-item-btn" id="btn-open-community" title="Hamjamiyat Ijodxonasi (Kosmetika & Mavzular)">
+          <i class="fa-solid fa-palette"></i>
+          <span>Ijodxona</span>
+        </button>
+      </nav>
     </div>
 
-    <div class="header-actions">
-      <!-- Reyting Jadvali (Leaderboard) -->
-      <button class="icon-btn" id="btn-open-leaderboard" title="Reyting Jadvali">
-        <i class="fa-solid fa-ranking-star" style="color:var(--gold-accent)"></i>
-        <span class="btn-text">TOP MMR</span>
-      </button>
-
-      <!-- Tomoshabin (Jonli o'yinlar) -->
-      <button class="icon-btn" id="btn-open-spectator" title="Jonli o'yinlarni tomosha qilish">
-        <i class="fa-solid fa-eye" style="color:#60a5fa"></i>
-        <span class="btn-text">Jonli</span>
-      </button>
-
-      <!-- Mavsumiy Jang Pasporti (Battle Pass) -->
-      <button class="icon-btn" id="btn-open-battlepass" title="Mavsumiy Jang Pasporti (Battle Pass)">
-        <i class="fa-solid fa-shield-halved" style="color:#ffd700"></i>
-        <span class="btn-text">Pasport</span>
-      </button>
-
-      <!-- Hamjamiyat Ijodxonasi (Community Content Hub) -->
-      <button class="icon-btn" id="btn-open-community" title="Hamjamiyat Ijodxonasi (Cosmetics & Themes)">
-        <i class="fa-solid fa-palette" style="color:#ec4899"></i>
-        <span class="btn-text">Ijodxona</span>
-      </button>
-
-      <!-- Kirish / Ro'yxatdan o'tish -->
-      <button class="icon-btn" id="btn-open-auth" title="Kirish / Ro'yxatdan o'tish">
-        <i class="fa-solid fa-user-lock"></i>
-        <span class="btn-text" id="header-auth-label">Kirish</span>
-      </button>
-
-      <!-- Profil & Statistika -->
-      <button class="icon-btn" id="btn-open-profile" title="Profil va Statistika">
-        <i class="fa-solid fa-user"></i>
-        <span class="btn-text" data-i18n="profile">Profil</span>
-      </button>
-
-      <!-- Do'stlar -->
-      <button class="icon-btn" id="btn-open-friends" title="Do'stlar">
-        <i class="fa-solid fa-user-group"></i>
-        <span class="btn-text" data-i18n="friends">Do'stlar</span>
-      </button>
-
-      <!-- Yutuqlar -->
-      <button class="icon-btn" id="btn-open-achievements" title="Yutuqlar">
-        <i class="fa-solid fa-trophy"></i>
-        <span class="btn-text" data-i18n="achievements">Yutuqlar</span>
-      </button>
-
-      <!-- Admin Panel tugmasi -->
-      <button class="icon-btn btn-admin-shortcut" id="btn-open-admin" title="Admin Paneli">
-        <i class="fa-solid fa-shield-halved" style="color:#ff5252"></i>
-      </button>
-
-      <!-- Til tanlash -->
-      <div class="lang-selector">
-        <button class="icon-btn btn-lang" id="btn-lang-toggle" title="Tilni tanlash">
-          <i class="fa-solid fa-globe"></i>
-          <span id="current-lang-text">UZ</span>
+    <!-- 3. O'ng tomon: Profil menyusi va Utilitlar guruhi -->
+    <div class="header-right-group">
+      <!-- Foydalanuvchi hisobi / Kirish menyusi -->
+      <div class="account-nav-wrap">
+        <!-- Kirish tugmasi (Akkauntga kirmaganda) -->
+        <button class="nav-item-btn nav-btn-auth" id="btn-open-auth" title="Kirish / Ro'yxatdan o'tish">
+          <i class="fa-solid fa-user-lock"></i>
+          <span id="header-auth-label">Kirish</span>
         </button>
-        <div class="lang-dropdown" id="lang-dropdown" style="display:none;">
-          <div class="lang-opt" data-lang="uz">🇺🇿 O'zbek</div>
-          <div class="lang-opt" data-lang="ru">🇷🇺 Русский</div>
-          <div class="lang-opt" data-lang="en">🇬🇧 English</div>
+
+        <!-- Foydalanuvchi menyusi (Kirganda) -->
+        <div class="account-dropdown-wrap" id="account-dropdown-wrap" style="display:none;">
+          <button class="user-account-toggle" id="user-account-dropdown-toggle" title="Foydalanuvchi menyusi" aria-expanded="false">
+            <span class="user-nav-avatar" id="nav-user-avatar">🕵️‍♂️</span>
+            <span class="user-nav-name" id="nav-user-nickname">O'yinchi</span>
+            <i class="fa-solid fa-chevron-down user-nav-arrow"></i>
+          </button>
+
+          <!-- Dropdown menyu -->
+          <div class="account-dropdown-menu" id="account-dropdown-menu" style="display:none;">
+            <div class="account-dropdown-header">
+              <div class="acc-drop-avatar" id="acc-drop-avatar">🕵️‍♂️</div>
+              <div class="acc-drop-info">
+                <strong id="acc-drop-nickname">O'yinchi</strong>
+                <div class="acc-drop-badges">
+                  <span class="acc-drop-mmr" id="acc-drop-mmr"><i class="fa-solid fa-trophy"></i> 1000 MMR</span>
+                  <span class="acc-drop-streak" id="acc-drop-streak">🔥 1 kun</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="account-dropdown-divider"></div>
+
+            <div class="account-dropdown-links">
+              <button class="acc-drop-item" id="btn-open-profile" title="Profil va Statistika">
+                <i class="fa-solid fa-id-card"></i>
+                <span data-i18n="profile">Profil & Statistika</span>
+              </button>
+
+              <button class="acc-drop-item" id="btn-open-friends" title="Do'stlar Ro'yxati">
+                <i class="fa-solid fa-user-group"></i>
+                <span data-i18n="friends">Do'stlar</span>
+              </button>
+
+              <button class="acc-drop-item" id="btn-open-achievements" title="Yutuqlar">
+                <i class="fa-solid fa-award"></i>
+                <span data-i18n="achievements">Yutuqlar</span>
+              </button>
+
+              <button class="acc-drop-item" id="btn-open-battlepass" title="Mavsumiy Jang Pasporti">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Jang Pasporti</span>
+                <span class="bp-mini-badge" id="nav-bp-badge">Lvl 1</span>
+              </button>
+            </div>
+
+            <div class="account-dropdown-divider"></div>
+
+            <button class="acc-drop-item acc-drop-logout" id="btn-logout-user">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+              <span>Chiqish</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Server Sozlamasi (GitHub Pages & Remote) -->
-      <button class="icon-btn" id="btn-open-server-settings" title="Server sozlamalari">
-        <i class="fa-solid fa-server" style="color:#a78bfa"></i>
-      </button>
+      <!-- Ajratuvchi chiziq (Desktop) -->
+      <div class="nav-vertical-divider"></div>
 
-      <!-- Qoidalar -->
-      <button class="icon-btn" id="rules-btn" title="O'yin qoidalari">
-        <i class="fa-solid fa-circle-question"></i>
-      </button>
+      <!-- Utilitlar guruhi (Kichik, bosiq, o'ngda guruhlangan) -->
+      <div class="utility-icons-group">
+        <!-- PWA O'rnatish (Faqat mos brauzerda) -->
+        <button class="util-icon-btn pwa-install-btn" id="btn-pwa-install" title="Ilovani o'rnatish (PWA)" style="display:none;">
+          <i class="fa-solid fa-download"></i>
+        </button>
 
-      <!-- Ilovani o'rnatish (PWA Install Button) -->
-      <button class="icon-btn pwa-install-btn" id="btn-pwa-install" title="Ilovani o'rnatish (PWA)" style="display:none; color: #ff2a44;">
-        <i class="fa-solid fa-download"></i>
-        <span class="btn-text">O'rnatish</span>
-      </button>
+        <!-- Til tanlash -->
+        <div class="lang-selector">
+          <button class="util-icon-btn btn-lang" id="btn-lang-toggle" title="Tilni tanlash">
+            <i class="fa-solid fa-globe"></i>
+            <span id="current-lang-text">UZ</span>
+          </button>
+          <div class="lang-dropdown" id="lang-dropdown" style="display:none;">
+            <div class="lang-opt" data-lang="uz">🇺🇿 O'zbek</div>
+            <div class="lang-opt" data-lang="ru">🇷🇺 Русский</div>
+            <div class="lang-opt" data-lang="en">🇬🇧 English</div>
+          </div>
+        </div>
 
-      <!-- Ovoz -->
-      <button class="icon-btn" id="sound-btn" title="Tovushni yoqish/o'chirish">
-        <i class="fa-solid fa-volume-high" id="sound-icon"></i>
-      </button>
+        <!-- Tovush (Ovoz) -->
+        <button class="util-icon-btn" id="sound-btn" title="Tovushni yoqish / o'chirish">
+          <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+        </button>
+
+        <!-- Qoidalar / Yordam -->
+        <button class="util-icon-btn" id="rules-btn" title="O'yin qoidalari va rollar">
+          <i class="fa-solid fa-circle-question"></i>
+        </button>
+
+        <!-- Server sozlamasi -->
+        <button class="util-icon-btn" id="btn-open-server-settings" title="Server sozlamalari">
+          <i class="fa-solid fa-server"></i>
+        </button>
+
+        <!-- Admin Paneli -->
+        <button class="util-icon-btn btn-admin-shortcut" id="btn-open-admin" title="Admin Paneli">
+          <i class="fa-solid fa-shield-halved"></i>
+        </button>
+
+        <!-- Ping ko'rsatkichi -->
+        <div class="server-ping-badge" id="server-ping" title="Serverga ulanish kechikishi">
+          <span class="ping-dot"></span>
+          <span id="ping-text">24ms</span>
+        </div>
+      </div>
+
+      <!-- Mobil Harakatlar: Tezkor O'ynash CTA va Gamburger tugmasi -->
+      <div class="mobile-nav-actions">
+        <button class="btn-mobile-play-cta" id="btn-mobile-quick-play" title="Tezkor O'yin">
+          <i class="fa-solid fa-play"></i> <span>O'ynash</span>
+        </button>
+        <button class="btn-hamburger" id="btn-navbar-hamburger" aria-label="Menyu" title="Menyuni ochish">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
     </div>
   </header>
+
+  <!-- MOBIL UCHUN SLIDE-OUT DRAWER MENYU -->
+  <div class="mobile-nav-backdrop" id="mobile-nav-backdrop"></div>
+  <aside class="mobile-nav-drawer" id="mobile-nav-drawer" aria-hidden="true">
+    <div class="mobile-drawer-header">
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <i class="fa-solid fa-masks-theater"></i>
+        </div>
+        <div class="brand-logo-text">
+          <span class="brand-name">MAFIYA</span>
+          <span class="brand-badge">ONLINE</span>
+        </div>
+      </div>
+      <button class="mobile-drawer-close" id="close-mobile-nav" aria-label="Menyuni yopish">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Mobil Foydalanuvchi Holati -->
+    <div class="mobile-drawer-user" id="mobile-drawer-user">
+      <div class="drawer-user-info" id="drawer-user-info" style="display:none;">
+        <span class="drawer-avatar" id="drawer-user-avatar">🕵️‍♂️</span>
+        <div class="drawer-user-text">
+          <strong id="drawer-user-nickname">O'yinchi</strong>
+          <span class="drawer-mmr" id="drawer-user-mmr"><i class="fa-solid fa-trophy"></i> 1000 MMR</span>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-small btn-block" id="btn-mobile-drawer-auth">
+        <i class="fa-solid fa-user-lock"></i> <span id="mobile-drawer-auth-label">Kirish / Ro'yxatdan o'tish</span>
+      </button>
+    </div>
+
+    <!-- Asosiy bo'limlar -->
+    <div class="mobile-drawer-section">
+      <span class="drawer-section-title">ASOSIY</span>
+      <button class="drawer-nav-item" id="m-btn-spectator">
+        <i class="fa-solid fa-eye"></i> <span>Jonli O'yinlar</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-leaderboard">
+        <i class="fa-solid fa-ranking-star"></i> <span>TOP MMR Reyting</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-community">
+        <i class="fa-solid fa-palette"></i> <span>Ijodxona (Kosmetika)</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-battlepass">
+        <i class="fa-solid fa-shield-halved"></i> <span>Jang Pasporti</span>
+      </button>
+    </div>
+
+    <!-- Shaxsiy bo'limlar -->
+    <div class="mobile-drawer-section">
+      <span class="drawer-section-title">SHAXSIY</span>
+      <button class="drawer-nav-item" id="m-btn-profile">
+        <i class="fa-solid fa-id-card"></i> <span data-i18n="profile">Profil & Statistika</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-friends">
+        <i class="fa-solid fa-user-group"></i> <span data-i18n="friends">Do'stlar</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-achievements">
+        <i class="fa-solid fa-award"></i> <span data-i18n="achievements">Yutuqlar</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-rules">
+        <i class="fa-solid fa-book"></i> <span data-i18n="rules">O'yin Qoidalari</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-server">
+        <i class="fa-solid fa-server"></i> <span>Server Sozlamalari</span>
+      </button>
+      <button class="drawer-nav-item" id="m-btn-admin">
+        <i class="fa-solid fa-lock"></i> <span>Admin Paneli</span>
+      </button>
+    </div>
+
+    <!-- Mobil Footer: Til va Ovoz -->
+    <div class="mobile-drawer-footer">
+      <div class="drawer-util-row">
+        <button class="drawer-util-pill" id="m-sound-btn">
+          <i class="fa-solid fa-volume-high" id="m-sound-icon"></i> <span>Ovoz</span>
+        </button>
+        <button class="drawer-util-pill" id="m-lang-btn">
+          <i class="fa-solid fa-globe"></i> <span id="m-current-lang-text">UZ</span>
+        </button>
+      </div>
+      <a href="https://t.me/MAFIYA_712" target="_blank" rel="noopener noreferrer" class="drawer-telegram-link">
+        <i class="fa-brands fa-telegram"></i> Telegram @MAFIYA_712
+      </a>
+      <button class="drawer-logout-btn" id="m-btn-logout" style="display:none;">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> <span>Chiqish</span>
+      </button>
+    </div>
+  </aside>
 
   <!-- ASOSIY KONTEYNER -->
   <main class="main-container">

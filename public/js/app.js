@@ -114,6 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initCommunityHubUI();
     initReplayTheaterUI();
     initAuthPasswordResetUI();
+
+    // Redesigned Top Navbar & Mobil Drawer interaksiyalari
+    initNavbarInteractions();
+    initStoredUserNavbarUI();
   }
 
   function measurePing() {
@@ -159,29 +163,284 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.classList.remove('active');
   }
 
-  // 2. HEADER TUGMALARI
-  const langToggleBtn = document.getElementById('btn-lang-toggle');
-  const langDropdown = document.getElementById('lang-dropdown');
+  // 2. YANGILANGAN VA PROFESSIONAL NAVBAR HAMDA MOBIL DRAWER BOSHQARUVI
+  function updateNavbarAccountUI(user) {
+    const btnOpenAuth = document.getElementById('btn-open-auth');
+    const accountDropdownWrap = document.getElementById('account-dropdown-wrap');
+    const navUserAvatar = document.getElementById('nav-user-avatar');
+    const navUserNickname = document.getElementById('nav-user-nickname');
+    const accDropAvatar = document.getElementById('acc-drop-avatar');
+    const accDropNickname = document.getElementById('acc-drop-nickname');
+    const accDropMmr = document.getElementById('acc-drop-mmr');
+    const accDropStreak = document.getElementById('acc-drop-streak');
+    
+    // Mobil drawer elementlari
+    const drawerUserInfo = document.getElementById('drawer-user-info');
+    const btnMobileDrawerAuth = document.getElementById('btn-mobile-drawer-auth');
+    const drawerUserAvatar = document.getElementById('drawer-user-avatar');
+    const drawerUserNickname = document.getElementById('drawer-user-nickname');
+    const drawerUserMmr = document.getElementById('drawer-user-mmr');
+    const mBtnLogout = document.getElementById('m-btn-logout');
 
-  langToggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    langDropdown.style.display = langDropdown.style.display === 'none' ? 'block' : 'none';
-  });
+    const isLoggedIn = Boolean(user && (user.email || localStorage.getItem('mafia_user_email')));
 
-  document.querySelectorAll('.lang-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      const lang = opt.dataset.lang;
-      window.i18n.setLang(lang);
-      document.getElementById('current-lang-text').textContent = lang.toUpperCase();
-      langDropdown.style.display = 'none';
-      window.sounds.playClick();
-      showToast(`Til: ${lang.toUpperCase()}`, 'success');
+    if (isLoggedIn && user) {
+      const avatarIcon = AVATARS.find(a => a.id === (user.avatarIndex || selectedAvatarId))?.icon || '🕵️‍♂️';
+      const nickname = user.nickname || localStorage.getItem('mafia_player_name') || 'O\'yinchi';
+      const mmr = user.mmr || 1000;
+      const streak = user.streakDays || parseInt(localStorage.getItem('mafia_daily_streak') || '1', 10);
+
+      if (btnOpenAuth) btnOpenAuth.style.display = 'none';
+      if (accountDropdownWrap) accountDropdownWrap.style.display = 'block';
+      if (navUserAvatar) navUserAvatar.textContent = avatarIcon;
+      if (navUserNickname) navUserNickname.textContent = nickname;
+      if (accDropAvatar) accDropAvatar.textContent = avatarIcon;
+      if (accDropNickname) accDropNickname.textContent = nickname;
+      if (accDropMmr) accDropMmr.innerHTML = `<i class="fa-solid fa-trophy"></i> ${mmr} MMR`;
+      if (accDropStreak) accDropStreak.textContent = `🔥 ${streak} kun`;
+
+      if (drawerUserInfo) drawerUserInfo.style.display = 'flex';
+      if (btnMobileDrawerAuth) btnMobileDrawerAuth.style.display = 'none';
+      if (drawerUserAvatar) drawerUserAvatar.textContent = avatarIcon;
+      if (drawerUserNickname) drawerUserNickname.textContent = nickname;
+      if (drawerUserMmr) drawerUserMmr.innerHTML = `<i class="fa-solid fa-trophy"></i> ${mmr} MMR`;
+      if (mBtnLogout) mBtnLogout.style.display = 'flex';
+    } else {
+      if (btnOpenAuth) btnOpenAuth.style.display = 'inline-flex';
+      if (accountDropdownWrap) accountDropdownWrap.style.display = 'none';
+      const accountDropdownMenu = document.getElementById('account-dropdown-menu');
+      if (accountDropdownMenu) accountDropdownMenu.style.display = 'none';
+      if (accountDropdownWrap) accountDropdownWrap.classList.remove('open');
+
+      if (drawerUserInfo) drawerUserInfo.style.display = 'none';
+      if (btnMobileDrawerAuth) btnMobileDrawerAuth.style.display = 'block';
+      if (mBtnLogout) mBtnLogout.style.display = 'none';
+    }
+  }
+
+  function initStoredUserNavbarUI() {
+    const storedEmail = localStorage.getItem('mafia_user_email');
+    const storedName = localStorage.getItem('mafia_player_name');
+    if (storedEmail) {
+      updateNavbarAccountUI({
+        email: storedEmail,
+        nickname: storedName || 'O\'yinchi',
+        avatarIndex: selectedAvatarId,
+        mmr: 1000
+      });
+      if (window.socketClient?.getProfile) {
+        window.socketClient.getProfile((res) => {
+          if (res && res.success && res.user) {
+            updateNavbarAccountUI(res.user);
+          }
+        });
+      }
+    } else {
+      updateNavbarAccountUI(null);
+    }
+  }
+
+  function initNavbarInteractions() {
+    // 1. Logo bosilganda Bosh sahifaga qaytish
+    const brandLogo = document.getElementById('brand-logo');
+    if (brandLogo) {
+      brandLogo.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.sounds.playClick();
+        showScreen('home');
+      });
+    }
+
+    // 2. Profil menyusi (Dropdown) ochish/yopish
+    const accDropdownToggle = document.getElementById('user-account-dropdown-toggle');
+    const accDropdownWrap = document.getElementById('account-dropdown-wrap');
+    const accDropdownMenu = document.getElementById('account-dropdown-menu');
+
+    if (accDropdownToggle && accDropdownMenu) {
+      accDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.sounds.playClick();
+        const isOpen = accDropdownMenu.style.display === 'block';
+        accDropdownMenu.style.display = isOpen ? 'none' : 'block';
+        if (accDropdownWrap) {
+          accDropdownWrap.classList.toggle('open', !isOpen);
+        }
+        accDropdownToggle.setAttribute('aria-expanded', String(!isOpen));
+      });
+    }
+
+    // Tashqariga bosilganda menyularni yopish
+    document.addEventListener('click', (e) => {
+      if (accDropdownMenu && accDropdownMenu.style.display === 'block') {
+        if (!accDropdownWrap || !accDropdownWrap.contains(e.target)) {
+          accDropdownMenu.style.display = 'none';
+          if (accDropdownWrap) accDropdownWrap.classList.remove('open');
+          if (accDropdownToggle) accDropdownToggle.setAttribute('aria-expanded', 'false');
+        }
+      }
+      const langDropdown = document.getElementById('lang-dropdown');
+      if (langDropdown && langDropdown.style.display === 'block') {
+        if (!e.target.closest('.lang-selector')) {
+          langDropdown.style.display = 'none';
+        }
+      }
     });
-  });
 
-  document.addEventListener('click', () => {
-    langDropdown.style.display = 'none';
-  });
+    // Dropdown havolalarini bosganda menyuni yopish
+    document.querySelectorAll('.acc-drop-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (accDropdownMenu) accDropdownMenu.style.display = 'none';
+        if (accDropdownWrap) accDropdownWrap.classList.remove('open');
+      });
+    });
+
+    // 3. Chiqish (Logout) tugmalari
+    function performLogout() {
+      window.sounds.playClick();
+      localStorage.removeItem('mafia_user_email');
+      localStorage.removeItem('mafia_user_token');
+      updateNavbarAccountUI(null);
+      closeMobileDrawer();
+      showToast('Tizimdan muvaffaqiyatli chiqdingiz', 'info');
+    }
+
+    document.getElementById('btn-logout-user')?.addEventListener('click', performLogout);
+    document.getElementById('m-btn-logout')?.addEventListener('click', performLogout);
+
+    // 4. Mobil Slide-Out Drawer boshqaruvi
+    const hamburgerBtn = document.getElementById('btn-navbar-hamburger');
+    const mobileDrawer = document.getElementById('mobile-nav-drawer');
+    const mobileBackdrop = document.getElementById('mobile-nav-backdrop');
+    const closeDrawerBtn = document.getElementById('close-mobile-nav');
+
+    function openMobileDrawer() {
+      window.sounds.playClick();
+      if (mobileDrawer) {
+        mobileDrawer.classList.add('open');
+        mobileDrawer.setAttribute('aria-hidden', 'false');
+      }
+      if (mobileBackdrop) mobileBackdrop.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileDrawer() {
+      if (mobileDrawer) {
+        mobileDrawer.classList.remove('open');
+        mobileDrawer.setAttribute('aria-hidden', 'true');
+      }
+      if (mobileBackdrop) mobileBackdrop.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openMobileDrawer);
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeMobileDrawer);
+    if (mobileBackdrop) mobileBackdrop.addEventListener('click', closeMobileDrawer);
+
+    // Mobil Tezkor O'ynash CTA tugmasi
+    const mobileQuickPlay = document.getElementById('btn-mobile-quick-play');
+    if (mobileQuickPlay) {
+      mobileQuickPlay.addEventListener('click', () => {
+        window.sounds.playClick();
+        document.getElementById('btn-quick-match')?.click();
+      });
+    }
+
+    // Mobil Drawer Kirish tugmasi
+    document.getElementById('btn-mobile-drawer-auth')?.addEventListener('click', () => {
+      closeMobileDrawer();
+      document.getElementById('btn-open-auth')?.click();
+    });
+
+    // Mobil Drawer havolalarini asosiy tugmalarga bog'lash
+    const mobileMappings = [
+      { mId: 'm-btn-spectator', targetId: 'btn-open-spectator' },
+      { mId: 'm-btn-leaderboard', targetId: 'btn-open-leaderboard' },
+      { mId: 'm-btn-community', targetId: 'btn-open-community' },
+      { mId: 'm-btn-battlepass', targetId: 'btn-open-battlepass' },
+      { mId: 'm-btn-profile', targetId: 'btn-open-profile' },
+      { mId: 'm-btn-friends', targetId: 'btn-open-friends' },
+      { mId: 'm-btn-achievements', targetId: 'btn-open-achievements' },
+      { mId: 'm-btn-rules', targetId: 'rules-btn' },
+      { mId: 'm-btn-server', targetId: 'btn-open-server-settings' },
+      { mId: 'm-btn-admin', targetId: 'btn-open-admin' }
+    ];
+
+    mobileMappings.forEach(({ mId, targetId }) => {
+      const mEl = document.getElementById(mId);
+      if (mEl) {
+        mEl.addEventListener('click', () => {
+          closeMobileDrawer();
+          document.getElementById(targetId)?.click();
+        });
+      }
+    });
+
+    // Mobil Ovoz tugmasi
+    const mSoundBtn = document.getElementById('m-sound-btn');
+    if (mSoundBtn) {
+      mSoundBtn.addEventListener('click', () => {
+        const isMuted = window.sounds.toggleMute();
+        const mIcon = document.getElementById('m-sound-icon');
+        const deskIcon = document.getElementById('sound-icon');
+        if (isMuted) {
+          if (mIcon) mIcon.className = 'fa-solid fa-volume-xmark';
+          if (deskIcon) {
+            deskIcon.className = 'fa-solid fa-volume-xmark';
+            deskIcon.style.color = '#ff475e';
+          }
+          showToast('Tovush o\'chirildi', 'info');
+        } else {
+          if (mIcon) mIcon.className = 'fa-solid fa-volume-high';
+          if (deskIcon) {
+            deskIcon.className = 'fa-solid fa-volume-high';
+            deskIcon.style.color = '';
+          }
+          window.sounds.playClick();
+          showToast('Tovush yoqildi', 'success');
+        }
+      });
+    }
+
+    // Mobil Til tugmasi (bosilganda UZ -> RU -> EN aylanadi)
+    const mLangBtn = document.getElementById('m-lang-btn');
+    if (mLangBtn) {
+      mLangBtn.addEventListener('click', () => {
+        const langs = ['uz', 'ru', 'en'];
+        const curIdx = langs.indexOf(window.i18n.lang);
+        const nextLang = langs[(curIdx + 1) % langs.length];
+        window.i18n.setLang(nextLang);
+        document.getElementById('current-lang-text').textContent = nextLang.toUpperCase();
+        document.getElementById('m-current-lang-text').textContent = nextLang.toUpperCase();
+        window.sounds.playClick();
+        showToast(`Til: ${nextLang.toUpperCase()}`, 'success');
+      });
+    }
+
+    // 5. Desktop Til tanlash (Dropdown)
+    const langToggleBtn = document.getElementById('btn-lang-toggle');
+    const langDropdown = document.getElementById('lang-dropdown');
+
+    if (langToggleBtn && langDropdown) {
+      langToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.sounds.playClick();
+        langDropdown.style.display = langDropdown.style.display === 'none' ? 'block' : 'none';
+      });
+
+      document.querySelectorAll('.lang-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const lang = opt.dataset.lang;
+          window.i18n.setLang(lang);
+          document.getElementById('current-lang-text').textContent = lang.toUpperCase();
+          const mLangText = document.getElementById('m-current-lang-text');
+          if (mLangText) mLangText.textContent = lang.toUpperCase();
+          langDropdown.style.display = 'none';
+          window.sounds.playClick();
+          showToast(`Til: ${lang.toUpperCase()}`, 'success');
+        });
+      });
+    }
+  }
 
   // Header modallar ochish
   document.getElementById('rules-btn').addEventListener('click', () => openModal(rulesModal));
@@ -1800,6 +2059,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.socketClient.getProfile((res) => {
       if (res && res.success) {
         const u = res.user;
+        updateNavbarAccountUI(u);
         document.getElementById('profile-nickname').textContent = u.nickname;
         document.getElementById('profile-user-id').textContent = `ID: ${u.id}`;
         document.getElementById('profile-user-mmr').textContent = `MMR: ${u.mmr || 1000}`;
@@ -2006,9 +2266,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res && res.success) {
           showToast(`Xush kelibsiz, ${res.user.nickname}!`, 'success');
           document.getElementById('player-name-input').value = res.user.nickname;
-          document.getElementById('header-auth-label').textContent = res.user.nickname;
           localStorage.setItem('mafia_user_email', res.user.email);
           localStorage.setItem('mafia_user_token', res.token);
+          updateNavbarAccountUI(res.user);
           closeModal(authModal);
           window.socketClient.initUser(res.user.nickname, res.user.avatarIndex || selectedAvatarId);
         } else {
@@ -2029,9 +2289,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res && res.success) {
           showToast(`Ro'yxatdan o'tdingiz, ${res.user.nickname}!`, 'success');
           document.getElementById('player-name-input').value = res.user.nickname;
-          document.getElementById('header-auth-label').textContent = res.user.nickname;
           localStorage.setItem('mafia_user_email', res.user.email);
           localStorage.setItem('mafia_user_token', res.token);
+          updateNavbarAccountUI(res.user);
           closeModal(authModal);
           window.socketClient.initUser(res.user.nickname, selectedAvatarId);
         } else {
@@ -2051,9 +2311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (res && res.success) {
           showToast(`Google orqali kirdingiz: ${res.user.nickname}!`, 'success');
           document.getElementById('player-name-input').value = res.user.nickname;
-          document.getElementById('header-auth-label').textContent = res.user.nickname;
           localStorage.setItem('mafia_user_email', res.user.email);
           localStorage.setItem('mafia_user_token', res.token);
+          updateNavbarAccountUI(res.user);
           closeModal(authModal);
           window.socketClient.initUser(res.user.nickname, selectedAvatarId);
         } else {

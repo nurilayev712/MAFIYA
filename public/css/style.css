@@ -99,42 +99,434 @@ body {
   transition: transform var(--transition-normal), border-color var(--transition-normal);
 }
 
-/* Header */
+/* ========================================================
+   YANGILANGAN VA PROFESSIONAL TOP NAVBAR
+   ======================================================== */
 .app-header {
-  position: relative;
-  z-index: 20;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: rgba(10, 11, 14, 0.75);
-  backdrop-filter: blur(12px);
+  padding: 0 24px;
+  height: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 12, 16, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  transition: all var(--transition-normal);
+}
+
+/* 1. Chap tomon: Logo va Primary Nav */
+.nav-left-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #fff;
+  text-decoration: none;
   cursor: pointer;
+  user-select: none;
+  transition: transform var(--transition-fast);
 }
 
-.blood-red-icon {
+.brand-logo:hover {
+  transform: scale(1.02);
+}
+
+.brand-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(229, 9, 20, 0.05));
+  border: 1px solid rgba(229, 9, 20, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--mafia-red);
-  text-shadow: 0 0 12px var(--mafia-glow);
+  font-size: 1.15rem;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.25);
+  transition: all var(--transition-fast);
 }
 
+.brand-logo:hover .brand-logo-icon {
+  border-color: var(--mafia-red);
+  box-shadow: 0 0 18px var(--mafia-glow);
+  color: #fff;
+  background: var(--mafia-red);
+}
+
+.brand-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.brand-badge {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: var(--gold-accent);
+  text-transform: uppercase;
+}
+
+/* Primary Nav Items (Desktop) */
+.primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-item-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.nav-item-btn i {
+  font-size: 0.9rem;
+  color: #8b92a5;
+  transition: color var(--transition-fast);
+}
+
+.nav-item-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item-btn:hover i {
+  color: var(--mafia-red);
+}
+
+.nav-item-btn.active {
+  color: #ffffff;
+  background: rgba(229, 9, 20, 0.12);
+  border-color: rgba(229, 9, 20, 0.35);
+}
+
+.nav-item-btn.active i {
+  color: var(--mafia-red);
+  text-shadow: 0 0 8px var(--mafia-glow);
+}
+
+/* 2. O'ng tomon: Profil va Utilitlar guruhi */
+.header-right-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Kirish tugmasi */
+.nav-btn-auth {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.25), rgba(180, 0, 10, 0.15));
+  border: 1px solid rgba(229, 9, 20, 0.45);
+  color: #ffffff;
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+}
+
+.nav-btn-auth i {
+  color: #ffffff;
+}
+
+.nav-btn-auth:hover {
+  background: var(--mafia-red);
+  border-color: var(--mafia-red);
+  color: #ffffff;
+  box-shadow: 0 0 16px var(--mafia-glow);
+}
+
+.nav-btn-auth:hover i {
+  color: #ffffff;
+}
+
+/* Foydalanuvchi menyusi (Kirganda) */
+.account-nav-wrap {
+  position: relative;
+}
+
+.user-account-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 12px 4px 5px;
+  border-radius: var(--radius-full);
+  color: #ffffff;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.user-account-toggle:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(229, 9, 20, 0.4);
+}
+
+.user-nav-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.user-nav-name {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-nav-arrow {
+  font-size: 0.68rem;
+  color: #8b92a5;
+  transition: transform var(--transition-fast);
+}
+
+.account-dropdown-wrap.open .user-nav-arrow {
+  transform: rotate(180deg);
+}
+
+/* Account Dropdown Menyu */
+.account-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 260px;
+  background: #0f121a;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(229, 9, 20, 0.15);
+  padding: 8px;
+  z-index: 1050;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: fadeInDrop 0.18s ease-out;
+}
+
+@keyframes fadeInDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.account-dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.acc-drop-avatar {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.acc-drop-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.acc-drop-info strong {
+  font-size: 0.9rem;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.acc-drop-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--gold-accent);
+  font-weight: 600;
+}
+
+.acc-drop-streak {
+  color: #ff9800;
+}
+
+.account-dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+.account-dropdown-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.acc-drop-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #d1d5db;
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.acc-drop-item i {
+  font-size: 0.95rem;
+  color: #8b92a5;
+  width: 18px;
+  text-align: center;
+  transition: color var(--transition-fast);
+}
+
+.acc-drop-item:hover {
+  background: rgba(229, 9, 20, 0.12);
+  color: #ffffff;
+}
+
+.acc-drop-item:hover i {
+  color: var(--mafia-red);
+}
+
+.bp-mini-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 215, 0, 0.15);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  color: var(--gold-accent);
+}
+
+.acc-drop-logout {
+  color: #f87171;
+}
+
+.acc-drop-logout i {
+  color: #f87171;
+}
+
+.acc-drop-logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.acc-drop-logout:hover i {
+  color: #ef4444;
+}
+
+/* Ajratuvchi chiziq */
+.nav-vertical-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 4px;
+}
+
+/* Utilitlar Guruhi (O'ng tomon, bosiq dizayn) */
+.utility-icons-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.util-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #8b92a5;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.util-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.util-icon-btn.btn-lang {
+  width: auto;
+  padding: 0 10px;
+  gap: 5px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.btn-admin-shortcut:hover {
+  border-color: rgba(229, 9, 20, 0.4);
+  background: rgba(229, 9, 20, 0.15);
+  color: #ff5252;
+}
+
+/* Server Ping Ko'rsatkichi */
 .server-ping-badge {
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 4px 8px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -143,75 +535,365 @@ body {
 }
 
 .ping-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: #00e676;
   box-shadow: 0 0 6px #00e676;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.icon-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 7px 11px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.icon-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.btn-admin-shortcut:hover {
-  border-color: #ff5252;
-  background: rgba(255, 82, 82, 0.15);
-}
-
-/* Til dropdown */
+/* Til Tanlash Dropdown */
 .lang-selector {
   position: relative;
 }
 
 .lang-dropdown {
   position: absolute;
-  top: 110%;
+  top: calc(100% + 6px);
   right: 0;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-color);
+  background: #11141d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-  z-index: 50;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  z-index: 1050;
   overflow: hidden;
-  min-width: 120px;
+  min-width: 130px;
+  animation: fadeInDrop 0.16s ease-out;
 }
 
 .lang-opt {
-  padding: 10px 14px;
-  font-size: 0.85rem;
+  padding: 9px 14px;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
+  color: #d1d5db;
   transition: background var(--transition-fast);
 }
 
 .lang-opt:hover {
-  background: rgba(255, 42, 68, 0.2);
-  color: #fff;
+  background: rgba(229, 9, 20, 0.15);
+  color: #ffffff;
+}
+
+/* Mobil Harakatlar Tugmalari */
+.mobile-nav-actions {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-mobile-play-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--mafia-red), #990000);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(229, 9, 20, 0.4);
+  transition: all var(--transition-fast);
+}
+
+.btn-mobile-play-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--mafia-glow);
+}
+
+.btn-hamburger {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+
+.btn-hamburger:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.hamburger-line {
+  width: 20px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+/* ========================================================
+   MOBIL SLIDE-OUT DRAWER
+   ======================================================== */
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1998;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.mobile-nav-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 86vw;
+  background: #0c0e14;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: -8px 0 36px rgba(0, 0, 0, 0.85);
+  z-index: 1999;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 18px 16px;
+  gap: 14px;
+}
+
+.mobile-nav-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mobile-drawer-close {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobile-drawer-close:hover {
+  background: rgba(229, 9, 20, 0.15);
+  border-color: rgba(229, 9, 20, 0.3);
+  color: var(--mafia-red);
+}
+
+.mobile-drawer-user {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.drawer-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawer-avatar {
+  font-size: 1.8rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(229, 9, 20, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer-user-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.drawer-user-text strong {
+  font-size: 0.95rem;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer-mmr {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--gold-accent);
+}
+
+.mobile-drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.drawer-section-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+  color: #6b7280;
+  margin: 6px 8px 4px;
+}
+
+.drawer-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.drawer-nav-item i {
+  font-size: 1.05rem;
+  width: 22px;
+  text-align: center;
+  color: #8b92a5;
+  transition: color var(--transition-fast);
+}
+
+.drawer-nav-item:hover,
+.drawer-nav-item:active {
+  background: rgba(229, 9, 20, 0.12);
+  color: #ffffff;
+}
+
+.drawer-nav-item:hover i,
+.drawer-nav-item:active i {
+  color: var(--mafia-red);
+}
+
+.mobile-drawer-footer {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-util-row {
+  display: flex;
+  gap: 8px;
+}
+
+.drawer-util-pill {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.drawer-util-pill:hover,
+.drawer-util-pill:active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.drawer-telegram-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px;
+  background: rgba(0, 136, 204, 0.12);
+  border: 1px solid rgba(0, 136, 204, 0.3);
+  border-radius: 8px;
+  color: #38bdf8;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.drawer-telegram-link:hover {
+  background: rgba(0, 136, 204, 0.22);
+  border-color: rgba(0, 136, 204, 0.5);
+  color: #ffffff;
+}
+
+.drawer-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 8px;
+  color: #f87171;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.drawer-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #ffffff;
 }
 
 /* Asosiy Konteyner */
@@ -2335,6 +3017,37 @@ select {
 
 /* 2. MOBIL QURILMALAR (max-width: 768px) */
 @media (max-width: 768px) {
+  /* Navbar mobil ko'rinishi */
+  .primary-nav,
+  .nav-vertical-divider,
+  .utility-icons-group {
+    display: none !important;
+  }
+
+  .mobile-nav-actions {
+    display: flex !important;
+  }
+
+  .app-header {
+    height: 56px;
+    padding: 0 12px;
+  }
+
+  .brand-logo-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .brand-name {
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+  }
+
+  .brand-badge {
+    font-size: 0.55rem;
+  }
+
   .mobile-game-tabs {
     display: flex;
   }
@@ -2436,44 +3149,23 @@ select {
   }
 
   .app-header {
-    padding: 8px 10px;
-    gap: 6px;
+    padding: 0 10px;
+    height: 52px;
   }
 
-  .brand-logo {
+  .brand-logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.95rem;
+  }
+
+  .brand-name {
     font-size: 1.05rem;
+    letter-spacing: 1px;
   }
 
-  .server-ping-badge {
-    padding: 2px 5px;
-    font-size: 0.68rem;
-  }
-
-  .header-actions {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    flex-wrap: nowrap;
-    gap: 4px;
-    padding-bottom: 2px;
-    max-width: calc(100vw - 120px);
-  }
-
-  .header-actions::-webkit-scrollbar {
+  .brand-badge {
     display: none;
-  }
-
-  .btn-text {
-    display: none;
-  }
-
-  .icon-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-    padding: 0;
-    flex-shrink: 0;
   }
 
   .hero-card {
