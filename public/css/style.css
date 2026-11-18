@@ -61,7 +61,9 @@
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-main);
+  background-color: #0a0a0a;
+  background-image: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(139, 0, 0, 0.15) 0%, rgba(80, 0, 0, 0.08) 40%, #0a0a0a 75%);
+  background-attachment: fixed;
   color: var(--text-main);
   min-height: 100vh;
   min-height: 100dvh;
@@ -1058,15 +1060,21 @@ body {
   margin: 6px auto;
   background: linear-gradient(180deg, rgba(26, 20, 30, 0.84) 0%, rgba(14, 12, 20, 0.94) 100%);
   box-shadow:
-    0 12px 40px -10px rgba(0, 0, 0, 0.9),
-    0 0 60px -20px var(--card-glow-strong),
-    0 0 0 1px rgba(255, 42, 68, 0.1);
-  animation: cardEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+    0 0 40px rgba(220, 38, 38, 0.35),
+    0 0 80px rgba(220, 38, 38, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: fadeSlideIn 0.4s ease-out both;
 }
 
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Keep old cardEntrance name as alias so nothing breaks */
 @keyframes cardEntrance {
-  from { opacity: 0; transform: translateY(18px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0)   scale(1); }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .hero-header-row {
@@ -1084,7 +1092,7 @@ body {
   border: 1px solid rgba(255, 42, 68, 0.3);
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: var(--radius-full);
@@ -1164,7 +1172,7 @@ body {
   font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 6px;
+  letter-spacing: 0.08em;
   color: #ffffff;
   text-shadow: 0 0 24px rgba(255, 42, 68, 0.6), 0 0 60px rgba(255, 42, 68, 0.2);
   line-height: 1;
@@ -1219,7 +1227,8 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .avatar-label-row {
@@ -1281,8 +1290,8 @@ select:focus {
 .avatar-opt:hover {
   background: rgba(255, 255, 255, 0.11);
   transform: scale(1.08);
-  box-shadow: 0 0 14px rgba(255, 42, 68, 0.38);
-  border-color: rgba(255, 42, 68, 0.38);
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+  border-color: rgba(220, 38, 38, 0.5);
 }
 
 .avatar-opt.selected {
@@ -1504,13 +1513,13 @@ select:focus {
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: all var(--transition-bounce);
+  transition: all 0.2s ease;
   text-decoration: none;
 }
 
 .btn:hover {
   transform: scale(1.03);
-  filter: brightness(1.08);
+  filter: brightness(1.1);
 }
 
 .btn:active {
@@ -4639,6 +4648,8 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   .blood-bg-overlay,
   .smoke-effect,
+  #noir-bg,
+  .noir-particles,
   body::before,
   body::after {
     animation: none !important;
@@ -4658,4 +4669,156 @@ body::after {
   .avatar-opt.selected {
     animation: none !important;
   }
+}
+
+/* ==========================================================================
+   ITEM 1 — BACKGROUND ATMOSPHERE
+   Radial red glow (#8B0000, ~15% opacity) + 18 drifting smoke particle shapes
+   ========================================================================== */
+
+/* Centered radial red glow behind the card, fading to near-black at edges */
+#noir-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 50%,
+      rgba(139, 0, 0, 0.15) 0%,
+      rgba(80, 0, 0, 0.08) 40%,
+      #0a0a0a 75%) !important;
+}
+
+/* Container for all smoke particle spans */
+.noir-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Base style shared by all smoke shapes */
+.np {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 0, 0, 0.08) 0%, rgba(30, 10, 15, 0.04) 60%, transparent 100%);
+  filter: blur(24px);
+  animation-name: npRise;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes npRise {
+  0%   { transform: translateY(0)   translateX(0)   scale(0.9); opacity: 0; }
+  15%  { opacity: var(--npOpacity, 0.06); }
+  75%  { opacity: var(--npOpacity, 0.05); }
+  100% { transform: translateY(-45vh) translateX(var(--npX, 25px)) scale(1.35); opacity: 0; }
+}
+
+/* 18 small, slowly drifting semi-transparent smoke shapes (20-40s loop, opacity 0.03-0.08) */
+.np1  { width:80px;  height:80px;  bottom:5%;  left:10%;   animation-duration:28s; animation-delay:0s;   --npX: 30px;  --npOpacity:0.06; }
+.np2  { width:60px;  height:60px;  bottom:15%; left:26%;   animation-duration:35s; animation-delay:-7s;  --npX:-20px;  --npOpacity:0.04; }
+.np3  { width:100px; height:100px; bottom:2%;  left:44%;   animation-duration:40s; animation-delay:-14s; --npX: 18px;  --npOpacity:0.07; }
+.np4  { width:70px;  height:70px;  bottom:8%;  left:62%;   animation-duration:32s; animation-delay:-3s;  --npX:-25px;  --npOpacity:0.05; }
+.np5  { width:50px;  height:50px;  bottom:18%; left:78%;   animation-duration:24s; animation-delay:-18s; --npX: 12px;  --npOpacity:0.04; }
+.np6  { width:90px;  height:90px;  bottom:4%;  left:88%;   animation-duration:38s; animation-delay:-9s;  --npX:-28px;  --npOpacity:0.06; }
+.np7  { width:65px;  height:65px;  bottom:28%; left:6%;    animation-duration:30s; animation-delay:-22s; --npX: 22px;  --npOpacity:0.03; }
+.np8  { width:75px;  height:75px;  bottom:12%; left:36%;   animation-duration:36s; animation-delay:-5s;  --npX:-16px;  --npOpacity:0.05; }
+.np9  { width:55px;  height:55px;  bottom:22%; left:54%;   animation-duration:22s; animation-delay:-12s; --npX: 18px;  --npOpacity:0.04; }
+.np10 { width:95px;  height:95px;  bottom:1%;  left:70%;   animation-duration:39s; animation-delay:-1s;  --npX:-12px;  --npOpacity:0.07; }
+.np11 { width:68px;  height:68px;  bottom:16%; left:20%;   animation-duration:29s; animation-delay:-16s; --npX: 32px;  --npOpacity:0.05; }
+.np12 { width:82px;  height:82px;  bottom:6%;  left:40%;   animation-duration:33s; animation-delay:-8s;  --npX:-18px;  --npOpacity:0.04; }
+.np13 { width:45px;  height:45px;  bottom:32%; left:66%;   animation-duration:26s; animation-delay:-20s; --npX: 14px;  --npOpacity:0.03; }
+.np14 { width:70px;  height:70px;  bottom:10%; left:84%;   animation-duration:37s; animation-delay:-4s;  --npX:-20px;  --npOpacity:0.05; }
+.np15 { width:56px;  height:56px;  bottom:20%; left:92%;   animation-duration:31s; animation-delay:-11s; --npX: 10px;  --npOpacity:0.04; }
+.np16 { width:85px;  height:85px;  bottom:3%;  left:18%;   animation-duration:34s; animation-delay:-15s; --npX:-24px;  --npOpacity:0.06; }
+.np17 { width:62px;  height:62px;  bottom:24%; left:48%;   animation-duration:25s; animation-delay:-6s;  --npX: 16px;  --npOpacity:0.05; }
+.np18 { width:76px;  height:76px;  bottom:14%; left:75%;   animation-duration:37s; animation-delay:-13s; --npX:-15px;  --npOpacity:0.04; }
+
+/* ==========================================================================
+   ITEM 2 — CARD GLOW (visible around the main card border)
+   ========================================================================== */
+.hero-card,
+#screen-home .hero-card {
+  box-shadow: 0 0 40px rgba(220, 38, 38, 0.35), 0 0 80px rgba(220, 38, 38, 0.15), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
+/* ==========================================================================
+   ITEM 3 — TITLE TYPOGRAPHY (visible on "MAFIYA" title and labels)
+   ========================================================================== */
+.game-title,
+h1.game-title {
+  letter-spacing: 0.08em !important;
+}
+
+.blood-badge,
+.form-group label,
+.avatar-label-row label,
+.avatar-form-group label {
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+}
+
+/* ==========================================================================
+   ITEM 4 — INTERACTIVE EFFECTS (Hover, Press, Card load)
+   ========================================================================== */
+
+/* Button base transition */
+.btn,
+button.btn,
+.btn-quick-match,
+.btn-primary,
+.btn-secondary,
+.btn-outline,
+.nav-btn-play-desktop,
+.btn-mobile-play-cta {
+  transition: all 0.2s ease !important;
+}
+
+/* Button hover: transform: scale(1.03); filter: brightness(1.1); transition: all 0.2s ease; */
+.btn:hover,
+button.btn:hover,
+.btn-quick-match:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-outline:hover,
+.nav-btn-play-desktop:hover,
+.btn-mobile-play-cta:hover {
+  transform: scale(1.03) !important;
+  filter: brightness(1.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Button press: transform: scale(0.97); */
+.btn:active,
+button.btn:active,
+.btn-quick-match:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-outline:active,
+.nav-btn-play-desktop:active,
+.btn-mobile-play-cta:active {
+  transform: scale(0.97) !important;
+}
+
+/* Avatar tile hover: box-shadow: 0 0 15px rgba(220, 38, 38, 0.5); */
+.avatar-opt {
+  transition: all 0.2s ease !important;
+}
+
+.avatar-opt:hover {
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.5) !important;
+}
+
+/* Card load animation: @keyframes fadeSlideIn on mount */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-card,
+#screen-home .hero-card {
+  animation: fadeSlideIn 0.4s ease-out !important;
 }
