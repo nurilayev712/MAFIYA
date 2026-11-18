@@ -2485,18 +2485,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const claimBtn = document.getElementById('btn-claim-daily-reward');
 
       if (streakDaysEl) streakDaysEl.textContent = `${res.streak || 1} kun`;
-      if (coinsEl) coinsEl.textContent = `${res.coins || 100} Tanga`;
+      if (coinsEl) coinsEl.textContent = `${res.coins || 100}`;
 
       if (claimBtn) {
         if (res.canClaimReward) {
           claimBtn.disabled = false;
-          claimBtn.innerHTML = `<i class="fa-solid fa-gift"></i> ${window.i18n.t('claimReward') || 'Mukofotni olish'} (+${res.reward || 50})`;
+          claimBtn.classList.remove('claimed');
+          claimBtn.innerHTML = `<i class="fa-solid fa-gift"></i>`;
+          claimBtn.title = `Kunlik bonusni olish (+${res.reward || 50} tanga)`;
         } else {
           claimBtn.disabled = true;
-          claimBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${window.i18n.t('claimed') || 'Olingan'}`;
+          claimBtn.classList.add('claimed');
+          claimBtn.innerHTML = `<i class="fa-solid fa-check"></i>`;
+          claimBtn.title = 'Bugungi bonus olingan';
         }
       }
     });
+
+    // Promo stripni yopish (X tugmasi)
+    const btnDismissPromo = document.getElementById('btn-dismiss-promo');
+    if (btnDismissPromo) {
+      btnDismissPromo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.sounds.playClick();
+        const strip = document.getElementById('home-promo-strip');
+        if (strip) strip.style.display = 'none';
+      });
+    }
   }
 
   const btnClaimReward = document.getElementById('btn-claim-daily-reward');
@@ -2511,9 +2526,11 @@ document.addEventListener('DOMContentLoaded', () => {
           const streakDaysEl = document.getElementById('streak-count-days');
           const coinsEl = document.getElementById('streak-coins-display');
           if (streakDaysEl) streakDaysEl.textContent = `${res.streak} kun`;
-          if (coinsEl) coinsEl.textContent = `${res.coins} Tanga`;
+          if (coinsEl) coinsEl.textContent = `${res.coins}`;
           btnClaimReward.disabled = true;
-          btnClaimReward.innerHTML = `<i class="fa-solid fa-check"></i> ${window.i18n.t('claimed') || 'Olingan'}`;
+          btnClaimReward.classList.add('claimed');
+          btnClaimReward.innerHTML = `<i class="fa-solid fa-check"></i>`;
+          btnClaimReward.title = 'Bugungi bonus olingan';
           openModal(streakRewardModal);
           showToast(`Tabriklaymiz! +${res.reward} tanga hisobingizga qo'shildi! 🔥`, 'success');
         } else {

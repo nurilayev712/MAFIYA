@@ -3472,6 +3472,313 @@
         "first_game"
       ],
       "friends": []
+    },
+    "usr_1794998378873_93pge": {
+      "id": "usr_1794998378873_93pge",
+      "email": "mafia_player_1794998378873@example.com",
+      "passwordHash": "39862bbe9eddf20c09469f6c9482bc58:979cf51a713bdc1272a472abc882a4030c65b49a780903bec2d98f995986e2a31f2c91aab5c715e5b97004f1ec352b0864496b90807b1cbcfd09679c35308723",
+      "nickname": "Don_Alisher",
+      "avatarIndex": 3,
+      "createdAt": 1794998378873,
+      "mmr": 1000,
+      "coins": 100,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": false,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_tut_1794998381178": {
+      "id": "usr_tut_1794998381178",
+      "nickname": "O'quvchi",
+      "avatarIndex": 1,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381178,
+      "mmr": 1000,
+      "coins": 200,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": true,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_streak_1794998381185": {
+      "id": "usr_streak_1794998381185",
+      "nickname": "StreakMan",
+      "avatarIndex": 2,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381185,
+      "mmr": 1000,
+      "coins": 250,
+      "streak": 1,
+      "lastLoginDate": "2026-11-15",
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "test_bp_1794998381607": {
+      "id": "test_bp_1794998381607",
+      "nickname": "JasurBP",
+      "avatarIndex": 1,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381607,
+      "mmr": 1000,
+      "coins": 1000,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 600,
+      "bpLevel": 2,
+      "isPremiumBP": true,
+      "claimedBPTiers": [
+        "free_1",
+        "premium_1"
+      ],
+      "equippedCosmetics": {
+        "frame": "cosm_1794998381636_56i5",
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "test_payme_1794998381607": {
+      "id": "test_payme_1794998381607",
+      "nickname": "PaymeUser",
+      "avatarIndex": 2,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381629,
+      "mmr": 1000,
+      "coins": 600,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": true,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "usr_1794998381646_uuez4": {
+      "id": "usr_1794998381646_uuez4",
+      "email": "player_1794998381607@mafiya.uz",
+      "passwordHash": "yangi_parol_789",
+      "nickname": "ParolSinovchi",
+      "avatarIndex": 1,
+      "createdAt": 1794998381646,
+      "mmr": 1000,
+      "coins": 100,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": false,
+      "stats": {
+        "gamesPlayed": 0,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {}
+      },
+      "achievements": [],
+      "friends": []
+    },
+    "test_cmp1_1794998381607": {
+      "id": "test_cmp1_1794998381607",
+      "nickname": "Jasur",
+      "avatarIndex": 1,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381808,
+      "mmr": 985,
+      "coins": 100,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 1,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {
+          "undefined": 1
+        }
+      },
+      "achievements": [
+        "first_game"
+      ],
+      "friends": []
+    },
+    "test_cmp2_1794998381607": {
+      "id": "test_cmp2_1794998381607",
+      "nickname": "Temur",
+      "avatarIndex": 2,
+      "telegramId": null,
+      "telegramUsername": null,
+      "createdAt": 1794998381811,
+      "mmr": 985,
+      "coins": 100,
+      "streak": 1,
+      "lastLoginDate": null,
+      "tutorialCompleted": false,
+      "bpXp": 0,
+      "bpLevel": 1,
+      "isPremiumBP": false,
+      "claimedBPTiers": [],
+      "equippedCosmetics": {
+        "frame": null,
+        "chatBg": null,
+        "roomTheme": null
+      },
+      "inventory": [],
+      "emailVerified": true,
+      "stats": {
+        "gamesPlayed": 1,
+        "wins": 0,
+        "mafiaWins": 0,
+        "citizenWins": 0,
+        "maniacWins": 0,
+        "jesterWins": 0,
+        "detectiveFinds": 0,
+        "doctorSaves": 0,
+        "roleCounts": {
+          "undefined": 1
+        }
+      },
+      "achievements": [
+        "first_game"
+      ],
+      "friends": []
     }
   },
   "reports": [],
@@ -3525,7 +3832,8 @@
     "usr_preset_1794825024359": [],
     "usr_preset_1794825063984": [],
     "usr_preset_1794996114651": [],
-    "usr_preset_1794997730696": []
+    "usr_preset_1794997730696": [],
+    "usr_preset_1794998381203": []
   },
   "communityCosmetics": [
     {
@@ -3694,6 +4002,19 @@
       "description": "",
       "status": "approved",
       "createdAt": 1794997731126
+    },
+    {
+      "id": "cosm_1794998381636_56i5",
+      "authorId": "test_bp_1794998381607",
+      "author": "JasurBP",
+      "name": "Moviy Alanga Ramkasi",
+      "type": "frame",
+      "css": "linear-gradient(135deg, #00c6ff, #0072ff)",
+      "cssStyle": "linear-gradient(135deg, #00c6ff, #0072ff)",
+      "badge": "🔥",
+      "description": "",
+      "status": "approved",
+      "createdAt": 1794998381636
     }
   ],
   "payments": [
@@ -3875,6 +4196,26 @@
       "currency": "UZS",
       "item": "Seasonal Battle Pass Premium",
       "createdAt": 1794997731122,
+      "status": "completed"
+    },
+    {
+      "id": "pay_1794998381624_0qt1",
+      "userId": "test_bp_1794998381607",
+      "provider": "CLICK",
+      "amount": 25000,
+      "currency": "UZS",
+      "item": "Seasonal Battle Pass Premium",
+      "createdAt": 1794998381624,
+      "status": "completed"
+    },
+    {
+      "id": "pay_1794998381632_zr7t",
+      "userId": "test_payme_1794998381607",
+      "provider": "PAYME",
+      "amount": 25000,
+      "currency": "UZS",
+      "item": "Seasonal Battle Pass Premium",
+      "createdAt": 1794998381632,
       "status": "completed"
     }
   ]

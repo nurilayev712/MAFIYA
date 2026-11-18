@@ -958,24 +958,31 @@ body {
 }
 
 /* ==========================================================================
-   1-EKRAN: BOSH SAHIFA
+   1-EKRAN: BOSH SAHIFA (ONBOARDING & QAHRAMON KARTASI)
    ========================================================================== */
 #screen-home {
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 90px);
 }
 
 .hero-card {
-  max-width: 540px;
+  max-width: 620px;
   width: 100%;
-  padding: 34px 30px;
+  padding: 20px 24px 16px;
   text-align: center;
   border-top: 2px solid var(--mafia-red);
+  border-radius: var(--radius-lg);
+  margin: 6px auto;
+  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.85);
 }
 
-.hero-title-wrap {
-  margin-bottom: 22px;
+.hero-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .blood-badge {
@@ -983,52 +990,154 @@ body {
   background: rgba(255, 42, 68, 0.12);
   color: var(--mafia-red);
   border: 1px solid rgba(255, 42, 68, 0.3);
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
-  margin-bottom: 10px;
+}
+
+/* Kichik, ixcham inline streak pill */
+.streak-mini-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 179, 0, 0.08);
+  border: 1px solid rgba(255, 179, 0, 0.28);
+  border-radius: var(--radius-full);
+  padding: 3px 8px 3px 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #ffd700;
+  user-select: none;
+}
+
+.streak-mini-flame {
+  font-size: 0.85rem;
+  filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.6));
+}
+
+.streak-mini-days {
+  color: #fff;
+  font-weight: 700;
+}
+
+.streak-mini-sep {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.7rem;
+}
+
+.streak-mini-coins {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.streak-mini-claim-btn {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #1a0000;
+  border: none;
+  border-radius: var(--radius-full);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(255, 140, 0, 0.4);
+}
+
+.streak-mini-claim-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+.streak-mini-claim-btn:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: #69f0ae;
+  box-shadow: none;
+  cursor: default;
+}
+
+.hero-title-wrap {
+  margin-bottom: 12px;
 }
 
 .game-title {
   font-family: var(--font-heading);
-  font-size: 3.2rem;
+  font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 5px;
+  letter-spacing: 4px;
   color: #ffffff;
-  text-shadow: 0 0 25px rgba(255, 42, 68, 0.45);
-  line-height: 1.1;
-  margin-bottom: 8px;
+  text-shadow: 0 0 20px rgba(255, 42, 68, 0.45);
+  line-height: 1;
+  margin-bottom: 3px;
 }
 
 .game-subtitle {
   color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  max-width: 440px;
+  margin: 0 auto;
 }
 
 .auth-box {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
   text-align: left;
+}
+
+/* Onboarding Grid (Desktopda 2 ustun, mobilda 1 ustun) */
+.onboarding-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.onboarding-profile-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.onboarding-actions-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .form-group label {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
+}
+
+.avatar-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.avatar-hint-text {
+  font-size: 0.68rem;
+  color: #6c7285;
 }
 
 input[type="text"],
@@ -1040,8 +1149,8 @@ select.custom-select {
   border: 1px solid var(--border-color);
   color: #fff;
   font-family: var(--font-body);
-  font-size: 0.95rem;
-  padding: 11px 14px;
+  font-size: 0.88rem;
+  padding: 9px 12px;
   border-radius: var(--radius-md);
   outline: none;
   transition: all var(--transition-fast);
@@ -1054,78 +1163,196 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(255, 42, 68, 0.2);
 }
 
+/* Qisqartirilgan va ixcham avatar to'ri */
 .avatar-selector {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 5px;
 }
 
 .avatar-opt {
   aspect-ratio: 1;
   background: rgba(255, 255, 255, 0.04);
   border: 2px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.6rem;
+  font-size: 1.25rem;
   cursor: pointer;
   transition: all var(--transition-fast);
+  height: 38px;
+  min-height: 38px;
 }
 
 .avatar-opt:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.09);
+  transform: translateY(-1px);
 }
 
 .avatar-opt.selected {
   border-color: var(--mafia-red);
-  background: rgba(255, 42, 68, 0.16);
-  box-shadow: 0 0 15px rgba(255, 42, 68, 0.35);
+  background: rgba(255, 42, 68, 0.18);
+  box-shadow: 0 0 10px rgba(255, 42, 68, 0.35);
 }
 
-.telegram-login-wrap {
-  margin-top: 2px;
-}
-
-.btn-telegram {
-  width: 100%;
-  background: var(--telegram-blue);
-  color: #fff;
-  border: none;
-  padding: 11px;
-  font-size: 0.92rem;
-}
-
-.btn-telegram:hover {
-  background: #1e8dc3;
-  box-shadow: 0 4px 16px rgba(34, 158, 217, 0.35);
-}
-
-.action-buttons-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 6px;
-}
-
+/* Asosiy 1-darajali CTA tugmasi (Tasodifiy o'yin) */
 .btn-quick-match {
   width: 100%;
   background: linear-gradient(135deg, #ff9100, #ff3d00);
   color: #fff;
-  font-size: 1.05rem;
-  padding: 14px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(255, 109, 0, 0.35);
+  transition: all var(--transition-fast);
 }
 
 .btn-quick-match:hover {
   background: linear-gradient(135deg, #ffa726, #ff5722);
-  box-shadow: 0 6px 20px rgba(255, 109, 0, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 109, 0, 0.5);
+  transform: translateY(-1px);
 }
 
+/* 2-darajali 50/50 yonma-yon tugmalar */
 .action-buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
+}
+
+.action-buttons-grid .btn {
+  padding: 9px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-height: 40px;
+}
+
+/* Telegram login: Kichik, ikkilamchi tugma */
+.telegram-subtle-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.btn-telegram-subtle {
+  background: rgba(34, 158, 217, 0.08);
+  border: 1px solid rgba(34, 158, 217, 0.25);
+  color: #38bdf8;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+}
+
+.btn-telegram-subtle:hover {
+  background: rgba(34, 158, 217, 0.18);
+  border-color: rgba(34, 158, 217, 0.5);
+  color: #ffffff;
+}
+
+/* 4. Yagona ixcham promo qator (Tutorial + Telegram) */
+.promo-strip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 5px 8px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.promo-strip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border: none;
+  min-height: 30px;
+}
+
+.promo-btn-tutorial {
+  background: rgba(255, 179, 0, 0.09);
+  border: 1px solid rgba(255, 179, 0, 0.28);
+  color: #ffb300;
+}
+
+.promo-btn-tutorial:hover {
+  background: rgba(255, 179, 0, 0.18);
+  border-color: rgba(255, 179, 0, 0.5);
+  color: #ffffff;
+}
+
+.promo-reward-tag {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  font-size: 0.64rem;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.promo-btn-telegram {
+  background: rgba(34, 158, 217, 0.09);
+  border: 1px solid rgba(34, 158, 217, 0.28);
+  color: #38bdf8;
+}
+
+.promo-btn-telegram:hover {
+  background: rgba(34, 158, 217, 0.18);
+  border-color: rgba(34, 158, 217, 0.5);
+  color: #ffffff;
+}
+
+.promo-ext-icon {
+  font-size: 0.65rem;
+  opacity: 0.7;
+}
+
+.promo-strip-close {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.75rem;
+}
+
+.promo-strip-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .btn {
@@ -3208,17 +3435,39 @@ select {
   }
 
   .hero-card {
-    padding: 18px 12px;
+    padding: 16px 12px 14px;
+    margin: 4px auto;
   }
 
   .game-title {
-    font-size: 2rem;
+    font-size: 1.85rem;
     letter-spacing: 2px;
   }
 
+  .onboarding-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .avatar-selector {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 6px !important;
+    padding: 2px 2px 4px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .avatar-opt {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    flex-shrink: 0 !important;
+  }
+
   .action-buttons-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
   }
 
   .action-buttons-grid .btn {

@@ -314,91 +314,94 @@
     <!-- 1-EKRAN: BOSH SAHIFA (HOME) -->
     <section class="screen active" id="screen-home">
       <div class="hero-card glass-panel">
-        <div class="hero-title-wrap">
+        <!-- Yuqori qator: Badge + Ixcham Inline Streak Pill -->
+        <div class="hero-header-row">
           <div class="blood-badge">Enterprise & MMR Matchmaking</div>
+          
+          <!-- Kichik, ixcham inline streak pill -->
+          <div class="streak-mini-pill" id="streak-widget-card" title="Kunlik streak va tangalar">
+            <span class="streak-mini-flame">🔥</span>
+            <span class="streak-mini-days" id="streak-count-days">1 kun</span>
+            <span class="streak-mini-sep">•</span>
+            <i class="fa-solid fa-coins" style="color: #ffd700; font-size: 0.72rem;"></i>
+            <span class="streak-mini-coins" id="streak-coins-display">100</span>
+            <button class="streak-mini-claim-btn" id="btn-claim-daily-reward" title="Kunlik bonusni olish">
+              <i class="fa-solid fa-gift"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-title-wrap">
           <h1 class="game-title" data-i18n="gameTitle">MAFIYA</h1>
           <p class="game-subtitle" data-i18n="gameSubtitle">Shahar uyquga ketganda, kimningdir so'nggi nafasiga guvoh bo'lasiz...</p>
         </div>
 
         <div class="auth-box">
-          <div class="form-group">
-            <label for="player-name-input"><i class="fa-solid fa-user-ninja"></i> <span data-i18n="enterNickname">Taxallus (Ism)</span></label>
-            <input type="text" id="player-name-input" maxlength="15" placeholder="Ismingizni kiriting..." autocomplete="off">
-          </div>
+          <div class="onboarding-grid">
+            <!-- 1. Chap tomon (Desktop) / Yuqori (Mobil): Taxallus va Avatar -->
+            <div class="onboarding-profile-col">
+              <div class="form-group">
+                <label for="player-name-input"><i class="fa-solid fa-user-ninja"></i> <span data-i18n="enterNickname">Taxallus (Ism)</span></label>
+                <input type="text" id="player-name-input" maxlength="15" placeholder="Ismingizni kiriting..." autocomplete="off">
+              </div>
 
-          <div class="form-group">
-            <label><i class="fa-solid fa-mask"></i> <span data-i18n="chooseAvatar">Qahramon avatari</span></label>
-            <div class="avatar-selector" id="avatar-selector">
-              <!-- JS orqali generatsiya qilinadi -->
+              <div class="form-group avatar-form-group">
+                <div class="avatar-label-row">
+                  <label><i class="fa-solid fa-mask"></i> <span data-i18n="chooseAvatar">Qahramon avatari</span></label>
+                  <span class="avatar-hint-text">Tanlang</span>
+                </div>
+                <div class="avatar-selector" id="avatar-selector">
+                  <!-- JS orqali generatsiya qilinadi -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. O'ng tomon (Desktop) / Pastki (Mobil): Asosiy Harakatlar iyerarxiyasi -->
+            <div class="onboarding-actions-col">
+              <!-- Asosiy CTA (Full-width, prominent) -->
+              <button class="btn btn-quick-match btn-glow" id="btn-quick-match">
+                <i class="fa-solid fa-bolt"></i>
+                <span data-i18n="quickMatch">Tasodifiy o'yinga qo'shilish (MMR)</span>
+              </button>
+
+              <!-- Ikkilamchi tugmalar (50/50 yonma-yon) -->
+              <div class="action-buttons-grid">
+                <button class="btn btn-primary" id="btn-show-create-modal">
+                  <i class="fa-solid fa-plus-circle"></i>
+                  <span data-i18n="createRoom">Xona yaratish</span>
+                </button>
+
+                <button class="btn btn-secondary" id="btn-show-join-modal">
+                  <i class="fa-solid fa-door-open"></i>
+                  <span data-i18n="joinWithCode">Kod bilan kirish</span>
+                </button>
+              </div>
+
+              <!-- Telegram Login: Kichikroq, ikkilamchi uslubdagi tugma -->
+              <div class="telegram-subtle-wrap">
+                <button class="btn-telegram-subtle" id="btn-telegram-login">
+                  <i class="fa-brands fa-telegram"></i>
+                  <span data-i18n="telegramLogin">Telegram orqali tezkor kirish</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          <!-- Telegram Login -->
-          <div class="telegram-login-wrap">
-            <button class="btn btn-telegram" id="btn-telegram-login">
+          <!-- 4. Yagona ixcham pastki promo qator (Tutorial + Telegram) -->
+          <div class="promo-strip-row" id="home-promo-strip">
+            <button class="promo-strip-btn promo-btn-tutorial" id="btn-open-tutorial" title="Yangi o'yinchilar uchun 1 daqiqalik o'quv mashg'uloti">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Tutorial</span>
+              <span class="promo-reward-tag">+100 Tanga</span>
+            </button>
+            <a href="https://t.me/MAFIYA_712" target="_blank" rel="noopener noreferrer" class="promo-strip-btn promo-btn-telegram" id="telegram-community-banner" title="Rasmiy Telegram guruhimizga qo'shiling!">
               <i class="fa-brands fa-telegram"></i>
-              <span data-i18n="telegramLogin">Telegram orqali tezkor kirish</span>
-            </button>
-          </div>
-
-          <!-- Asosiy 3 ta tugma -->
-          <div class="action-buttons-stack">
-            <button class="btn btn-quick-match btn-glow" id="btn-quick-match">
-              <i class="fa-solid fa-bolt"></i>
-              <span data-i18n="quickMatch">Tasodifiy o'yinga qo'shilish (MMR)</span>
-            </button>
-
-            <div class="action-buttons-grid">
-              <button class="btn btn-primary" id="btn-show-create-modal">
-                <i class="fa-solid fa-plus-circle"></i>
-                <span data-i18n="createRoom">Xona yaratish</span>
-              </button>
-
-              <button class="btn btn-secondary" id="btn-show-join-modal">
-                <i class="fa-solid fa-door-open"></i>
-                <span data-i18n="joinWithCode">Kod bilan kirish</span>
-              </button>
-            </div>
-
-            <!-- KUNLIK KIRISH STREAK VA TANGALAR -->
-            <div class="streak-widget-card" id="streak-widget-card">
-              <div class="streak-info-col">
-                <div class="streak-badge-row">
-                  <span class="streak-flame">🔥</span>
-                  <span class="streak-count" id="streak-count-text">1 kunlik streak</span>
-                </div>
-                <div class="coins-badge-row">
-                  <i class="fa-solid fa-coins" style="color: #ffd700;"></i>
-                  <span id="player-coins-text">100 tanga</span>
-                </div>
-              </div>
-              <button class="btn btn-streak-claim" id="btn-claim-daily-reward" title="Kunlik bonusni olish">
-                <i class="fa-solid fa-gift"></i> <span id="streak-claim-btn-text">Bonus</span>
-              </button>
-            </div>
-
-            <!-- O'RGANISH (TUTORIAL / PRACTICE MODE) CTA -->
-            <div class="tutorial-cta-wrap">
-              <button class="btn btn-tutorial-start" id="btn-open-tutorial" title="Yangi o'yinchilar uchun 1 daqiqalik o'quv mashg'uloti">
-                <i class="fa-solid fa-graduation-cap"></i>
-                <span>O'rganish (Tutorial) — Namunaviy raund</span>
-                <span class="tutorial-reward-pill">+100 Tanga</span>
-              </button>
-            </div>
-
-            <!-- TELEGRAM HAMJAMIYAT GURUHI BANNERI (https://t.me/MAFIYA_712) -->
-            <a href="https://t.me/MAFIYA_712" target="_blank" rel="noopener noreferrer" class="telegram-community-card" id="telegram-community-banner" title="Rasmiy Telegram guruhimizga qo'shiling!">
-              <div class="tg-banner-left">
-                <div class="tg-banner-icon"><i class="fa-brands fa-telegram"></i></div>
-                <div class="tg-banner-text">
-                  <strong>Telegram Guruhimizga Qo'shiling!</strong>
-                  <span>Jonli muhokamalar, turnirlar va yangiliklar: @MAFIYA_712</span>
-                </div>
-              </div>
-              <div class="tg-banner-btn">
-                <span>Qo'shilish</span> <i class="fa-solid fa-arrow-up-right-from-square"></i>
-              </div>
+              <span>@MAFIYA_712</span>
+              <i class="fa-solid fa-arrow-up-right-from-square promo-ext-icon"></i>
             </a>
+            <button class="promo-strip-close" id="btn-dismiss-promo" title="Yopish" aria-label="Yopish">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
           </div>
         </div>
       </div>
