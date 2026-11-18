@@ -45,6 +45,11 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-bounce: 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Premium glow tokens */
+  --card-glow: rgba(255, 42, 68, 0.14);
+  --card-glow-strong: rgba(255, 42, 68, 0.26);
 }
 
 * {
@@ -76,6 +81,13 @@ body {
   background: radial-gradient(ellipse at center, rgba(179, 0, 30, 0.22) 0%, rgba(10, 11, 14, 0) 70%);
   pointer-events: none;
   z-index: 0;
+  animation: bgPulse 9s ease-in-out infinite;
+}
+
+@keyframes bgPulse {
+  0%   { opacity: 0.7; transform: translateX(-50%) scale(1); }
+  50%  { opacity: 1;   transform: translateX(-50%) scale(1.06); }
+  100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
 }
 
 .smoke-effect {
@@ -87,6 +99,14 @@ body {
   background: linear-gradient(to top, rgba(10, 11, 14, 0.95), transparent);
   pointer-events: none;
   z-index: 0;
+  animation: smokeDrift 14s ease-in-out infinite;
+}
+
+@keyframes smokeDrift {
+  0%   { opacity: 0.75; transform: translateX(0); }
+  33%  { opacity: 1;    transform: translateX(8px); }
+  66%  { opacity: 0.85; transform: translateX(-6px); }
+  100% { opacity: 0.75; transform: translateX(0); }
 }
 
 .glass-panel {
@@ -95,8 +115,11 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.75);
-  transition: transform var(--transition-normal), border-color var(--transition-normal);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.75),
+    0 0 0 1px rgba(255, 42, 68, 0.07),
+    0 0 40px -15px var(--card-glow);
+  transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 /* ========================================================
@@ -117,6 +140,7 @@ body {
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
   transition: all var(--transition-normal);
+  border-bottom: 1px solid rgba(255, 42, 68, 0.1);
 }
 
 /* 1. Chap tomon: Logo va Primary Nav */
@@ -208,6 +232,28 @@ body {
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  right: 50%;
+  height: 2px;
+  background: var(--mafia-red);
+  border-radius: 2px;
+  opacity: 0;
+  transition: left 0.22s ease, right 0.22s ease, opacity 0.18s ease;
+}
+
+.nav-item-btn:hover::after,
+.nav-item-btn.active::after {
+  left: 14%;
+  right: 14%;
+  opacity: 1;
 }
 
 .nav-item-btn i {
@@ -1010,7 +1056,17 @@ body {
   border-top: 2px solid var(--mafia-red);
   border-radius: var(--radius-lg);
   margin: 6px auto;
-  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.85);
+  background: linear-gradient(180deg, rgba(26, 20, 30, 0.84) 0%, rgba(14, 12, 20, 0.94) 100%);
+  box-shadow:
+    0 12px 40px -10px rgba(0, 0, 0, 0.9),
+    0 0 60px -20px var(--card-glow-strong),
+    0 0 0 1px rgba(255, 42, 68, 0.1);
+  animation: cardEntrance 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
 }
 
 .hero-header-row {
@@ -1028,7 +1084,7 @@ body {
   border: 1px solid rgba(255, 42, 68, 0.3);
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: var(--radius-full);
@@ -1108,9 +1164,9 @@ body {
   font-family: var(--font-heading);
   font-size: 2.2rem;
   font-weight: 900;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
   color: #ffffff;
-  text-shadow: 0 0 20px rgba(255, 42, 68, 0.45);
+  text-shadow: 0 0 24px rgba(255, 42, 68, 0.6), 0 0 60px rgba(255, 42, 68, 0.2);
   line-height: 1;
   margin-bottom: 3px;
 }
@@ -1163,6 +1219,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  letter-spacing: 0.5px;
 }
 
 .avatar-label-row {
@@ -1222,14 +1279,23 @@ select:focus {
 }
 
 .avatar-opt:hover {
-  background: rgba(255, 255, 255, 0.09);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.11);
+  transform: scale(1.08);
+  box-shadow: 0 0 14px rgba(255, 42, 68, 0.38);
+  border-color: rgba(255, 42, 68, 0.38);
 }
 
 .avatar-opt.selected {
   border-color: var(--mafia-red);
   background: rgba(255, 42, 68, 0.18);
   box-shadow: 0 0 10px rgba(255, 42, 68, 0.35);
+  animation: avatarSelectPulse 0.5s ease-out forwards;
+}
+
+@keyframes avatarSelectPulse {
+  0%   { box-shadow: 0 0 22px rgba(255, 42, 68, 0.9); }
+  60%  { box-shadow: 0 0 12px rgba(255, 42, 68, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(255, 42, 68, 0.35); }
 }
 
 /* Asosiy 1-darajali CTA tugmasi (Tasodifiy o'yin) */
@@ -1253,8 +1319,8 @@ select:focus {
 
 .btn-quick-match:hover {
   background: linear-gradient(135deg, #ffa726, #ff5722);
-  box-shadow: 0 6px 20px rgba(255, 109, 0, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(255, 109, 0, 0.55);
+  transform: scale(1.03) translateY(-1px);
 }
 
 /* Yuklanish va Holat Animatsiyalari (Button Loading & Input Pulse) */
@@ -1438,12 +1504,18 @@ select:focus {
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-bounce);
   text-decoration: none;
 }
 
+.btn:hover {
+  transform: scale(1.03);
+  filter: brightness(1.08);
+}
+
 .btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+  filter: brightness(0.96);
 }
 
 .btn-primary {
@@ -1453,7 +1525,9 @@ select:focus {
 
 .btn-primary:hover {
   background: linear-gradient(135deg, #ff475e, var(--mafia-red));
-  box-shadow: 0 6px 20px rgba(255, 42, 68, 0.4);
+  box-shadow: 0 6px 24px rgba(255, 42, 68, 0.48);
+  transform: scale(1.03);
+  filter: brightness(1.08);
 }
 
 .btn-secondary {
@@ -1464,6 +1538,8 @@ select:focus {
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.03);
 }
 
 .btn-outline {
@@ -4457,4 +4533,129 @@ select {
 .compare-label {
   color: #94a3b8;
   font-size: 0.78rem;
+}
+
+
+/* ==========================================================================
+   PREMIUM NOIR VISUAL POLISH — Atmospheric, Depth & Micro-interactions
+   ========================================================================== */
+
+/* --- Fog / Particle pseudo-elements on body --- */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+  opacity: 0;
+  animation: fogFloat 20s ease-in-out infinite;
+}
+
+body::before {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(179, 0, 30, 0.08) 0%, transparent 70%);
+  top: 15%;
+  left: -80px;
+  animation-delay: 0s;
+  animation-duration: 22s;
+  opacity: 0.6;
+}
+
+body::after {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(100, 0, 20, 0.07) 0%, transparent 70%);
+  bottom: 20%;
+  right: -60px;
+  animation-delay: -11s;
+  animation-duration: 18s;
+  opacity: 0.5;
+}
+
+@keyframes fogFloat {
+  0%   { transform: translateY(0) scale(1); }
+  33%  { transform: translateY(-30px) scale(1.1); }
+  66%  { transform: translateY(20px) scale(0.92); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* --- Modal card entrance animation --- */
+.modal-card {
+  animation: cardEntrance 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  box-shadow:
+    0 20px 60px -15px rgba(0, 0, 0, 0.9),
+    0 0 50px -20px var(--card-glow-strong),
+    0 0 0 1px rgba(255, 42, 68, 0.1);
+}
+
+/* --- Nav btn play desktop scale --- */
+.nav-btn-play-desktop:hover {
+  transform: scale(1.04) !important;
+  filter: brightness(1.1) !important;
+}
+
+.nav-btn-play-desktop:active {
+  transform: scale(0.97) !important;
+}
+
+/* --- Quick match also gets bounce transition --- */
+.btn-quick-match {
+  transition: all var(--transition-bounce) !important;
+}
+
+.btn-quick-match:active {
+  transform: scale(0.97) !important;
+}
+
+/* --- Brand name sharper shadow --- */
+.brand-name {
+  letter-spacing: 2.5px;
+  text-shadow: 0 0 18px rgba(255, 42, 68, 0.5), 0 0 40px rgba(255, 42, 68, 0.15);
+}
+
+/* --- Section heading refinement --- */
+.section-label,
+.lobby-section-title,
+.panel-title,
+.settings-section-title {
+  letter-spacing: 1px;
+}
+
+/* --- Subtle glow on glass-panel hover (desktop) --- */
+@media (hover: hover) {
+  .glass-panel:hover {
+    box-shadow:
+      0 14px 40px -10px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255, 42, 68, 0.1),
+      0 0 50px -15px var(--card-glow-strong);
+    border-color: rgba(255, 42, 68, 0.1);
+  }
+}
+
+/* --- Respect prefers-reduced-motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .blood-bg-overlay,
+  .smoke-effect,
+  body::before,
+  body::after {
+    animation: none !important;
+  }
+  .hero-card {
+    animation: none !important;
+  }
+  .modal-card {
+    animation: none !important;
+  }
+  .btn:hover,
+  .btn-quick-match:hover,
+  .avatar-opt:hover {
+    transform: none !important;
+    filter: brightness(1.06) !important;
+  }
+  .avatar-opt.selected {
+    animation: none !important;
+  }
 }
