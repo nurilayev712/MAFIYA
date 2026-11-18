@@ -155,11 +155,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openModal(modal) {
-    window.sounds.playClick();
+    if (!modal) return;
+    window.sounds?.playClick();
     modal.classList.add('active');
   }
 
   function closeModal(modal) {
+    if (!modal) return;
     modal.classList.remove('active');
   }
 
@@ -365,12 +367,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Mobil Tezkor O'ynash CTA tugmasi
+    // Mobil va Desktop Tezkor O'ynash CTA tugmalari
     const mobileQuickPlay = document.getElementById('btn-mobile-quick-play');
     if (mobileQuickPlay) {
       mobileQuickPlay.addEventListener('click', () => {
-        window.sounds.playClick();
-        document.getElementById('btn-quick-match')?.click();
+        handleNavbarPlayAction();
+      });
+    }
+
+    const desktopNavPlay = document.getElementById('btn-navbar-play');
+    if (desktopNavPlay) {
+      desktopNavPlay.addEventListener('click', () => {
+        handleNavbarPlayAction();
       });
     }
 
@@ -382,6 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mobil Drawer havolalarini asosiy tugmalarga bog'lash
     const mobileMappings = [
+      { mId: 'm-btn-quick-play', targetId: 'btn-navbar-play' },
       { mId: 'm-btn-spectator', targetId: 'btn-open-spectator' },
       { mId: 'm-btn-leaderboard', targetId: 'btn-open-leaderboard' },
       { mId: 'm-btn-community', targetId: 'btn-open-community' },
@@ -578,108 +587,427 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 3. BOSH SAHIFA HODISALARI
-  document.getElementById('btn-quick-match').addEventListener('click', () => {
-    window.sounds.playClick();
-    const nameInput = document.getElementById('player-name-input').value.trim();
-    if (!nameInput) {
-      showToast('Iltimos, avval ismingizni kiriting!', 'error');
-      document.getElementById('player-name-input').focus();
-      return;
+  // 3. BOSH SAHIFA VA O'YINGA KIRISH HODISALARI (AUDITED & STABILIZED)
+  function highlightPlayerNameInput() {
+    const nameInput = document.getElementById('player-name-input');
+    if (!nameInput) return;
+    try {
+      nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      nameInput.focus();
+      nameInput.classList.remove('input-highlight-pulse');
+      void nameInput.offsetWidth; // trigger reflow
+      nameInput.classList.add('input-highlight-pulse');
+      setTimeout(() => nameInput.classList.remove('input-highlight-pulse'), 1200);
+    } catch (e) {
+      nameInput.focus();
     }
+  }
 
-    showToast('MMR darajangizga mos ochiq xona qidirilmoqda...', 'info');
-    window.socketClient.quickMatch(nameInput, selectedAvatarId, (res) => {
-      if (res && res.success) {
-        if (res.isNew) {
-          showToast(`Yangi MMR xonasi ochildi: ${res.roomCode}`, 'success');
+  function handleNavbarPlayAction() {
+    try {
+      window.sounds?.playClick();
+      console.log('[MAFIYA] Navbar "O\'ynash" tugmasi bosildi');
+
+      // 1. Agar foydalanuvchi allaqachon xonada yoki faol o'yinda bo'lsa
+      if (currentRoomState) {
+        if (currentRoomState.phase === 'lobby') {
+          showScreen('lobby');
+          renderLobby(currentRoomState);
+          showToast("Lobbi xonasiga qaytdingiz!", 'info');
+          return;
+        } else if (currentRoomState.phase === 'game_over') {
+          showScreen('gameOver');
+          showToast("Natijalar ekraniga qaytdingiz!", 'info');
+          return;
         } else {
-          showToast(`Xonaga ulandingiz: ${res.roomCode}`, 'success');
+          showScreen('game');
+          showToast("O'yin maydoniga qaytdingiz!", 'info');
+          return;
         }
-      } else {
-        showToast(res?.message || 'Xatolik yuz berdi', 'error');
       }
-    });
-  });
 
-  document.getElementById('btn-show-create-modal').addEventListener('click', () => {
-    const nameInput = document.getElementById('player-name-input').value.trim();
-    if (!nameInput) {
-      showToast('Iltimos, avval ismingizni kiriting!', 'error');
-      document.getElementById('player-name-input').focus();
-      return;
+      // 2. Agar hali o'yinda bo'lmasa - Bosh ekranga qaytish
+      showScreen('home');
+
+      const nameInput = document.getElementById('player-name-input');
+      const nameValue = nameInput ? nameInput.value.trim() : '';
+
+      if (!nameValue) {
+        showToast("O'yinni boshlash uchun avval taxallusingizni kiriting!", 'warning');
+        highlightPlayerNameInput();
+        return;
+      }
+
+      // Ism mavjud bo'lsa, tezkor o'yinga ulanish
+      handleQuickMatchAction();
+    } catch (err) {
+      console.error('[MAFIYA] Navbar O\'ynash hodisasi xatosi:', err);
+      showToast("O'yinga o'tishda xatolik yuz berdi.", 'error');
     }
-    openModal(createModal);
-  });
-  document.getElementById('close-create-modal').addEventListener('click', () => closeModal(createModal));
-  document.getElementById('btn-cancel-create').addEventListener('click', () => closeModal(createModal));
+  }
+
+  function handleQuickMatchAction() {
+    const quickBtn = document.getElementById('btn-quick-match');
+    const nameInput = document.getElementById('player-name-input');
+    const nameValue = nameInput ? nameInput.value.trim() : '';
+
+    try {
+      window.sounds?.playClick();
+
+      if (!nameValue) {
+        showToast('Iltimos, avval ismingizni kiriting!', 'error');
+        highlightPlayerNameInput();
+        return;
+      }
+
+      localStorage.setItem('mafia_player_name', nameValue);
+
+      // Tugmani yuklanish holatiga o'tkazish
+      const originalHtml = quickBtn ? quickBtn.innerHTML : '';
+      if (quickBtn) {
+        quickBtn.disabled = true;
+        quickBtn.classList.add('btn-loading');
+        quickBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>O'yin qidirilmoqda...</span>`;
+      }
+
+      // Server aloqasini tekshirish
+      const isSocketReady = window.socketClient && (
+        (window.socketClient.socket && window.socketClient.socket.connected) ||
+        window.socketClient.isMqttMode
+      );
+
+      if (!isSocketReady) {
+        console.warn('[MAFIYA] Serverga ulanish kutilmoqda...');
+        showToast("Serverga ulanilmoqda, bir oz kuting...", 'info');
+      }
+
+      let isHandled = false;
+      const safetyTimeout = setTimeout(() => {
+        if (!isHandled) {
+          isHandled = true;
+          if (quickBtn) {
+            quickBtn.disabled = false;
+            quickBtn.classList.remove('btn-loading');
+            quickBtn.innerHTML = originalHtml;
+          }
+          console.error('[MAFIYA] Quick match vaqti tugadi (timeout)');
+          showToast("Serverdan javob kechikmoqda. Qayta urinib ko'ring yoki server holatini tekshiring.", 'error');
+        }
+      }, 8000);
+
+      window.socketClient.quickMatch(nameValue, selectedAvatarId, (res) => {
+        if (isHandled) return;
+        isHandled = true;
+        clearTimeout(safetyTimeout);
+
+        if (quickBtn) {
+          quickBtn.disabled = false;
+          quickBtn.classList.remove('btn-loading');
+          quickBtn.innerHTML = originalHtml;
+        }
+
+        if (res && res.success) {
+          console.log('[MAFIYA] Quick match muvaffaqiyatli:', res);
+          if (res.isNew) {
+            showToast(`Yangi MMR xonasi ochildi: ${res.roomCode}`, 'success');
+          } else {
+            showToast(`Xonaga ulandingiz: ${res.roomCode}`, 'success');
+          }
+          if (res.state) {
+            renderCurrentScreen(res.state);
+          } else if (window.socketClient.state) {
+            renderCurrentScreen(window.socketClient.state);
+          } else {
+            showScreen('lobby');
+          }
+        } else {
+          const errorMsg = res?.message || "Xonaga qo'shilishda xatolik yuz berdi.";
+          console.error('[MAFIYA] Quick match xatolik qaytardi:', res);
+          showToast(errorMsg, 'error');
+        }
+      });
+    } catch (err) {
+      console.error('[MAFIYA] handleQuickMatchAction kutilmagan xato:', err);
+      if (quickBtn) {
+        quickBtn.disabled = false;
+        quickBtn.classList.remove('btn-loading');
+      }
+      showToast("O'yinga ulanishda kutilmagan xatolik yuz berdi.", 'error');
+    }
+  }
+
+  function handleShowCreateModalAction() {
+    try {
+      window.sounds?.playClick();
+      const nameInput = document.getElementById('player-name-input');
+      const nameValue = nameInput ? nameInput.value.trim() : '';
+
+      if (!nameValue) {
+        showToast('Iltimos, avval ismingizni kiriting!', 'error');
+        highlightPlayerNameInput();
+        return;
+      }
+
+      localStorage.setItem('mafia_player_name', nameValue);
+      openModal(createModal);
+    } catch (err) {
+      console.error('[MAFIYA] handleShowCreateModalAction xatosi:', err);
+      showToast("Xona yaratish oynasini ochishda xatolik yuz berdi.", 'error');
+    }
+  }
+
+  function handleConfirmCreateRoomAction() {
+    const confirmBtn = document.getElementById('btn-confirm-create');
+    const nameInput = document.getElementById('player-name-input');
+    const nameValue = nameInput ? nameInput.value.trim() : '';
+    const password = document.getElementById('create-room-password')?.value.trim() || '';
+
+    try {
+      window.sounds?.playClick();
+
+      if (!nameValue) {
+        showToast('Iltimos, ismingizni kiriting!', 'error');
+        closeModal(createModal);
+        highlightPlayerNameInput();
+        return;
+      }
+
+      localStorage.setItem('mafia_player_name', nameValue);
+
+      const originalHtml = confirmBtn ? confirmBtn.innerHTML : '';
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add('btn-loading');
+        confirmBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Xona ochilmoqda...`;
+      }
+
+      let isHandled = false;
+      const safetyTimeout = setTimeout(() => {
+        if (!isHandled) {
+          isHandled = true;
+          if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.classList.remove('btn-loading');
+            confirmBtn.innerHTML = originalHtml;
+          }
+          console.error('[MAFIYA] Xona yaratish so\'rovi vaqt bo\'yicha tugadi (timeout)');
+          showToast("Server javob bermadi. Qayta urinib ko'ring.", 'error');
+        }
+      }, 8000);
+
+      window.socketClient.createRoom(nameValue, selectedAvatarId, isCreateRoomPublic, password, (res) => {
+        if (isHandled) return;
+        isHandled = true;
+        clearTimeout(safetyTimeout);
+
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.classList.remove('btn-loading');
+          confirmBtn.innerHTML = originalHtml;
+        }
+
+        if (res && res.success) {
+          console.log('[MAFIYA] Xona yaratildi:', res);
+          closeModal(createModal);
+          showToast(`Xona yaratildi! Kod: ${res.roomCode}`, 'success');
+          if (res.state) {
+            renderCurrentScreen(res.state);
+          } else if (window.socketClient.state) {
+            renderCurrentScreen(window.socketClient.state);
+          } else {
+            showScreen('lobby');
+          }
+        } else {
+          const errorMsg = res?.message || 'Xatolik yuz berdi';
+          console.error('[MAFIYA] Create room xatolik qaytardi:', res);
+          showToast(errorMsg, 'error');
+        }
+      });
+    } catch (err) {
+      console.error('[MAFIYA] handleConfirmCreateRoomAction xatosi:', err);
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove('btn-loading');
+      }
+      showToast("Xona yaratishda kutilmagan xatolik yuz berdi.", 'error');
+    }
+  }
+
+  function handleShowJoinModalAction() {
+    try {
+      window.sounds?.playClick();
+      openModal(joinModal);
+      setTimeout(() => {
+        const codeInput = document.getElementById('join-room-code-input');
+        if (codeInput) codeInput.focus();
+      }, 150);
+    } catch (err) {
+      console.error('[MAFIYA] handleShowJoinModalAction xatosi:', err);
+      showToast("Xonaga qo'shilish oynasini ochishda xatolik yuz berdi.", 'error');
+    }
+  }
+
+  function handleConfirmJoinRoomAction() {
+    const confirmBtn = document.getElementById('btn-confirm-join');
+    const nameInput = document.getElementById('player-name-input');
+    const nameValue = nameInput ? nameInput.value.trim() : '';
+    const codeInput = document.getElementById('join-room-code-input');
+    const codeValue = codeInput ? codeInput.value.trim().toUpperCase() : '';
+    const passwordInput = document.getElementById('join-password-input');
+    const passwordValue = passwordInput ? passwordInput.value.trim() : '';
+
+    try {
+      window.sounds?.playClick();
+
+      if (!nameValue) {
+        showToast('Iltimos, avval ismingizni kiriting!', 'error');
+        closeModal(joinModal);
+        highlightPlayerNameInput();
+        return;
+      }
+
+      if (!codeValue) {
+        showToast('Xona kodini kiriting!', 'error');
+        if (codeInput) {
+          codeInput.focus();
+          codeInput.classList.add('input-highlight-pulse');
+          setTimeout(() => codeInput.classList.remove('input-highlight-pulse'), 1200);
+        }
+        return;
+      }
+
+      localStorage.setItem('mafia_player_name', nameValue);
+
+      const originalHtml = confirmBtn ? confirmBtn.innerHTML : '';
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.classList.add('btn-loading');
+        confirmBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Ulanmoqda...`;
+      }
+
+      let isHandled = false;
+      const safetyTimeout = setTimeout(() => {
+        if (!isHandled) {
+          isHandled = true;
+          if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.classList.remove('btn-loading');
+            confirmBtn.innerHTML = originalHtml;
+          }
+          console.error('[MAFIYA] Xonaga qo\'shilish so\'rovi vaqt bo\'yicha tugadi (timeout)');
+          showToast("Xona javob bermadi. Kodni tekshirib qayta urinib ko'ring.", 'error');
+        }
+      }, 8000);
+
+      window.socketClient.joinRoom(codeValue, nameValue, selectedAvatarId, passwordValue, (res) => {
+        if (isHandled) return;
+        isHandled = true;
+        clearTimeout(safetyTimeout);
+
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.classList.remove('btn-loading');
+          confirmBtn.innerHTML = originalHtml;
+        }
+
+        if (res && res.success) {
+          console.log('[MAFIYA] Xonaga qo\'shildi:', res);
+          closeModal(joinModal);
+          showToast(`Xonaga muvaffaqiyatli qo'shildingiz! Kod: ${res.roomCode}`, 'success');
+          if (res.state) {
+            renderCurrentScreen(res.state);
+          } else if (window.socketClient.state) {
+            renderCurrentScreen(window.socketClient.state);
+          } else {
+            showScreen('lobby');
+          }
+        } else {
+          if (res?.needsPassword) {
+            const passWrap = document.getElementById('join-password-wrap');
+            if (passWrap) passWrap.style.display = 'block';
+            if (passwordInput) passwordInput.focus();
+          }
+          const errorMsg = res?.message || 'Xatolik yuz berdi';
+          console.error('[MAFIYA] Join room xatolik qaytardi:', res);
+          showToast(errorMsg, 'error');
+        }
+      });
+    } catch (err) {
+      console.error('[MAFIYA] handleConfirmJoinRoomAction xatosi:', err);
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.classList.remove('btn-loading');
+      }
+      showToast("Xonaga qo'shilishda kutilmagan xatolik yuz berdi.", 'error');
+    }
+  }
+
+  // 3.1. HODISA TINGLOVCHILARINI BOG'LASH (EVENT LISTENERS)
+  document.getElementById('btn-quick-match')?.addEventListener('click', handleQuickMatchAction);
+  document.getElementById('btn-show-create-modal')?.addEventListener('click', handleShowCreateModalAction);
+  document.getElementById('btn-confirm-create')?.addEventListener('click', handleConfirmCreateRoomAction);
+  document.getElementById('close-create-modal')?.addEventListener('click', () => closeModal(createModal));
+  document.getElementById('btn-cancel-create')?.addEventListener('click', () => closeModal(createModal));
+
+  document.getElementById('btn-show-join-modal')?.addEventListener('click', handleShowJoinModalAction);
+  document.getElementById('btn-confirm-join')?.addEventListener('click', handleConfirmJoinRoomAction);
+  document.getElementById('close-join-modal')?.addEventListener('click', () => closeModal(joinModal));
+  document.getElementById('btn-cancel-join')?.addEventListener('click', () => closeModal(joinModal));
 
   const optPublic = document.getElementById('type-opt-public');
   const optPrivate = document.getElementById('type-opt-private');
   const passWrap = document.getElementById('private-password-wrap');
 
-  optPublic.addEventListener('click', () => {
-    window.sounds.playClick();
+  optPublic?.addEventListener('click', () => {
+    window.sounds?.playClick();
     optPublic.classList.add('active');
-    optPrivate.classList.remove('active');
-    passWrap.style.display = 'none';
+    optPrivate?.classList.remove('active');
+    if (passWrap) passWrap.style.display = 'none';
     isCreateRoomPublic = true;
   });
 
-  optPrivate.addEventListener('click', () => {
-    window.sounds.playClick();
+  optPrivate?.addEventListener('click', () => {
+    window.sounds?.playClick();
     optPrivate.classList.add('active');
-    optPublic.classList.remove('active');
-    passWrap.style.display = 'block';
+    optPublic?.classList.remove('active');
+    if (passWrap) passWrap.style.display = 'block';
     isCreateRoomPublic = false;
   });
 
-  document.getElementById('btn-confirm-create').addEventListener('click', () => {
-    window.sounds.playClick();
-    const nameInput = document.getElementById('player-name-input').value.trim();
-    const password = document.getElementById('create-room-password').value.trim();
-
-    window.socketClient.createRoom(nameInput, selectedAvatarId, isCreateRoomPublic, password, (res) => {
-      if (res && res.success) {
-        closeModal(createModal);
-        showToast('Xona yaratildi!', 'success');
-      } else {
-        showToast(res?.message || 'Xatolik', 'error');
-      }
-    });
+  // Enter tugmasi bilan tezkor tasdiqlashlar
+  document.getElementById('player-name-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleQuickMatchAction();
+    }
   });
 
-  document.getElementById('btn-show-join-modal').addEventListener('click', () => openModal(joinModal));
-  document.getElementById('close-join-modal').addEventListener('click', () => closeModal(joinModal));
-  document.getElementById('btn-cancel-join').addEventListener('click', () => closeModal(joinModal));
-
-  document.getElementById('btn-confirm-join').addEventListener('click', () => {
-    window.sounds.playClick();
-    const nameInput = document.getElementById('player-name-input').value.trim();
-    const codeInput = document.getElementById('join-room-code-input').value.trim().toUpperCase();
-    const passwordInput = document.getElementById('join-password-input').value.trim();
-
-    if (!nameInput) {
-      showToast('Ismingizni kiriting!', 'error');
-      closeModal(joinModal);
-      document.getElementById('player-name-input').focus();
-      return;
+  document.getElementById('join-room-code-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleConfirmJoinRoomAction();
     }
+  });
 
-    if (!codeInput) {
-      showToast('Xona kodini kiriting!', 'error');
-      return;
+  document.getElementById('join-password-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleConfirmJoinRoomAction();
     }
+  });
 
-    window.socketClient.joinRoom(codeInput, nameInput, selectedAvatarId, passwordInput, (res) => {
-      if (res && res.success) {
-        closeModal(joinModal);
-        showToast('Xonaga qo\'shildingiz!', 'success');
-      } else {
-        if (res?.needsPassword) {
-          document.getElementById('join-password-wrap').style.display = 'block';
-        }
-        showToast(res?.message || 'Xatolik', 'error');
+  document.getElementById('create-room-password')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleConfirmCreateRoomAction();
+    }
+  });
+
+  // Modallar foniga (overlay) bosganda avtomatik yopish
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeModal(overlay);
       }
     });
   });

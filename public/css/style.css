@@ -252,6 +252,42 @@ body {
   flex-shrink: 0 !important;
 }
 
+/* Desktop Navbar O'ynash CTA tugmasi */
+.nav-btn-play-desktop {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(229, 9, 20, 0.45);
+  transition: all var(--transition-fast);
+}
+
+.nav-btn-play-desktop:hover {
+  background: linear-gradient(135deg, #ff1a27 0%, #d10813 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(229, 9, 20, 0.65);
+}
+
+.nav-btn-play-desktop i {
+  color: #ffffff;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 768px) {
+  .nav-btn-play-desktop {
+    display: none !important;
+  }
+}
+
 /* Kirish tugmasi */
 .nav-btn-auth {
   background: linear-gradient(135deg, rgba(229, 9, 20, 0.25), rgba(180, 0, 10, 0.15));
@@ -1219,6 +1255,41 @@ select:focus {
   background: linear-gradient(135deg, #ffa726, #ff5722);
   box-shadow: 0 6px 20px rgba(255, 109, 0, 0.5);
   transform: translateY(-1px);
+}
+
+/* Yuklanish va Holat Animatsiyalari (Button Loading & Input Pulse) */
+.btn.btn-loading,
+.btn-mobile-play-cta.btn-loading,
+.nav-btn-play-desktop.btn-loading {
+  position: relative !important;
+  pointer-events: none !important;
+  opacity: 0.82 !important;
+  cursor: wait !important;
+  filter: saturate(0.85);
+}
+
+.input-highlight-pulse {
+  animation: inputHighlightShake 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+  border-color: #ff3344 !important;
+  box-shadow: 0 0 16px rgba(255, 51, 68, 0.7) !important;
+}
+
+@keyframes inputHighlightShake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(3px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+  40%, 60% { transform: translate3d(5px, 0, 0); }
+}
+
+.drawer-play-highlight {
+  background: rgba(229, 9, 20, 0.12) !important;
+  border: 1px solid rgba(229, 9, 20, 0.3) !important;
+  color: #ff5252 !important;
+  font-weight: 700 !important;
+}
+
+.drawer-play-highlight i {
+  color: #ff5252 !important;
 }
 
 /* 2-darajali 50/50 yonma-yon tugmalar */
